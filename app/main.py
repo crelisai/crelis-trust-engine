@@ -19,6 +19,7 @@ Then open http://127.0.0.1:8000/docs for the interactive API explorer.
 from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app import config
 from app.models.request_models import TrustRequest
@@ -40,6 +41,17 @@ app = FastAPI(
         "AI Governance Runtime — evaluates AI action requests against risk "
         "models and declarative policies, returns auditable routing decisions."
     ),
+)
+
+# Allow the Crelis web frontends (and local dev servers) to call this API
+# directly from the browser. Origins are configured in app/config.py and can
+# be extended at deploy time via the CORS_EXTRA_ORIGINS env var.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 

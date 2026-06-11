@@ -253,6 +253,34 @@ def test_metrics_counts_decisions():
     assert after["audit_chain_intact"] is True
 
 
+def test_cors_allows_crelis_domains():
+    # Browsers send a preflight OPTIONS request before cross-origin POSTs;
+    # the engine must grant our production frontends.
+    for origin in ["https://demo.crelis.ai", "https://crelis.ai"]:
+        response = client.options(
+            "/trust/evaluate",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+        assert response.status_code == 200, origin
+        assert response.headers.get("access-control-allow-origin") == origin
+
+
+def test_cors_rejects_unknown_origin():
+    response = client.options(
+        "/trust/evaluate",
+        headers={
+            "Origin": "https://evil.example.com",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    # Starlette answers preflights from unknown origins with 400 and no
+    # allow-origin header — the browser will refuse to send the real request.
+    assert response.headers.get("access-control-allow-origin") is None
+
+
 def test_policies_listing_and_reload():
     response = client.get("/policies")
     assert response.status_code == 200

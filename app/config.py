@@ -123,3 +123,26 @@ CONFIDENCE_MIN = 0
 # If a CRITICAL field (task_type or user_message) is missing, the engine is
 # flying half-blind — confidence is hard-capped below this value.
 CONFIDENCE_CRITICAL_MISSING_CAP = 55
+
+
+# ---------------------------------------------------------------------------
+# CORS (which websites may call this API from a browser)
+# ---------------------------------------------------------------------------
+# Production frontends plus local dev servers. Extra origins can be added at
+# deploy time via the CORS_EXTRA_ORIGINS env var (comma-separated), so the
+# Railway dashboard can grant access to a new domain without a code change.
+
+import os
+
+CORS_ALLOWED_ORIGINS = [
+    "https://crelis.ai",
+    "https://www.crelis.ai",
+    "https://demo.crelis.ai",
+    # Local development frontends:
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+_extra = os.getenv("CORS_EXTRA_ORIGINS", "")
+CORS_ALLOWED_ORIGINS += [o.strip() for o in _extra.split(",") if o.strip()]

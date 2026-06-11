@@ -155,6 +155,12 @@ curl -X POST http://127.0.0.1:8000/trust/evaluate ^
    (`pii_detected` in `flags`).
 5. **Ops endpoints** — `/health`, `/metrics`, `/policies`, `/policies/reload`.
 
+## Deploying
+
+The repo is Railway-ready (Procfile, railway.json, pinned requirements, CORS
+for crelis.ai / demo.crelis.ai). See **[RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)**
+for the step-by-step guide.
+
 ## What to build next (v0.2 roadmap)
 
 1. **Persistence** — swap the in-memory audit log for Postgres/Supabase
