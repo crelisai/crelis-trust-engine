@@ -1,0 +1,61 @@
+{
+  "_comment": "Crelis Trust Engine policy pack. Edit this file to change governance behaviour — no code changes needed. Each policy: 'conditions' are ANDed together; if all match, the policy fires. 'risk_floor' forces the final risk score AT LEAST this high. 'risk_ceiling' caps risk when this policy's decision wins. 'route_to' overrides the default route for its decision. Supported condition operators: message_contains_any, task_type_in, proposed_action_in, industry_in, amount_greater_than, amount_less_than, channel_in.",
+  "version": "v0.1",
+  "policies": [
+    {
+      "id": "legal_escalation_policy",
+      "description": "Customer language signals legal or regulatory escalation — a human must take over immediately.",
+      "enabled": true,
+      "decision": "human_agent_required",
+      "risk_floor": 90,
+      "route_to": "senior_support_manager",
+      "conditions": {
+        "message_contains_any": ["sue", "legal action", "lawyer", "regulator"]
+      },
+      "reasoning": "Customer mentioned legal action or regulatory involvement."
+    },
+    {
+      "id": "high_value_refund_policy",
+      "description": "Monetary amounts above the auto-approval threshold need a human sign-off.",
+      "enabled": true,
+      "decision": "human_approval_required",
+      "conditions": {
+        "amount_greater_than": 500
+      },
+      "reasoning": "Amount exceeds the automatic approval threshold."
+    },
+    {
+      "id": "pii_data_export_policy",
+      "description": "Bulk data exports are blocked outright in v0.1 — too much PII exposure risk.",
+      "enabled": true,
+      "decision": "block",
+      "risk_floor": 95,
+      "conditions": {
+        "task_type_in": ["data_export"]
+      },
+      "reasoning": "Data export actions are blocked due to PII exposure risk."
+    },
+    {
+      "id": "financial_transaction_policy",
+      "description": "Wire transfers always require a human expert in the loop.",
+      "enabled": true,
+      "decision": "human_agent_required",
+      "risk_floor": 95,
+      "conditions": {
+        "task_type_in": ["wire_transfer"]
+      },
+      "reasoning": "Wire transfers require human expert handling."
+    },
+    {
+      "id": "low_risk_support_policy",
+      "description": "Routine password resets are safe for full AI automation.",
+      "enabled": true,
+      "decision": "allow",
+      "risk_ceiling": 19,
+      "conditions": {
+        "task_type_in": ["password_reset"]
+      },
+      "reasoning": "Password resets are routine, low-risk support actions."
+    }
+  ]
+}
