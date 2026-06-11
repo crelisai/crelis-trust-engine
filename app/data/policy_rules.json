@@ -1,6 +1,6 @@
 {
-  "_comment": "Crelis Trust Engine policy pack. Edit this file to change governance behaviour — no code changes needed. Each policy: 'conditions' are ANDed together; if all match, the policy fires. 'risk_floor' forces the final risk score AT LEAST this high. 'risk_ceiling' caps risk when this policy's decision wins. 'route_to' overrides the default route for its decision. Supported condition operators: message_contains_any, task_type_in, proposed_action_in, industry_in, amount_greater_than, amount_less_than, channel_in.",
-  "version": "v0.1",
+  "_comment": "Crelis Trust Engine policy pack. Edit this file to change governance behaviour — no code changes needed. Each policy: 'conditions' are ANDed together; if all match, the policy fires. 'risk_floor' forces the final risk score AT LEAST this high. 'risk_ceiling' caps risk when this policy's decision wins. 'route_to' overrides the default route for its decision. Supported condition operators: message_contains_any, task_type_in, proposed_action_in, industry_in, amount_greater_than, amount_less_than, amount_at_least, channel_in. Note: 'amount' is the EFFECTIVE amount — the structured field or, when absent/understated, the largest monetary mention parsed from the user message.",
+  "version": "v0.2",
   "policies": [
     {
       "id": "legal_escalation_policy",
@@ -45,6 +45,39 @@
         "task_type_in": ["wire_transfer"]
       },
       "reasoning": "Wire transfers require human expert handling."
+    },
+    {
+      "id": "abusive_language_policy",
+      "description": "Abusive or hostile customer language — a human should review before any automated action.",
+      "enabled": true,
+      "decision": "human_approval_required",
+      "conditions": {
+        "message_contains_any": ["bullshit", "scam", "fraud", "useless", "terrible service"]
+      },
+      "reasoning": "Customer language is abusive or hostile; human review is required before proceeding."
+    },
+    {
+      "id": "large_financial_exposure_policy",
+      "description": "Any action involving 10,000 or more is a large financial exposure — a human expert must handle it.",
+      "enabled": true,
+      "decision": "human_agent_required",
+      "risk_floor": 90,
+      "conditions": {
+        "amount_at_least": 10000
+      },
+      "reasoning": "Amount represents a large financial exposure requiring human expert handling."
+    },
+    {
+      "id": "extreme_refund_amount_policy",
+      "description": "Refund requests of 50,000 or more are extreme outliers — human expert, near-maximum risk.",
+      "enabled": true,
+      "decision": "human_agent_required",
+      "risk_floor": 95,
+      "conditions": {
+        "task_type_in": ["refund_request"],
+        "amount_at_least": 50000
+      },
+      "reasoning": "Refund amount is an extreme outlier far beyond normal refund volumes."
     },
     {
       "id": "low_risk_support_policy",

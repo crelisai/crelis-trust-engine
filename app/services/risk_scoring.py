@@ -27,6 +27,9 @@ from app.models.response_models import RiskFactor
 # Words/phrases that signal a legal or regulatory escalation.
 LEGAL_KEYWORDS = ["sue", "legal action", "lawyer", "regulator"]
 
+# Words/phrases that signal an abusive or hostile customer interaction.
+ABUSIVE_KEYWORDS = ["bullshit", "scam", "fraud", "useless", "terrible service"]
+
 # Lightweight PII patterns (advanced feature: flags sensitive data in flight).
 # v0.1 keeps this intentionally simple — real products would use a proper
 # PII-detection library or model here.
@@ -52,6 +55,13 @@ def detect_legal_language(message: str | None) -> List[str]:
     if not message:
         return []
     return [kw for kw in LEGAL_KEYWORDS if keyword_in_message(kw, message)]
+
+
+def detect_abusive_language(message: str | None) -> List[str]:
+    """Return the abusive/hostile keywords found in the message (if any)."""
+    if not message:
+        return []
+    return [kw for kw in ABUSIVE_KEYWORDS if keyword_in_message(kw, message)]
 
 
 def detect_pii(message: str | None) -> List[str]:
@@ -113,7 +123,15 @@ def calculate_risk(normalized: Dict[str, Any]) -> Tuple[float, List[RiskFactor],
     )
 
     # --- Signal 4: how much money is involved? ------------------------------
+    # `amount` is the effective amount: the structured field or, when absent
+    # or understated, the largest monetary mention parsed from the message.
     amount = normalized.get("amount")
+    amount_source = normalized.get("amount_source")
+    if amount_source == "message":
+        flags.append("amount_extracted_from_message")
+    elif amount_source == "message_exceeds_field":
+        flags.append("amount_extracted_from_message")
+        flags.append("amount_mismatch")
     if amount is not None and amount > config.AMOUNT_RISK_THRESHOLD:
         over = amount - config.AMOUNT_RISK_THRESHOLD
         amount_risk = min(
@@ -145,7 +163,19 @@ def calculate_risk(normalized: Dict[str, Any]) -> Tuple[float, List[RiskFactor],
         )
         flags.append("legal_language_detected")
 
-    # --- Signal 6 (advanced): does the message carry PII? -------------------
+    # --- Signal 6: is the customer's language abusive or hostile? -----------
+    abusive_hits = detect_abusive_language(normalized.get("user_message"))
+    if abusive_hits:
+        breakdown.append(
+            RiskFactor(
+                factor="abusive_language",
+                points=config.ABUSIVE_LANGUAGE_RISK,
+                detail=f"Message contains abusive/hostile language: {', '.join(abusive_hits)}.",
+            )
+        )
+        flags.append("abusive_language_detected")
+
+    # --- Signal 7 (advanced): does the message carry PII? -------------------
     pii_hits = detect_pii(normalized.get("raw_user_message"))
     if pii_hits:
         breakdown.append(

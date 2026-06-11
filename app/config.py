@@ -96,6 +96,9 @@ AMOUNT_RISK_PER_1000 = 10            # risk added per 1,000 over the threshold
 # Risk added when the customer's language signals legal / regulatory escalation.
 LEGAL_LANGUAGE_RISK = 35
 
+# Risk added when the customer's language is abusive or hostile.
+ABUSIVE_LANGUAGE_RISK = 20
+
 # Risk added when the message appears to contain PII (emails, card numbers...).
 PII_RISK = 15
 

@@ -164,6 +164,110 @@ def test_escalated_password_reset_keeps_real_risk():
 
 
 # ---------------------------------------------------------------------------
+# Amount extraction from message text (regression: engine previously ALLOWED
+# "I need a refund of 100,000 because your service is bullshit")
+# ---------------------------------------------------------------------------
+
+def _huge_refund(message: str):
+    """A refund request whose amount appears ONLY in the message text."""
+    return evaluate(amount=None, user_message=message)
+
+
+def test_refund_100000_plain_number():
+    result = _huge_refund("I need a refund of 100000 right now.")
+    assert result["decision"] == "human_agent_required"
+    assert result["risk_score"] >= 90
+    assert "high_value_refund_policy" in result["triggered_policies"]
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+    assert "extreme_refund_amount_policy" in result["triggered_policies"]
+    assert "amount_extracted_from_message" in result["flags"]
+
+
+def test_refund_100000_with_commas():
+    result = _huge_refund("I need a refund of 100,000 right now.")
+    assert result["decision"] == "human_agent_required"
+    assert result["risk_score"] >= 90
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+
+def test_refund_100000_dollar_sign():
+    result = _huge_refund("I need a refund of $100,000 right now.")
+    assert result["decision"] == "human_agent_required"
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+
+def test_refund_100000_usd_prefix():
+    result = _huge_refund("I need a refund of USD 100,000 right now.")
+    assert result["decision"] == "human_agent_required"
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+
+def test_refund_100000_sgd_prefix():
+    result = _huge_refund("I need a refund of SGD 100,000 right now.")
+    assert result["decision"] == "human_agent_required"
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+
+def test_refund_100000_with_abusive_language():
+    # THE original failing case.
+    result = _huge_refund("I need a refund of 100,000 because your service is bullshit")
+    assert result["decision"] == "human_agent_required"
+    assert result["risk_score"] >= 90
+    for policy in [
+        "high_value_refund_policy",
+        "large_financial_exposure_policy",
+        "abusive_language_policy",
+    ]:
+        assert policy in result["triggered_policies"], policy
+    assert "abusive_language_detected" in result["flags"]
+
+
+def test_understated_amount_field_uses_message_amount():
+    # Fail-safe: agent claims amount=10 but the customer wrote 100,000 —
+    # the engine must judge on the bigger number and flag the mismatch.
+    result = evaluate(amount=10, user_message="Refund my 100,000 deposit.")
+    assert result["decision"] == "human_agent_required"
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+    assert "amount_mismatch" in result["flags"]
+
+
+# ---------------------------------------------------------------------------
+# Abusive language policy
+# ---------------------------------------------------------------------------
+
+def test_abusive_language_alone_requires_approval():
+    result = evaluate(amount=50, user_message="This is a scam and your support is useless.")
+    assert result["decision"] == "human_approval_required"
+    assert "abusive_language_policy" in result["triggered_policies"]
+    # Abusive language adds risk points to the breakdown.
+    factors = [item["factor"] for item in result["risk_breakdown"]]
+    assert "abusive_language" in factors
+
+
+def test_large_exposure_boundary():
+    result = evaluate(amount=10000, user_message="Process my request.")
+    assert result["decision"] == "human_agent_required"
+    assert result["risk_score"] >= 90
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+    result = evaluate(amount=9999, user_message="Process my request.")
+    assert "large_financial_exposure_policy" not in result["triggered_policies"]
+
+
+def test_extreme_refund_boundary():
+    result = evaluate(amount=50000)
+    assert result["decision"] == "human_agent_required"
+    assert result["risk_score"] >= 95
+    assert "extreme_refund_amount_policy" in result["triggered_policies"]
+
+    # Same amount but NOT a refund: extreme_refund must not fire (large
+    # exposure still does).
+    result = evaluate(amount=50000, task_type="account_update", proposed_action="update")
+    assert "extreme_refund_amount_policy" not in result["triggered_policies"]
+    assert "large_financial_exposure_policy" in result["triggered_policies"]
+
+
+# ---------------------------------------------------------------------------
 # Confidence
 # ---------------------------------------------------------------------------
 

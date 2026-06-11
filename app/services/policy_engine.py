@@ -62,6 +62,11 @@ def _amount_less_than(req: Dict[str, Any], threshold: float) -> bool:
     return amount is not None and amount < threshold
 
 
+def _amount_at_least(req: Dict[str, Any], threshold: float) -> bool:
+    amount = req.get("amount")
+    return amount is not None and amount >= threshold
+
+
 CONDITION_EVALUATORS: Dict[str, Callable[[Dict[str, Any], Any], bool]] = {
     "message_contains_any": _msg_contains_any,
     "task_type_in": _task_type_in,
@@ -70,6 +75,7 @@ CONDITION_EVALUATORS: Dict[str, Callable[[Dict[str, Any], Any], bool]] = {
     "channel_in": _channel_in,
     "amount_greater_than": _amount_greater_than,
     "amount_less_than": _amount_less_than,
+    "amount_at_least": _amount_at_least,
 }
 
 
