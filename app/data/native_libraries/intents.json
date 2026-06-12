@@ -10,7 +10,7 @@
     "password_reset": ["forgot password", "reset password", "password reset", "locked out", "cannot login", "can't login", "cannot log in", "unlock account", "unlock my account", "unlock", "login issue"],
     "mfa_reset": ["mfa reset", "reset mfa", "otp reset", "reset otp", "authenticator reset", "2fa reset", "reset 2fa", "two factor reset", "two-factor reset"],
     "wire_transfer": ["wire transfer", "bank transfer", "swift", "beneficiary", "release funds", "transfer money", "transfer funds", "payment approval", "send money", "remittance"],
-    "customer_complaint": ["unhappy", "dissatisfied", "poor service", "terrible service", "complaint", "bad experience", "manager", "speak to a manager", "want to complain"],
+    "customer_complaint": ["unhappy", "dissatisfied", "poor service", "terrible service", "complaint", "bad experience", "manager", "speak to a manager", "want to complain", "frustrated", "terrible", "awful", "horrible", "worst service", "service has been terrible"],
     "fraud_suspicion": ["fraud", "fraudulent", "unauthorized transaction", "unauthorised transaction", "suspicious activity", "identity theft", "didn't make this transaction", "someone used my card", "stolen card"],
     "regulator_complaint": ["mas", "pdpa", "gdpr", "regulator", "authority", "consumer protection", "data protection complaint", "report to the authority", "ombudsman"],
     "vip_escalation": ["vip", "priority customer", "premium customer", "executive escalation", "high value customer"],
