@@ -17,7 +17,7 @@ from __future__ import annotations
 # ---------------------------------------------------------------------------
 
 ENGINE_NAME = "Crelis Trust Engine"
-ENGINE_VERSION = "0.3.1"
+ENGINE_VERSION = "0.4.0"
 
 # The schema version of the decision object we return. Bump this whenever the
 # shape of the response changes so downstream consumers can adapt safely.

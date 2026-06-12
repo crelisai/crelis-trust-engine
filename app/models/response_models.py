@@ -70,6 +70,9 @@ class AuditEvent(BaseModel):
     confidence_score: float
     triggered_policies: List[str] = Field(default_factory=list)
     reasoning: str = ""
+    route_to: str = Field(
+        "", description="Where the routing engine sent this request."
+    )
 
     # Detection summary (added with the NL pipeline; defaulted for old events):
     detected_intents: List[str] = Field(default_factory=list)
@@ -134,6 +137,15 @@ class MetricsResponse(BaseModel):
     decisions: Dict[str, int]
     audit_chain_length: int
     audit_chain_intact: bool
+    average_risk_score: float = Field(
+        0.0, description="Mean risk score across all recorded decisions."
+    )
+    policies_loaded: int = Field(
+        0, description="Number of policies in the native default set."
+    )
+    last_decision_at: Optional[str] = Field(
+        None, description="Timestamp of the most recent audit event, if any."
+    )
 
 
 class AuditListResponse(BaseModel):

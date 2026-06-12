@@ -62,6 +62,7 @@ class AuditService:
         confidence_score: float,
         triggered_policies: List[str],
         reasoning: str,
+        route_to: str = "",
         detected_intents: Optional[List[str]] = None,
         detected_risk_signals: Optional[List[str]] = None,
         detection_confidence: float = 0.0,
@@ -89,6 +90,7 @@ class AuditService:
             "confidence_score": float(confidence_score),
             "triggered_policies": triggered_policies,
             "reasoning": reasoning,
+            "route_to": route_to,
             "detected_intents": detected_intents or [],
             "detected_risk_signals": detected_risk_signals or [],
             "detection_confidence": float(detection_confidence),
@@ -117,6 +119,14 @@ class AuditService:
 
     def total(self) -> int:
         return self._counter
+
+    def average_risk_score(self) -> float:
+        if not self._events:
+            return 0.0
+        return round(sum(e.risk_score for e in self._events) / len(self._events), 1)
+
+    def last_event_at(self) -> Optional[str]:
+        return self._events[-1].timestamp if self._events else None
 
     # -- integrity ----------------------------------------------------------------
 

@@ -864,6 +864,24 @@ def test_metrics_counts_decisions():
     assert after["audit_chain_intact"] is True
 
 
+def test_metrics_dashboard_fields():
+    # The dashboard needs avg risk, policy count, and a last-activity stamp.
+    result = evaluate()
+    body = client.get("/metrics").json()
+    assert body["average_risk_score"] >= 0
+    assert body["policies_loaded"] >= 5
+    assert body["last_decision_at"] == result["timestamp"]
+
+
+def test_audit_event_records_route_to():
+    result = evaluate(user_message="I want a refund and may pursue legal action.")
+    event = client.get(f"/audit/{result['audit_id']}").json()
+    # The legal policy routes to senior_support_manager — the audit event must
+    # carry the same destination, and recording it must not break the chain.
+    assert event["route_to"] == result["route_to"] == "senior_support_manager"
+    assert audit_service.verify_chain() is True
+
+
 def test_cors_allows_crelis_domains():
     # Browsers send a preflight OPTIONS request before cross-origin POSTs;
     # the engine must grant our production frontends.

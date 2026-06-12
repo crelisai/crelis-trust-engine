@@ -119,6 +119,7 @@ def evaluate(request: TrustRequest) -> TrustDecision:
         confidence_score=confidence,
         triggered_policies=[p.id for p in triggered],
         reasoning=reasoning,
+        route_to=route_to,
         detected_intents=normalized["detected_intents"],
         detected_risk_signals=normalized["detected_risk_signals"],
         detection_confidence=detection["detection_confidence"],
@@ -175,11 +176,15 @@ def health() -> HealthResponse:
 @app.get("/metrics", response_model=MetricsResponse, tags=["ops"])
 def metrics() -> MetricsResponse:
     """Aggregate decision counters + audit-chain integrity flag."""
+    engine, _ = policy_resolver.engine_for(None)
     return MetricsResponse(
         total_requests=audit_service.total(),
         decisions=audit_service.decision_counts(),
         audit_chain_length=len(audit_service.all_events()),
         audit_chain_intact=audit_service.verify_chain(),
+        average_risk_score=audit_service.average_risk_score(),
+        policies_loaded=len(engine.policies),
+        last_decision_at=audit_service.last_event_at(),
     )
 
 
