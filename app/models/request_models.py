@@ -28,6 +28,14 @@ class TrustRequest(BaseModel):
         description="Caller-supplied unique id for this request, e.g. 'REQ-1001'.",
         examples=["REQ-1001"],
     )
+    tenant_id: Optional[str] = Field(
+        None,
+        description=(
+            "Tenant/account whose policy library governs this request. "
+            "Omit to use the native Crelis default policies."
+        ),
+        examples=["demo_customer"],
+    )
     source_system: Optional[str] = Field(
         None,
         description="Which system/agent framework originated the action.",

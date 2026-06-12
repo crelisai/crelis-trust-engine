@@ -46,7 +46,10 @@ crelis-trust-engine/
 │   │   ├── routing_engine.py    stage 4 — final decision + route + reasoning
 │   │   └── audit_service.py     stage 5 — tamper-evident audit log
 │   ├── data/
-│   │   └── policy_rules.json    THE GOVERNANCE RULES — edit without coding
+│   │   ├── native_policies/     Crelis-maintained library (versioned)
+│   │   │   └── crelis_default_v1.json
+│   │   └── customer_policies/   one file per tenant (overrides + custom rules)
+│   │       └── demo_customer.json
 │   └── tests/
 │       └── test_trust_engine.py full test suite (every rule covered)
 ├── requirements.txt
@@ -120,8 +123,12 @@ curl -X POST http://127.0.0.1:8000/trust/evaluate ^
 | GET | `/metrics` | Decision counters + audit-chain integrity |
 | GET | `/audit` | Full audit log (in-memory in v0.1) |
 | GET | `/audit/{audit_id}` | One audit event by id |
-| GET | `/policies` | The currently-loaded policy pack |
-| POST | `/policies/reload` | Hot-reload policy_rules.json — no restart |
+| GET | `/policies` | The native default policy set (no-tenant requests) |
+| GET | `/policies/native` | The Crelis-maintained native library |
+| GET | `/policies/customer/{tenant_id}` | One tenant's raw overrides + custom policies |
+| GET | `/policies/resolved/{tenant_id}` | The FINAL merged policy set for a tenant |
+| POST | `/policies/customer/{tenant_id}/validate` | Check a customer library against the governance rules |
+| POST | `/policies/reload` | Hot-reload all policy libraries — no restart |
 
 ## What each service does
 
@@ -130,10 +137,19 @@ curl -X POST http://127.0.0.1:8000/trust/evaluate ^
 * **risk_scoring.py** — builds the 0–100 risk score from task type, industry,
   amount, legal language, and PII detection. Every point is itemised in
   `risk_breakdown` so the score is **explainable**, not a black box.
-* **policy_engine.py** — loads `policy_rules.json` and evaluates each policy's
-  conditions (AND semantics). Policies are **data, not code**: a compliance
-  officer can add or change rules by editing JSON, then hitting
-  `POST /policies/reload`.
+* **policy_loader.py / policy_resolver.py / policy_validator.py** — the
+  two-library policy system. The **native** Crelis library ships with the
+  engine (versioned, customer-untouchable); each tenant's **customer** library
+  layers overrides and custom policies on top. The resolver merges them under
+  governance rules: critical native policies can never be disabled, their
+  severity can only be raised, and thresholds are only overridable where the
+  native policy says `allowed_by_native_policy: true`. Invalid overrides are
+  skipped fail-safe (the native rule keeps running).
+* **policy_engine.py** — evaluates the resolved policy set against a request
+  (AND semantics per policy). Policies are **data, not code**: edit JSON, hit
+  `POST /policies/reload`, and the new rules are live for every tenant.
+  `POST /trust/evaluate` accepts an optional `tenant_id` — requests without
+  one are governed by the native default library.
 * **routing_engine.py** — picks the most severe decision
   (`block` > `human_agent_required` > `human_approval_required` > `allow`),
   applies risk floors/ceilings, resolves the route (policies can override the

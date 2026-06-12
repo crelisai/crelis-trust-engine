@@ -48,6 +48,15 @@ DECISION_PRIORITY = {
     DECISION_BLOCK: 4,
 }
 
+# Policy severity labels, ranked. Used by the policy-library governance rules:
+# a customer may RAISE the severity of a critical native policy, never lower it.
+SEVERITY_ORDER = {
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+}
+
 # Default place to send a request for each decision. A policy can override this
 # with its own `route_to` (e.g. "senior_support_manager") when it needs to.
 DEFAULT_ROUTES = {

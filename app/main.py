@@ -18,7 +18,9 @@ Then open http://127.0.0.1:8000/docs for the interactive API explorer.
 
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+from typing import Any, Dict, Optional
+
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import config
@@ -27,12 +29,18 @@ from app.models.response_models import (
     AuditListResponse,
     HealthResponse,
     MetricsResponse,
+    RiskFactor,
     TrustDecision,
 )
-from app.services import risk_scoring, routing_engine
+from app.services import (
+    policy_loader,
+    policy_resolver,
+    policy_validator,
+    risk_scoring,
+    routing_engine,
+)
 from app.services.audit_service import audit_service
 from app.services.normalizer import normalize_request
-from app.services.policy_engine import policy_engine
 
 app = FastAPI(
     title=config.ENGINE_NAME,
@@ -75,12 +83,26 @@ def evaluate(request: TrustRequest) -> TrustDecision:
     if normalized["missing_critical"]:
         flags = flags + [f"missing_{f}" for f in normalized["missing_critical"]]
 
-    # 3. Policies — which declarative rules fire?
-    triggered, risk_floor, risk_ceiling = policy_engine.evaluate(normalized)
+    # 3. Policies — resolve the tenant's policy set (native + customer
+    #    overrides + custom policies), then evaluate the request against it.
+    engine, resolved = policy_resolver.engine_for(request.tenant_id)
+    if resolved["customer_library_missing"]:
+        # Unknown tenant: we governed with native defaults — say so visibly.
+        flags = flags + ["tenant_library_not_found"]
+    triggered, risk_floor, risk_ceiling, risk_modifier = engine.evaluate(normalized)
+    if risk_modifier:
+        risk_breakdown = risk_breakdown + [
+            RiskFactor(
+                factor="policy_risk_modifiers",
+                points=risk_modifier,
+                detail="Risk adjustment contributed by triggered policies.",
+            )
+        ]
 
     # 4. Route — pick the winning decision, final risk, destination, reasoning.
     decision, route_to, final_risk, reasoning = routing_engine.decide(
-        normalized, triggered, base_risk, risk_floor, risk_ceiling, policy_engine
+        normalized, triggered, base_risk, risk_floor, risk_ceiling, engine,
+        risk_modifier=risk_modifier,
     )
 
     # 5. Audit — record the decision in the tamper-evident log.
@@ -122,11 +144,12 @@ def evaluate(request: TrustRequest) -> TrustDecision:
 @app.get("/health", response_model=HealthResponse, tags=["ops"])
 def health() -> HealthResponse:
     """Liveness check — useful for load balancers and uptime monitors."""
+    engine, _ = policy_resolver.engine_for(None)
     return HealthResponse(
         status="ok",
         engine=config.ENGINE_NAME,
         version=config.ENGINE_VERSION,
-        policies_loaded=len(policy_engine.policies),
+        policies_loaded=len(engine.policies),
     )
 
 
@@ -163,22 +186,95 @@ def get_audit_event(audit_id: str):
 
 @app.get("/policies", tags=["policies"])
 def list_policies():
-    """Show the currently-loaded policy pack (transparency for operators)."""
+    """The native default policy set (what governs requests with no tenant)."""
+    engine, resolved = policy_resolver.engine_for(None)
     return {
-        "pack_version": policy_engine.pack_version,
-        "count": len(policy_engine.policies),
-        "policies": policy_engine.policies,
+        "pack_version": engine.pack_version,
+        "count": len(engine.policies),
+        "policies": resolved["policies"],
     }
 
 
 @app.post("/policies/reload", tags=["policies"])
 def reload_policies():
     """
-    Hot-reload policy_rules.json from disk WITHOUT restarting the server.
-    Edit the JSON, call this, and the new rules are live.
+    Hot-reload every policy library from disk WITHOUT restarting the server.
+    Edit the JSON files, call this, and the new rules are live for all tenants.
     """
+    policy_resolver.clear_cache()
     try:
-        count = policy_engine.load()
+        engine, _ = policy_resolver.engine_for(None)
     except Exception as exc:  # bad JSON should report clearly, not crash the app
         raise HTTPException(status_code=400, detail=f"Policy reload failed: {exc}")
-    return {"status": "reloaded", "policies_loaded": count}
+    return {"status": "reloaded", "policies_loaded": len(engine.policies)}
+
+
+# ---------------------------------------------------------------------------
+# Policy library endpoints (native vs customer vs resolved)
+# ---------------------------------------------------------------------------
+
+@app.get("/policies/native", tags=["policies"])
+def get_native_policies():
+    """The Crelis-maintained native policy library (latest shipped version)."""
+    library = policy_loader.load_native_library()
+    return {
+        "library": library.get("library", "crelis_native"),
+        "version": library.get("version"),
+        "available_versions": policy_loader.list_native_versions(),
+        "count": len(library.get("policies", [])),
+        "policies": library.get("policies", []),
+    }
+
+
+@app.get("/policies/customer/{tenant_id}", tags=["policies"])
+def get_customer_policies(tenant_id: str):
+    """One tenant's raw customer policy library (overrides + custom policies)."""
+    customer = policy_loader.load_customer_library(tenant_id)
+    if customer is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No customer policy library found for tenant '{tenant_id}'.",
+        )
+    return customer
+
+
+@app.get("/policies/resolved/{tenant_id}", tags=["policies"])
+def get_resolved_policies(tenant_id: str):
+    """
+    The FINAL policy set for a tenant after resolution:
+    native library + customer overrides + customer custom policies.
+    """
+    resolved = policy_resolver.resolve(tenant_id)
+    if resolved["customer_library_missing"] or resolved["tenant_id"] is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No customer policy library found for tenant '{tenant_id}'.",
+        )
+    return resolved
+
+
+@app.post("/policies/customer/{tenant_id}/validate", tags=["policies"])
+def validate_customer_policies(
+    tenant_id: str,
+    library: Optional[Dict[str, Any]] = Body(
+        None,
+        description=(
+            "Optional candidate library to validate BEFORE saving. "
+            "Omit the body to validate the tenant's stored library."
+        ),
+    ),
+):
+    """
+    Validate a customer policy library against the governance rules
+    (critical natives can't be disabled, severity can only be raised, ...).
+    """
+    if library is None:
+        library = policy_loader.load_customer_library(tenant_id)
+        if library is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No customer policy library found for tenant '{tenant_id}'.",
+            )
+    native = policy_loader.load_native_library()
+    report = policy_validator.validate_customer_library(library, native)
+    return {"tenant_id": tenant_id, **report}

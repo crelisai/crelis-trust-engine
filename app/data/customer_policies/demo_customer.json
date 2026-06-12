@@ -1,0 +1,31 @@
+{
+  "_comment": "CUSTOMER policy library for one tenant. 'overrides' adjust native policies by id (subject to governance rules: critical natives cannot be disabled or have severity lowered; condition/threshold overrides only where the native policy sets allowed_by_native_policy=true; route_to overrides are always allowed). 'custom_policies' are brand-new tenant rules — every field shown on the example below is required.",
+  "tenant_id": "demo_customer",
+  "name": "Demo Customer Pte Ltd",
+  "library_version": "v1",
+  "overrides": {
+    "high_value_refund_policy": {
+      "conditions": {
+        "amount_greater_than": 1000
+      },
+      "route_to": "demo_finance_approvals"
+    },
+    "legal_escalation_policy": {
+      "route_to": "demo_legal_team"
+    }
+  },
+  "custom_policies": [
+    {
+      "policy_id": "demo_vip_review_policy",
+      "name": "VIP accounts require human approval before automated actions",
+      "condition": {
+        "customer_tier_in": ["vip"]
+      },
+      "decision": "human_approval_required",
+      "risk_modifier": 10,
+      "severity": "medium",
+      "route_to": "vip_account_desk",
+      "enabled": true
+    }
+  ]
+}

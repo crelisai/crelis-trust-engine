@@ -1,11 +1,17 @@
 {
-  "_comment": "Crelis Trust Engine policy pack. Edit this file to change governance behaviour — no code changes needed. Each policy: 'conditions' are ANDed together; if all match, the policy fires. 'risk_floor' forces the final risk score AT LEAST this high. 'risk_ceiling' caps risk when this policy's decision wins. 'route_to' overrides the default route for its decision. Supported condition operators: message_contains_any, task_type_in, proposed_action_in, industry_in, amount_greater_than, amount_less_than, amount_at_least, channel_in. Note: 'amount' is the EFFECTIVE amount — the structured field or, when absent/understated, the largest monetary mention parsed from the user message.",
-  "version": "v0.2",
+  "_comment": "Crelis NATIVE policy library — maintained by the Crelis core team and shipped with the engine. Customers can layer overrides on top (see customer_policies/) but cannot edit this file. New versions ship as crelis_default_v2.json etc.; the loader picks the highest version. Per-policy governance metadata: 'critical': true means the policy can never be disabled by a customer and its decision/severity can only be RAISED, never lowered. 'allowed_by_native_policy': true means customers may override this policy's conditions/thresholds. 'severity' is one of low|medium|high|critical.",
+  "library": "crelis_native",
+  "version": "v1",
+  "maintainer": "Crelis Core Team",
   "policies": [
     {
       "id": "legal_escalation_policy",
+      "name": "Legal escalation",
       "description": "Customer language signals legal or regulatory escalation — a human must take over immediately.",
       "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
       "decision": "human_agent_required",
       "risk_floor": 90,
       "route_to": "senior_support_manager",
@@ -16,8 +22,12 @@
     },
     {
       "id": "high_value_refund_policy",
+      "name": "High-value refund",
       "description": "Monetary amounts above the auto-approval threshold need a human sign-off.",
       "enabled": true,
+      "critical": false,
+      "severity": "medium",
+      "allowed_by_native_policy": true,
       "decision": "human_approval_required",
       "conditions": {
         "amount_greater_than": 500
@@ -26,8 +36,12 @@
     },
     {
       "id": "pii_data_export_policy",
-      "description": "Bulk data exports are blocked outright in v0.1 — too much PII exposure risk.",
+      "name": "PII data export block",
+      "description": "Bulk data exports are blocked outright — too much PII exposure risk.",
       "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
       "decision": "block",
       "risk_floor": 95,
       "conditions": {
@@ -37,8 +51,12 @@
     },
     {
       "id": "financial_transaction_policy",
+      "name": "Financial transaction",
       "description": "Wire transfers always require a human expert in the loop.",
       "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
       "decision": "human_agent_required",
       "risk_floor": 95,
       "conditions": {
@@ -48,8 +66,12 @@
     },
     {
       "id": "abusive_language_policy",
+      "name": "Abusive language",
       "description": "Abusive or hostile customer language — a human should review before any automated action.",
       "enabled": true,
+      "critical": false,
+      "severity": "medium",
+      "allowed_by_native_policy": true,
       "decision": "human_approval_required",
       "conditions": {
         "message_contains_any": ["bullshit", "scam", "fraud", "useless", "terrible service"]
@@ -58,8 +80,12 @@
     },
     {
       "id": "large_financial_exposure_policy",
+      "name": "Large financial exposure",
       "description": "Any action involving 10,000 or more is a large financial exposure — a human expert must handle it.",
       "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
       "decision": "human_agent_required",
       "risk_floor": 90,
       "conditions": {
@@ -69,8 +95,12 @@
     },
     {
       "id": "extreme_refund_amount_policy",
+      "name": "Extreme refund amount",
       "description": "Refund requests of 50,000 or more are extreme outliers — human expert, near-maximum risk.",
       "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
       "decision": "human_agent_required",
       "risk_floor": 95,
       "conditions": {
@@ -81,8 +111,12 @@
     },
     {
       "id": "low_risk_support_policy",
+      "name": "Low-risk support",
       "description": "Routine password resets are safe for full AI automation.",
       "enabled": true,
+      "critical": false,
+      "severity": "low",
+      "allowed_by_native_policy": true,
       "decision": "allow",
       "risk_ceiling": 19,
       "conditions": {

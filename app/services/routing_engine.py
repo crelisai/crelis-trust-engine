@@ -32,9 +32,14 @@ def decide(
     risk_floor: float | None,
     risk_ceiling: float | None,
     engine: PolicyEngine,
+    risk_modifier: float = 0.0,
 ) -> Tuple[str, str, float, str]:
     """
     Produce (decision, route_to, final_risk, reasoning).
+
+    `risk_modifier` is the summed risk adjustment from triggered policies
+    (customer custom policies can nudge risk up); it is added to the base
+    risk BEFORE floors and ceilings apply.
     """
     # ------------------------------------------------------------------ 1.
     # Pick the most severe decision. If nothing fired, default to `allow` —
@@ -47,15 +52,15 @@ def decide(
         decision = config.DECISION_ALLOW
 
     # ------------------------------------------------------------------ 2.
-    # Apply risk floor/ceiling.
-    final_risk = base_risk
+    # Apply policy risk modifiers, then floor/ceiling.
+    final_risk = base_risk + risk_modifier
     if risk_floor is not None:
         final_risk = max(final_risk, risk_floor)
     # A ceiling (e.g. "password resets are <20 risk") only applies when the
     # request actually ends up allowed — escalations keep their real risk.
     if risk_ceiling is not None and decision == config.DECISION_ALLOW:
         final_risk = min(final_risk, risk_ceiling)
-    final_risk = round(final_risk, 1)
+    final_risk = round(max(config.RISK_MIN, min(config.RISK_MAX, final_risk)), 1)
 
     # ------------------------------------------------------------------ 3.
     # Route: winning policy's override beats the default for that decision.

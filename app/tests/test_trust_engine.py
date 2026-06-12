@@ -338,6 +338,193 @@ def test_audit_chain_intact_and_tamper_detectable():
 
 
 # ---------------------------------------------------------------------------
+# Policy library architecture (native + customer libraries, per-tenant)
+# ---------------------------------------------------------------------------
+
+from app.services import policy_loader, policy_resolver, policy_validator
+
+
+def test_native_policies_load_correctly():
+    library = policy_loader.load_native_library()
+    assert library["version"] == "v1"
+    assert "v1" in policy_loader.list_native_versions()
+    policies = library["policies"]
+    assert len(policies) >= 8
+    # Every native policy carries the governance metadata the resolver needs.
+    for policy in policies:
+        assert "critical" in policy, policy["id"]
+        assert policy["severity"] in {"low", "medium", "high", "critical"}, policy["id"]
+        assert "allowed_by_native_policy" in policy, policy["id"]
+
+
+def test_customer_policies_load_correctly():
+    customer = policy_loader.load_customer_library("demo_customer")
+    assert customer is not None
+    assert customer["tenant_id"] == "demo_customer"
+    assert "high_value_refund_policy" in customer["overrides"]
+    assert any(
+        p["policy_id"] == "demo_vip_review_policy" for p in customer["custom_policies"]
+    )
+    # Unknown and unsafe tenant ids return None (no file, no path traversal).
+    assert policy_loader.load_customer_library("no_such_tenant") is None
+    assert policy_loader.load_customer_library("../../etc/passwd") is None
+
+
+def test_customer_override_changes_refund_threshold():
+    resolved = policy_resolver.resolve("demo_customer")
+    refund = next(
+        p for p in resolved["policies"] if p["id"] == "high_value_refund_policy"
+    )
+    # Native threshold is 500; demo_customer raises it to 1000.
+    assert refund["conditions"]["amount_greater_than"] == 1000
+    assert refund["route_to"] == "demo_finance_approvals"
+    assert resolved["warnings"] == []
+
+
+def test_customer_cannot_disable_critical_native_policy():
+    native = policy_loader.load_native_library()
+    hostile = {
+        "tenant_id": "hostile",
+        "overrides": {"financial_transaction_policy": {"enabled": False}},
+    }
+    # The validator rejects it...
+    report = policy_validator.validate_customer_library(hostile, native)
+    assert report["valid"] is False
+    assert any("cannot be disabled" in e for e in report["errors"])
+    # ...and the resolver fail-safes: the policy stays enabled in the merge.
+    policies, warnings = policy_resolver.apply_customer_library(native, hostile)
+    wire = next(p for p in policies if p["id"] == "financial_transaction_policy")
+    assert wire["enabled"] is True
+    assert any("cannot be disabled" in w for w in warnings)
+
+
+def test_customer_cannot_lower_severity_of_critical_native_policy():
+    native = policy_loader.load_native_library()
+    hostile = {
+        "tenant_id": "hostile",
+        "overrides": {
+            "financial_transaction_policy": {"decision": "human_approval_required"},
+            "legal_escalation_policy": {"severity": "low"},
+        },
+    }
+    report = policy_validator.validate_customer_library(hostile, native)
+    assert report["valid"] is False
+    assert any("cannot lower the decision" in e for e in report["errors"])
+    assert any("cannot lower the severity" in e for e in report["errors"])
+    # Raising severity on a critical native IS allowed (agent → block).
+    raiser = {
+        "tenant_id": "raiser",
+        "overrides": {"financial_transaction_policy": {"decision": "block"}},
+    }
+    assert policy_validator.validate_customer_library(raiser, native)["valid"] is True
+
+
+def test_customer_cannot_override_threshold_unless_native_allows():
+    native = policy_loader.load_native_library()
+    # large_financial_exposure_policy has allowed_by_native_policy=false.
+    sneaky = {
+        "tenant_id": "sneaky",
+        "overrides": {
+            "large_financial_exposure_policy": {"conditions": {"amount_at_least": 999999}}
+        },
+    }
+    report = policy_validator.validate_customer_library(sneaky, native)
+    assert report["valid"] is False
+    assert any("does not allow condition" in e for e in report["errors"])
+
+
+def test_customer_custom_policy_triggers():
+    result = evaluate(tenant_id="demo_customer", customer_tier="vip", amount=50)
+    assert "demo_vip_review_policy" in result["triggered_policies"]
+    assert result["decision"] == "human_approval_required"
+    assert result["route_to"] == "vip_account_desk"
+    # The custom policy's risk_modifier (+10) shows up in the breakdown.
+    factors = [item["factor"] for item in result["risk_breakdown"]]
+    assert "policy_risk_modifiers" in factors
+
+
+def test_evaluate_uses_tenant_policies_when_tenant_id_provided():
+    # amount=750 exceeds the NATIVE 500 threshold but not demo_customer's 1000.
+    native_result = evaluate(amount=750)
+    assert native_result["decision"] == "human_approval_required"
+    tenant_result = evaluate(tenant_id="demo_customer", amount=750)
+    assert "high_value_refund_policy" not in tenant_result["triggered_policies"]
+    assert tenant_result["decision"] == "allow"
+    # Above the tenant threshold the override routes to THEIR approvals team.
+    tenant_big = evaluate(tenant_id="demo_customer", amount=1500)
+    assert "high_value_refund_policy" in tenant_big["triggered_policies"]
+    assert tenant_big["route_to"] == "demo_finance_approvals"
+
+
+def test_missing_tenant_id_falls_back_to_native():
+    result = evaluate(amount=750)  # no tenant_id in payload
+    assert "high_value_refund_policy" in result["triggered_policies"]
+    assert result["decision"] == "human_approval_required"
+    assert result["route_to"] == "approval_queue"
+
+
+def test_unknown_tenant_falls_back_to_native_with_flag():
+    result = evaluate(tenant_id="ghost_tenant", amount=750)
+    assert result["decision"] == "human_approval_required"  # native behaviour
+    assert "tenant_library_not_found" in result["flags"]
+
+
+def test_tenant_critical_policies_still_enforced():
+    # demo_customer's overrides must NOT weaken critical native protections.
+    result = evaluate(
+        tenant_id="demo_customer",
+        task_type="data_export",
+        proposed_action="export_data",
+    )
+    assert result["decision"] == "block"
+    assert "pii_data_export_policy" in result["triggered_policies"]
+
+
+def test_policy_library_endpoints():
+    response = client.get("/policies/native")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["version"] == "v1"
+    assert body["count"] >= 8
+
+    response = client.get("/policies/customer/demo_customer")
+    assert response.status_code == 200
+    assert response.json()["tenant_id"] == "demo_customer"
+
+    response = client.get("/policies/customer/ghost_tenant")
+    assert response.status_code == 404
+
+    response = client.get("/policies/resolved/demo_customer")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["tenant_id"] == "demo_customer"
+    assert any(p.get("library") == "customer" for p in body["policies"])
+
+    response = client.get("/policies/resolved/ghost_tenant")
+    assert response.status_code == 404
+
+
+def test_validate_endpoint_accepts_candidate_library():
+    # Stored library validates clean.
+    response = client.post("/policies/customer/demo_customer/validate")
+    assert response.status_code == 200
+    assert response.json()["valid"] is True
+
+    # A hostile candidate posted in the body is rejected with reasons.
+    hostile = {
+        "tenant_id": "demo_customer",
+        "overrides": {"pii_data_export_policy": {"enabled": False}},
+        "custom_policies": [{"policy_id": "incomplete_policy"}],
+    }
+    response = client.post("/policies/customer/demo_customer/validate", json=hostile)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["valid"] is False
+    assert any("cannot be disabled" in e for e in body["errors"])
+    assert any("missing required field" in e for e in body["errors"])
+
+
+# ---------------------------------------------------------------------------
 # Operational endpoints
 # ---------------------------------------------------------------------------
 
