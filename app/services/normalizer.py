@@ -10,10 +10,23 @@ It also records WHAT was missing — that feeds the confidence score.
 
 from __future__ import annotations
 
-import re
 from typing import Any, Dict, List, Optional
 
 from app.models.request_models import TrustRequest
+from app.services import detection_engine
+
+# Task-type values that double as intent categories. When a structured request
+# carries one of these, we treat it as a detected intent too, so detection-based
+# policies fire for structured AND natural-language requests alike.
+_INTENT_TASK_TYPES = {
+    "refund_request", "billing_dispute", "legal_escalation", "data_export",
+    "password_reset", "mfa_reset", "wire_transfer", "customer_complaint",
+    "fraud_suspicion", "regulator_complaint", "vip_escalation",
+    "security_access_request", "production_database_access",
+}
+
+# Amount at/above which the request carries large-financial-amount risk.
+_LARGE_AMOUNT_THRESHOLD = 10000
 
 
 def _clean(value: Any) -> Any:
@@ -23,39 +36,9 @@ def _clean(value: Any) -> Any:
     return value
 
 
-# ---------------------------------------------------------------------------
-# Amount extraction from free text
-# ---------------------------------------------------------------------------
-# Callers don't always fill in the structured `amount` field — the money is
-# often only mentioned in the user's message ("I need a refund of 100,000").
-# A governance engine that ignores that is blind to its biggest risk signal,
-# so we parse monetary mentions out of the text. Handles:
-#   100000   100,000   $100,000   USD 100,000   SGD 100,000   1,234.56
-
-AMOUNT_PATTERN = re.compile(
-    r"""
-    (?:(?:USD|SGD|EUR|GBP|AUD|MYR|INR|US\$|S\$|\$|€|£)\s*)?   # optional currency
-    \b(
-        \d{1,3}(?:,\d{3})+(?:\.\d+)?    # comma-grouped: 100,000 / 1,234.56
-        |
-        \d+(?:\.\d+)?                   # plain: 100000 / 99.5
-    )\b
-    """,
-    re.VERBOSE | re.IGNORECASE,
-)
-
-
 def extract_amounts(message: Optional[str]) -> List[float]:
-    """Return every monetary-looking number found in the message."""
-    if not message:
-        return []
-    amounts = []
-    for match in AMOUNT_PATTERN.finditer(message):
-        try:
-            amounts.append(float(match.group(1).replace(",", "")))
-        except ValueError:  # defensive — pattern should always parse
-            continue
-    return amounts
+    """Monetary values in the message (delegates to the detection engine)."""
+    return detection_engine.extract_amounts(message)
 
 
 def normalize_request(request: TrustRequest) -> Dict[str, Any]:
@@ -86,11 +69,14 @@ def normalize_request(request: TrustRequest) -> Dict[str, Any]:
     ]
     critical_fields = {"task_type", "user_message"}
 
+    # Run the natural-language detection pipeline over the raw message.
+    detection = detection_engine.detect(request.user_message)
+
     # Effective amount: the structured field, the largest amount mentioned in
     # the message, or — if both exist — the LARGER of the two. Fail-safe: an
     # agent claiming amount=10 while the customer writes "refund 100,000" must
     # be judged on the bigger number, not the smaller one.
-    extracted = extract_amounts(request.user_message)
+    extracted = detection["detected_amounts"]
     extracted_max = max(extracted) if extracted else None
     field_amount = request.amount
     amount_source: Optional[str] = None
@@ -117,12 +103,30 @@ def normalize_request(request: TrustRequest) -> Dict[str, Any]:
             if field in critical_fields:
                 missing_critical.append(field)
 
+    # Merge detected intents with the structured task_type (if it names an
+    # intent) so policies can match either source through one operator.
+    task_type = _clean(request.task_type)
+    detected_intents = list(detection["detected_intents"])
+    if task_type in _INTENT_TASK_TYPES and task_type not in detected_intents:
+        detected_intents.append(task_type)
+
+    # The authoritative risk-signal set: signals detected in the message, plus
+    # large_financial_amount derived from the EFFECTIVE amount (which may come
+    # from the structured field, not the text).
+    detected_risk_signals = list(detection["detected_risk_signals"])
+    if (
+        effective_amount is not None
+        and effective_amount >= _LARGE_AMOUNT_THRESHOLD
+        and "large_financial_amount" not in detected_risk_signals
+    ):
+        detected_risk_signals.append("large_financial_amount")
+
     normalized: Dict[str, Any] = {
         "request_id": request.request_id.strip(),
         "source_system": _clean(request.source_system),
         "industry": _clean(request.industry),
         "channel": _clean(request.channel),
-        "task_type": _clean(request.task_type),
+        "task_type": task_type,
         "user_message": _clean(request.user_message),
         "raw_user_message": request.user_message,
         "proposed_action": _clean(request.proposed_action),
@@ -132,5 +136,10 @@ def normalize_request(request: TrustRequest) -> Dict[str, Any]:
         "metadata": dict(request.metadata or {}),
         "missing_fields": missing_fields,
         "missing_critical": missing_critical,
+        # Detection results consumed by scoring, policies, and audit:
+        "detection": detection,
+        "detected_intents": detected_intents,
+        "detected_risk_signals": detected_risk_signals,
+        "detected_entities": list(detection["detected_entities"].keys()),
     }
     return normalized

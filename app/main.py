@@ -32,7 +32,9 @@ from app.models.response_models import (
     RiskFactor,
     TrustDecision,
 )
+from app.models.response_models import DetectionResult
 from app.services import (
+    detection_engine,
     policy_loader,
     policy_resolver,
     policy_validator,
@@ -106,6 +108,7 @@ def evaluate(request: TrustRequest) -> TrustDecision:
     )
 
     # 5. Audit — record the decision in the tamper-evident log.
+    detection = normalized["detection"]
     audit_event = audit_service.record(
         request_id=normalized["request_id"],
         source_system=normalized["source_system"],
@@ -116,6 +119,9 @@ def evaluate(request: TrustRequest) -> TrustDecision:
         confidence_score=confidence,
         triggered_policies=[p.id for p in triggered],
         reasoning=reasoning,
+        detected_intents=normalized["detected_intents"],
+        detected_risk_signals=normalized["detected_risk_signals"],
+        detection_confidence=detection["detection_confidence"],
     )
 
     # 6. Respond.
@@ -133,6 +139,19 @@ def evaluate(request: TrustRequest) -> TrustDecision:
         risk_breakdown=risk_breakdown,
         policy_details=triggered,
         flags=flags,
+        detection=DetectionResult(
+            detected_intents=normalized["detected_intents"],
+            detected_entities={
+                k: [str(v) for v in vals]
+                for k, vals in detection["detected_entities"].items()
+            },
+            detected_risk_signals=normalized["detected_risk_signals"],
+            detected_sentiment=detection["detected_sentiment"],
+            detected_urgency=detection["detected_urgency"],
+            detected_industry_context=detection["detected_industry_context"],
+            detected_amounts=detection["detected_amounts"],
+            detection_confidence=detection["detection_confidence"],
+        ),
         engine_version=config.ENGINE_VERSION,
     )
 
@@ -201,6 +220,7 @@ def reload_policies():
     Hot-reload every policy library from disk WITHOUT restarting the server.
     Edit the JSON files, call this, and the new rules are live for all tenants.
     """
+    detection_engine.reload()
     policy_resolver.clear_cache()
     try:
         engine, _ = policy_resolver.engine_for(None)

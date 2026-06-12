@@ -22,12 +22,42 @@ actually need.
 ```
 Inbound Request
    → Normalize Request      clean + standardize the input
+   → Detection Engine       read the free-text message (no LLM):
+                              intents, entities, risk signals, sentiment,
+                              urgency, industry, amounts, confidence
    → AI/Risk Scoring        "how dangerous is this?" (0–100, fully itemised)
-   → Policy Evaluation      which JSON-defined rules fire?
+   → Policy Evaluation      which JSON-defined rules fire? (can match detections)
    → Routing Decision       most severe decision wins; pick the destination
    → Audit Event            hash-chained, tamper-evident record
    → Response               the full governance decision, with reasoning
 ```
+
+### Natural-language detection (no LLM)
+
+When a user types free text ("I need a refund of 100,000 because your service
+is bullshit"), the **detection engine** turns it into structured signals before
+any policy runs. All vocabulary lives in `app/data/native_libraries/*.json`:
+
+| File | Drives |
+|---|---|
+| `intents.json` | `detected_intents` (refund_request, wire_transfer, data_export, …) |
+| `entities.json` | `detected_entities` (amount, currency, email, passport, beneficiary, …) |
+| `risk_signals.json` | `detected_risk_signals` (legal_threat, abusive_language, pii_exposure, …) |
+| `industry_terms.json` | `detected_industry_context` |
+| `sentiment_terms.json` | `detected_sentiment` |
+| `urgency_terms.json` | `detected_urgency` |
+
+Matching is case-insensitive and **whole-word**, so `sue` never fires inside
+`pursue` and `sum` never fires inside `assume`. Amount parsing understands
+`100000`, `100,000`, `$100,000`, `USD 100,000`, `SGD 100,000`, `S$100,000`,
+`100k`, and `1.5m`. The detection summary is returned on the response under
+`detection` (additive — existing consumers are unaffected) and recorded in the
+audit trail.
+
+**To add a keyword, edit JSON — never Python.** Add a phrase to a list in the
+relevant file and call `POST /policies/reload` (or restart). Policies can then
+match it via `detected_intent_in`, `detected_risk_signal_in`, or
+`detected_entity_in`.
 
 ## Folder structure
 
@@ -46,7 +76,8 @@ crelis-trust-engine/
 │   │   ├── routing_engine.py    stage 4 — final decision + route + reasoning
 │   │   └── audit_service.py     stage 5 — tamper-evident audit log
 │   ├── data/
-│   │   ├── native_policies/     Crelis-maintained library (versioned)
+│   │   ├── native_libraries/    detection vocabulary (intents, entities, ...)
+│   │   ├── native_policies/     Crelis-maintained policy library (versioned)
 │   │   │   └── crelis_default_v1.json
 │   │   └── customer_policies/   one file per tenant (overrides + custom rules)
 │   │       └── demo_customer.json

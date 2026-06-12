@@ -1,13 +1,13 @@
 {
-  "_comment": "Crelis NATIVE policy library — maintained by the Crelis core team and shipped with the engine. Customers can layer overrides on top (see customer_policies/) but cannot edit this file. New versions ship as crelis_default_v2.json etc.; the loader picks the highest version. Per-policy governance metadata: 'critical': true means the policy can never be disabled by a customer and its decision/severity can only be RAISED, never lowered. 'allowed_by_native_policy': true means customers may override this policy's conditions/thresholds. 'severity' is one of low|medium|high|critical.",
+  "_comment": "Crelis NATIVE policy library — maintained by the Crelis core team and shipped with the engine. Policies now match on DETECTIONS (detected_intent_in, detected_risk_signal_in, detected_entity_in) produced by the detection engine, as well as structured fields (amount_*). Governance metadata: 'critical': true means the policy can never be disabled by a customer and its decision/severity can only be RAISED. 'allowed_by_native_policy': true means customers may override conditions/thresholds. 'severity' is low|medium|high|critical.",
   "library": "crelis_native",
   "version": "v1",
   "maintainer": "Crelis Core Team",
   "policies": [
     {
       "id": "legal_escalation_policy",
-      "name": "Legal escalation",
-      "description": "Customer language signals legal or regulatory escalation — a human must take over immediately.",
+      "name": "Legal / regulator escalation",
+      "description": "Legal threat or regulator mention — a human must take over immediately.",
       "enabled": true,
       "critical": true,
       "severity": "critical",
@@ -16,13 +16,13 @@
       "risk_floor": 90,
       "route_to": "senior_support_manager",
       "conditions": {
-        "message_contains_any": ["sue", "legal action", "lawyer", "regulator"]
+        "detected_risk_signal_in": ["legal_threat", "regulator_mention"]
       },
-      "reasoning": "Customer mentioned legal action or regulatory involvement."
+      "reasoning": "Customer raised a legal threat or referenced a regulator."
     },
     {
       "id": "high_value_refund_policy",
-      "name": "High-value refund",
+      "name": "High-value amount",
       "description": "Monetary amounts above the auto-approval threshold need a human sign-off.",
       "enabled": true,
       "critical": false,
@@ -36,7 +36,7 @@
     },
     {
       "id": "pii_data_export_policy",
-      "name": "PII data export block",
+      "name": "Data export block",
       "description": "Bulk data exports are blocked outright — too much PII exposure risk.",
       "enabled": true,
       "critical": true,
@@ -45,14 +45,29 @@
       "decision": "block",
       "risk_floor": 95,
       "conditions": {
-        "task_type_in": ["data_export"]
+        "detected_intent_in": ["data_export"]
       },
-      "reasoning": "Data export actions are blocked due to PII exposure risk."
+      "reasoning": "Data export action blocked due to PII exposure risk."
+    },
+    {
+      "id": "production_database_access_policy",
+      "name": "Production database access block",
+      "description": "Direct access to or export of production data is blocked.",
+      "enabled": true,
+      "critical": true,
+      "severity": "critical",
+      "allowed_by_native_policy": false,
+      "decision": "block",
+      "risk_floor": 95,
+      "conditions": {
+        "detected_intent_in": ["production_database_access"]
+      },
+      "reasoning": "Production database access is blocked."
     },
     {
       "id": "financial_transaction_policy",
-      "name": "Financial transaction",
-      "description": "Wire transfers always require a human expert in the loop.",
+      "name": "Wire / fund transfer",
+      "description": "Wire transfers and fund releases always require a human expert.",
       "enabled": true,
       "critical": true,
       "severity": "critical",
@@ -60,28 +75,59 @@
       "decision": "human_agent_required",
       "risk_floor": 95,
       "conditions": {
-        "task_type_in": ["wire_transfer"]
+        "detected_intent_in": ["wire_transfer"]
       },
       "reasoning": "Wire transfers require human expert handling."
     },
     {
       "id": "abusive_language_policy",
       "name": "Abusive language",
-      "description": "Abusive or hostile customer language — a human should review before any automated action.",
+      "description": "Abusive or hostile language — a human should review before automated action.",
       "enabled": true,
       "critical": false,
       "severity": "medium",
       "allowed_by_native_policy": true,
       "decision": "human_approval_required",
       "conditions": {
-        "message_contains_any": ["bullshit", "scam", "fraud", "useless", "terrible service"]
+        "detected_risk_signal_in": ["abusive_language"]
       },
-      "reasoning": "Customer language is abusive or hostile; human review is required before proceeding."
+      "reasoning": "Customer language is abusive or hostile; human review required."
+    },
+    {
+      "id": "abusive_financial_policy",
+      "name": "Abusive language with money involved",
+      "description": "Abusive language combined with a monetary amount escalates to a human expert.",
+      "enabled": true,
+      "critical": true,
+      "severity": "high",
+      "allowed_by_native_policy": false,
+      "decision": "human_agent_required",
+      "route_to": "fraud_review",
+      "conditions": {
+        "detected_risk_signal_in": ["abusive_language"],
+        "detected_entity_in": ["amount"]
+      },
+      "reasoning": "Abusive language alongside a financial amount needs expert handling."
+    },
+    {
+      "id": "reputational_risk_policy",
+      "name": "Reputational risk",
+      "description": "Abusive language within a complaint is a reputational risk requiring a human.",
+      "enabled": true,
+      "critical": true,
+      "severity": "high",
+      "allowed_by_native_policy": false,
+      "decision": "human_agent_required",
+      "route_to": "reputation_management",
+      "conditions": {
+        "detected_risk_signal_in": ["reputational_risk"]
+      },
+      "reasoning": "Abusive language within a customer complaint poses reputational risk."
     },
     {
       "id": "large_financial_exposure_policy",
       "name": "Large financial exposure",
-      "description": "Any action involving 10,000 or more is a large financial exposure — a human expert must handle it.",
+      "description": "Any action involving 10,000 or more is a large financial exposure.",
       "enabled": true,
       "critical": true,
       "severity": "critical",
@@ -96,7 +142,7 @@
     {
       "id": "extreme_refund_amount_policy",
       "name": "Extreme refund amount",
-      "description": "Refund requests of 50,000 or more are extreme outliers — human expert, near-maximum risk.",
+      "description": "Refund requests of 50,000 or more are extreme outliers.",
       "enabled": true,
       "critical": true,
       "severity": "critical",
@@ -104,10 +150,88 @@
       "decision": "human_agent_required",
       "risk_floor": 95,
       "conditions": {
-        "task_type_in": ["refund_request"],
+        "detected_intent_in": ["refund_request"],
         "amount_at_least": 50000
       },
       "reasoning": "Refund amount is an extreme outlier far beyond normal refund volumes."
+    },
+    {
+      "id": "pii_exfiltration_policy",
+      "name": "PII exfiltration",
+      "description": "Sending customer PII (passport, NRIC, card, records) to an external party requires security review.",
+      "enabled": true,
+      "critical": true,
+      "severity": "high",
+      "allowed_by_native_policy": false,
+      "decision": "human_agent_required",
+      "risk_floor": 90,
+      "route_to": "security_review",
+      "conditions": {
+        "detected_entity_in": ["passport", "nric", "credit_card", "customer_record"],
+        "detected_risk_signal_in": ["external_transfer"]
+      },
+      "reasoning": "Customer PII is being shared with an external party."
+    },
+    {
+      "id": "mfa_admin_reset_policy",
+      "name": "MFA / admin reset",
+      "description": "MFA/OTP resets and admin-account changes need human approval.",
+      "enabled": true,
+      "critical": false,
+      "severity": "medium",
+      "allowed_by_native_policy": true,
+      "decision": "human_approval_required",
+      "risk_floor": 40,
+      "route_to": "identity_verification",
+      "conditions": {
+        "detected_intent_in": ["mfa_reset"]
+      },
+      "reasoning": "MFA/OTP reset requires identity verification before proceeding."
+    },
+    {
+      "id": "security_access_policy",
+      "name": "Security access request",
+      "description": "Requests for elevated/admin access need human approval.",
+      "enabled": true,
+      "critical": false,
+      "severity": "medium",
+      "allowed_by_native_policy": true,
+      "decision": "human_approval_required",
+      "route_to": "security_team",
+      "conditions": {
+        "detected_intent_in": ["security_access_request"]
+      },
+      "reasoning": "Elevated access request requires human approval."
+    },
+    {
+      "id": "fraud_suspicion_policy",
+      "name": "Fraud suspicion",
+      "description": "Reported fraud or unauthorized activity needs review.",
+      "enabled": true,
+      "critical": false,
+      "severity": "high",
+      "allowed_by_native_policy": true,
+      "decision": "human_approval_required",
+      "route_to": "fraud_team",
+      "conditions": {
+        "detected_risk_signal_in": ["fraud_indicator"]
+      },
+      "reasoning": "Possible fraud or unauthorized activity reported."
+    },
+    {
+      "id": "customer_complaint_policy",
+      "name": "Customer complaint",
+      "description": "Explicit complaints / manager requests get a human approver.",
+      "enabled": true,
+      "critical": false,
+      "severity": "low",
+      "allowed_by_native_policy": true,
+      "decision": "human_approval_required",
+      "route_to": "support_manager",
+      "conditions": {
+        "detected_intent_in": ["customer_complaint"]
+      },
+      "reasoning": "Customer raised an explicit complaint or asked for a manager."
     },
     {
       "id": "low_risk_support_policy",
@@ -120,7 +244,7 @@
       "decision": "allow",
       "risk_ceiling": 19,
       "conditions": {
-        "task_type_in": ["password_reset"]
+        "detected_intent_in": ["password_reset"]
       },
       "reasoning": "Password resets are routine, low-risk support actions."
     }

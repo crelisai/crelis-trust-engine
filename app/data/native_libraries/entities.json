@@ -1,0 +1,22 @@
+{
+  "_comment": "Entity vocabulary. 'match' is one of: 'phrase' (keyword list, whole-word), 'regex' (a pattern string compiled at load), 'amount'/'currency' (handled by the engine's amount parser). amount and currency are derived from the message text by the parser, not from this list.",
+  "library": "entities",
+  "version": "v1",
+  "entities": {
+    "amount": {"match": "amount"},
+    "currency": {"match": "currency"},
+    "email": {"match": "regex", "pattern": "[\\w.+-]+@[\\w-]+\\.[\\w.]+"},
+    "phone_number": {"match": "regex", "pattern": "\\+?\\d[\\d\\s().-]{7,}\\d"},
+    "credit_card": {"match": "regex", "pattern": "\\b(?:\\d[ -]?){13,19}\\b"},
+    "passport": {"match": "phrase", "phrases": ["passport", "passport number", "passport numbers"]},
+    "nric": {"match": "regex", "pattern": "\\b[stfgm]\\d{7}[a-z]\\b"},
+    "account_number": {"match": "phrase", "phrases": ["account number", "account no", "account #", "acct number"]},
+    "database": {"match": "phrase", "phrases": ["database", "data store", "datastore"]},
+    "production_system": {"match": "phrase", "phrases": ["production database", "prod database", "production system", "prod system", "production server", "prod db"]},
+    "beneficiary": {"match": "phrase", "phrases": ["beneficiary", "new beneficiary", "payee"]},
+    "customer_record": {"match": "phrase", "phrases": ["customer record", "customer records", "customer data", "user data", "user records", "user emails", "passport number", "passport numbers"]},
+    "regulator": {"match": "phrase", "phrases": ["mas", "pdpa", "gdpr", "regulator", "authority", "ombudsman"]},
+    "region": {"match": "phrase", "phrases": ["singapore", "malaysia", "indonesia", "europe", "eu", "usa", "united states", "india", "uk"]},
+    "customer_tier": {"match": "phrase", "phrases": ["vip", "premium", "enterprise", "standard", "executive"]}
+  }
+}

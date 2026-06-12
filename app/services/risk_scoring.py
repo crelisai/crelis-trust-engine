@@ -10,65 +10,19 @@ The risk score is built additively from independent signals (task type,
 industry, money, legal language, PII) and every contribution is recorded as a
 RiskFactor line-item, so the final number is fully explainable — a key selling
 point for governance buyers who must justify decisions to auditors.
+
+The language signals (legal, abusive, PII) now come from the Detection Engine,
+so their vocabulary lives in JSON rather than in this file. `keyword_in_message`
+is re-exported from detection_engine for callers that still import it here.
 """
 
 from __future__ import annotations
 
-import re
 from typing import Any, Dict, List, Tuple
 
 from app import config
 from app.models.response_models import RiskFactor
-
-# ---------------------------------------------------------------------------
-# Signal detectors
-# ---------------------------------------------------------------------------
-
-# Words/phrases that signal a legal or regulatory escalation.
-LEGAL_KEYWORDS = ["sue", "legal action", "lawyer", "regulator"]
-
-# Words/phrases that signal an abusive or hostile customer interaction.
-ABUSIVE_KEYWORDS = ["bullshit", "scam", "fraud", "useless", "terrible service"]
-
-# Lightweight PII patterns (advanced feature: flags sensitive data in flight).
-# v0.1 keeps this intentionally simple — real products would use a proper
-# PII-detection library or model here.
-PII_PATTERNS = {
-    "email_address": re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"),
-    "card_number": re.compile(r"\b(?:\d[ -]?){13,19}\b"),
-    "national_id_like": re.compile(r"\b[A-Z]\d{7}[A-Z]\b"),  # e.g. SG NRIC shape
-}
-
-
-def keyword_in_message(keyword: str, message: str) -> bool:
-    """
-    Whole-word/phrase match, case-insensitive.
-
-    Plain substring search would wrongly find 'sue' inside 'pursue' —
-    word boundaries (\\b) prevent those false escalations.
-    """
-    return re.search(rf"\b{re.escape(keyword)}\b", message, re.IGNORECASE) is not None
-
-
-def detect_legal_language(message: str | None) -> List[str]:
-    """Return the legal-escalation keywords found in the message (if any)."""
-    if not message:
-        return []
-    return [kw for kw in LEGAL_KEYWORDS if keyword_in_message(kw, message)]
-
-
-def detect_abusive_language(message: str | None) -> List[str]:
-    """Return the abusive/hostile keywords found in the message (if any)."""
-    if not message:
-        return []
-    return [kw for kw in ABUSIVE_KEYWORDS if keyword_in_message(kw, message)]
-
-
-def detect_pii(message: str | None) -> List[str]:
-    """Return the names of PII patterns found in the message (if any)."""
-    if not message:
-        return []
-    return [name for name, pattern in PII_PATTERNS.items() if pattern.search(message)]
+from app.services.detection_engine import keyword_in_message  # re-exported
 
 
 # ---------------------------------------------------------------------------
@@ -151,38 +105,38 @@ def calculate_risk(normalized: Dict[str, Any]) -> Tuple[float, List[RiskFactor],
         )
         flags.append("high_value_amount")
 
-    # --- Signal 5: does the customer's language signal legal trouble? -------
-    legal_hits = detect_legal_language(normalized.get("user_message"))
-    if legal_hits:
+    # --- Signals 5–7: language risk signals from the Detection Engine -------
+    # legal/regulatory escalation, abusive language, and PII exposure are now
+    # detected upstream (vocabulary lives in native_libraries/risk_signals.json)
+    # and arrive on the normalized request as detected_risk_signals.
+    signals = set(normalized.get("detected_risk_signals", []))
+
+    if "legal_threat" in signals or "regulator_mention" in signals:
         breakdown.append(
             RiskFactor(
                 factor="legal_language",
                 points=config.LEGAL_LANGUAGE_RISK,
-                detail=f"Message contains legal-escalation language: {', '.join(legal_hits)}.",
+                detail="Message contains legal-escalation or regulator language.",
             )
         )
         flags.append("legal_language_detected")
 
-    # --- Signal 6: is the customer's language abusive or hostile? -----------
-    abusive_hits = detect_abusive_language(normalized.get("user_message"))
-    if abusive_hits:
+    if "abusive_language" in signals:
         breakdown.append(
             RiskFactor(
                 factor="abusive_language",
                 points=config.ABUSIVE_LANGUAGE_RISK,
-                detail=f"Message contains abusive/hostile language: {', '.join(abusive_hits)}.",
+                detail="Message contains abusive/hostile language.",
             )
         )
         flags.append("abusive_language_detected")
 
-    # --- Signal 7 (advanced): does the message carry PII? -------------------
-    pii_hits = detect_pii(normalized.get("raw_user_message"))
-    if pii_hits:
+    if "pii_exposure" in signals:
         breakdown.append(
             RiskFactor(
                 factor="pii_in_message",
                 points=config.PII_RISK,
-                detail=f"Message appears to contain PII: {', '.join(pii_hits)}.",
+                detail="Message appears to reference or contain PII.",
             )
         )
         flags.append("pii_detected")

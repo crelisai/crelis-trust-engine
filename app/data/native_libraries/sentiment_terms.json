@@ -1,0 +1,9 @@
+{
+  "_comment": "Sentiment vocabulary. The engine counts negative vs positive hits and reports detected_sentiment as 'negative', 'positive', or 'neutral'. Informational in v0.1 (does not directly change the risk score).",
+  "library": "sentiment_terms",
+  "version": "v1",
+  "sentiment": {
+    "negative": ["unhappy", "angry", "frustrated", "disappointed", "terrible", "worst", "hate", "furious", "upset", "annoyed", "dissatisfied", "poor service", "awful", "horrible"],
+    "positive": ["great", "thanks", "thank you", "happy", "pleased", "excellent", "appreciate", "wonderful", "satisfied"]
+  }
+}

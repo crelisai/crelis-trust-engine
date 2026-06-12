@@ -1,0 +1,20 @@
+{
+  "_comment": "Intent vocabulary for the detection engine. Each intent maps to a list of natural-language phrases. Matching is case-insensitive and whole-phrase (word-boundary) so 'sue' never matches 'pursue'. ADD A KEYWORD = add a string to a list here; no Python changes needed.",
+  "library": "intents",
+  "version": "v1",
+  "intents": {
+    "refund_request": ["refund", "reimburse", "money back", "want my money back", "get my money back", "chargeback", "charge back", "duplicate charge", "wrong charge", "invoice dispute", "overcharged", "failed product", "cancel and refund"],
+    "billing_dispute": ["invoice", "billing error", "charged twice", "duplicate payment", "incorrect bill", "wrong amount", "overbilled", "billing issue"],
+    "legal_escalation": ["sue", "lawsuit", "legal action", "lawyer", "attorney", "court", "legal notice", "file a case", "take legal action", "legal proceedings"],
+    "data_export": ["export all records", "download customer data", "csv export", "csv", "database dump", "extract users", "all customer records", "customer records", "export all", "download all", "user emails", "download all user", "extract all data", "export data", "data dump"],
+    "password_reset": ["forgot password", "reset password", "password reset", "locked out", "cannot login", "can't login", "cannot log in", "unlock account", "unlock my account", "unlock", "login issue"],
+    "mfa_reset": ["mfa reset", "reset mfa", "otp reset", "reset otp", "authenticator reset", "2fa reset", "reset 2fa", "two factor reset", "two-factor reset"],
+    "wire_transfer": ["wire transfer", "bank transfer", "swift", "beneficiary", "release funds", "transfer money", "transfer funds", "payment approval", "send money", "remittance"],
+    "customer_complaint": ["unhappy", "dissatisfied", "poor service", "terrible service", "complaint", "bad experience", "manager", "speak to a manager", "want to complain"],
+    "fraud_suspicion": ["fraud", "fraudulent", "unauthorized transaction", "unauthorised transaction", "suspicious activity", "identity theft", "didn't make this transaction", "someone used my card", "stolen card"],
+    "regulator_complaint": ["mas", "pdpa", "gdpr", "regulator", "authority", "consumer protection", "data protection complaint", "report to the authority", "ombudsman"],
+    "vip_escalation": ["vip", "priority customer", "premium customer", "executive escalation", "high value customer"],
+    "security_access_request": ["security access", "grant access", "admin access", "elevated privileges", "root access", "privileged access", "access request"],
+    "production_database_access": ["production database", "prod database", "prod db", "customer table", "user table", "admin console", "database export", "production system"]
+  }
+}

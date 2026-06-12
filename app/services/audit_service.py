@@ -62,6 +62,9 @@ class AuditService:
         confidence_score: float,
         triggered_policies: List[str],
         reasoning: str,
+        detected_intents: Optional[List[str]] = None,
+        detected_risk_signals: Optional[List[str]] = None,
+        detection_confidence: float = 0.0,
     ) -> AuditEvent:
         """Create, chain, store, and return a new audit event."""
         self._counter += 1
@@ -86,6 +89,9 @@ class AuditService:
             "confidence_score": float(confidence_score),
             "triggered_policies": triggered_policies,
             "reasoning": reasoning,
+            "detected_intents": detected_intents or [],
+            "detected_risk_signals": detected_risk_signals or [],
+            "detection_confidence": float(detection_confidence),
             "sequence": self._counter,
             "prev_hash": prev_hash,
         }

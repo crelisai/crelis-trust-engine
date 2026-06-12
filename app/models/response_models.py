@@ -31,6 +31,25 @@ class TriggeredPolicy(BaseModel):
     matched_on: str = Field("", description="Which condition caused the match.")
 
 
+class DetectionResult(BaseModel):
+    """
+    The natural-language detection summary for one request.
+
+    Additive, non-breaking field on TrustDecision — existing consumers that
+    ignore it are unaffected; the Analyze box can render it to show WHY the
+    engine decided what it did.
+    """
+
+    detected_intents: List[str] = Field(default_factory=list)
+    detected_entities: Dict[str, List[str]] = Field(default_factory=dict)
+    detected_risk_signals: List[str] = Field(default_factory=list)
+    detected_sentiment: str = "neutral"
+    detected_urgency: str = "none"
+    detected_industry_context: List[str] = Field(default_factory=list)
+    detected_amounts: List[float] = Field(default_factory=list)
+    detection_confidence: float = 0.0
+
+
 class AuditEvent(BaseModel):
     """
     An immutable, tamper-evident record of one governance decision.
@@ -51,6 +70,11 @@ class AuditEvent(BaseModel):
     confidence_score: float
     triggered_policies: List[str] = Field(default_factory=list)
     reasoning: str = ""
+
+    # Detection summary (added with the NL pipeline; defaulted for old events):
+    detected_intents: List[str] = Field(default_factory=list)
+    detected_risk_signals: List[str] = Field(default_factory=list)
+    detection_confidence: float = 0.0
 
     # Tamper-evidence fields:
     sequence: int = Field(..., description="Position of this event in the chain.")
@@ -86,6 +110,10 @@ class TrustDecision(BaseModel):
     flags: List[str] = Field(
         default_factory=list,
         description="Notable signals detected (e.g. 'pii_detected').",
+    )
+    detection: Optional[DetectionResult] = Field(
+        None,
+        description="Natural-language detection summary (intents, entities, signals).",
     )
     engine_version: str = ""
 

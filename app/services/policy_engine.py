@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Tuple
 
 from app.models.response_models import TriggeredPolicy
-from app.services.risk_scoring import keyword_in_message
+from app.services.detection_engine import keyword_in_message
 
 
 # ---------------------------------------------------------------------------
@@ -69,6 +69,23 @@ def _amount_at_least(req: Dict[str, Any], threshold: float) -> bool:
     return amount is not None and amount >= threshold
 
 
+# --- Detection-based operators (read the natural-language detection results) -
+
+def _detected_intent_in(req: Dict[str, Any], values: List[str]) -> bool:
+    detected = set(req.get("detected_intents", []))
+    return bool(detected.intersection(values))
+
+
+def _detected_risk_signal_in(req: Dict[str, Any], values: List[str]) -> bool:
+    detected = set(req.get("detected_risk_signals", []))
+    return bool(detected.intersection(values))
+
+
+def _detected_entity_in(req: Dict[str, Any], values: List[str]) -> bool:
+    detected = set(req.get("detected_entities", []))
+    return bool(detected.intersection(values))
+
+
 CONDITION_EVALUATORS: Dict[str, Callable[[Dict[str, Any], Any], bool]] = {
     "message_contains_any": _msg_contains_any,
     "task_type_in": _task_type_in,
@@ -79,6 +96,9 @@ CONDITION_EVALUATORS: Dict[str, Callable[[Dict[str, Any], Any], bool]] = {
     "amount_greater_than": _amount_greater_than,
     "amount_less_than": _amount_less_than,
     "amount_at_least": _amount_at_least,
+    "detected_intent_in": _detected_intent_in,
+    "detected_risk_signal_in": _detected_risk_signal_in,
+    "detected_entity_in": _detected_entity_in,
 }
 
 

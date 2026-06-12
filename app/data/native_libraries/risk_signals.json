@@ -1,0 +1,20 @@
+{
+  "_comment": "Risk-signal vocabulary. Signals with 'phrases' are keyword-matched in the message. Signals with derivation keys are computed by the engine from other detections: 'derived_amount_threshold' fires when a detected amount >= the value; 'derived_from_entities' fires when any listed entity is present; 'derived_from_intents' fires when any listed intent is present; 'derived_abusive_and_complaint' fires when abusive language AND a customer-complaint intent are both present.",
+  "library": "risk_signals",
+  "version": "v1",
+  "risk_signals": {
+    "legal_threat": {"phrases": ["sue", "lawsuit", "legal action", "lawyer", "attorney", "court", "legal notice", "file a case", "take legal action", "legal proceedings"]},
+    "regulator_mention": {"phrases": ["mas", "pdpa", "gdpr", "regulator", "authority", "consumer protection", "data protection complaint", "ombudsman"]},
+    "abusive_language": {"phrases": ["bullshit", "scam", "useless", "cheating", "pathetic", "ridiculous", "unacceptable", "disgraceful", "rubbish", "incompetent", "garbage"]},
+    "urgent_pressure": {"phrases": ["urgent", "immediately", "right now", "asap", "today", "final warning", "last chance", "right away", "without delay", "escalate now"]},
+    "fraud_indicator": {"phrases": ["fraudulent", "unauthorized transaction", "unauthorised transaction", "identity theft", "stolen card", "someone used my card", "suspicious activity"]},
+    "credential_reset": {"derived_from_intents": ["password_reset", "mfa_reset"]},
+    "admin_access": {"phrases": ["admin", "administrator", "root access", "superuser", "elevated privileges", "admin console", "executive account", "privileged access"]},
+    "pii_exposure": {"phrases": ["passport", "nric", "credit card", "identity card", "ssn", "social security"], "derived_from_entities": ["email", "phone_number", "credit_card", "passport", "nric", "customer_record"]},
+    "production_data_access": {"phrases": ["production database", "prod database", "customer table", "user table", "admin console", "database dump", "database export"], "derived_from_entities": ["production_system"]},
+    "external_transfer": {"phrases": ["new beneficiary", "to vendor", "to a vendor", "external account", "third party", "outside account", "to an external"], "derived_from_entities": ["beneficiary"]},
+    "large_financial_amount": {"derived_amount_threshold": 10000},
+    "vip_customer": {"phrases": ["vip", "priority customer", "premium customer"]},
+    "reputational_risk": {"derived_abusive_and_complaint": true}
+  }
+}

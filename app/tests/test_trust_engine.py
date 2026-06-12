@@ -261,8 +261,14 @@ def test_extreme_refund_boundary():
     assert "extreme_refund_amount_policy" in result["triggered_policies"]
 
     # Same amount but NOT a refund: extreme_refund must not fire (large
-    # exposure still does).
-    result = evaluate(amount=50000, task_type="account_update", proposed_action="update")
+    # exposure still does). Message is neutral so no refund INTENT is detected
+    # (the detection pipeline reads the message, not just task_type).
+    result = evaluate(
+        amount=50000,
+        task_type="account_update",
+        proposed_action="update",
+        user_message="Please update my mailing address.",
+    )
     assert "extreme_refund_amount_policy" not in result["triggered_policies"]
     assert "large_financial_exposure_policy" in result["triggered_policies"]
 
@@ -335,6 +341,320 @@ def test_audit_chain_intact_and_tamper_detectable():
     assert audit_service.verify_chain() is False
     victim.risk_score = original  # restore for other tests
     assert audit_service.verify_chain() is True
+
+
+# ---------------------------------------------------------------------------
+# Detection engine — unit-level (intents, entities, amounts, false-positives)
+# ---------------------------------------------------------------------------
+
+from app.services import detection_engine
+
+
+def detect(message):
+    return detection_engine.detect(message)
+
+
+def test_detection_amount_formats():
+    assert detection_engine.extract_amounts("refund of 100000") == [100000]
+    assert detection_engine.extract_amounts("refund of 100,000") == [100000]
+    assert detection_engine.extract_amounts("refund of $100,000") == [100000]
+    assert detection_engine.extract_amounts("transfer USD 100,000 now") == [100000]
+    assert detection_engine.extract_amounts("transfer SGD 100,000 now") == [100000]
+    assert detection_engine.extract_amounts("pay S$100,000") == [100000]
+    assert detection_engine.extract_amounts("about 100k please") == [100000]
+    assert detection_engine.extract_amounts("around 1.5m total") == [1500000]
+
+
+def test_detection_false_positives_avoided():
+    # 'sue' must not match 'pursue'; 'sum' must not match 'assume'.
+    d = detect("I will pursue a refund and assume the total sum is correct.")
+    assert "legal_threat" not in d["detected_risk_signals"]
+    assert "refund_request" in d["detected_intents"]
+
+
+def test_detection_case_insensitive():
+    d = detect("I WILL SUE YOUR COMPANY")
+    assert "legal_threat" in d["detected_risk_signals"]
+    assert "legal_escalation" in d["detected_intents"]
+
+
+def test_detection_intents_and_entities():
+    d = detect("Approve wire transfer of USD 250,000 to a new beneficiary")
+    assert "wire_transfer" in d["detected_intents"]
+    assert "amount" in d["detected_entities"]
+    assert 250000 in d["detected_amounts"]
+    assert "external_transfer" in d["detected_risk_signals"]
+    assert d["detection_confidence"] > 0
+
+
+def test_detection_confidence_zero_for_empty():
+    assert detect("")["detection_confidence"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Natural-language end-to-end regression suite (the 20 spec examples + more)
+# ---------------------------------------------------------------------------
+
+def nl(message, **overrides):
+    """Evaluate a bare natural-language message (no structured fields)."""
+    payload = {"request_id": "REQ-NL", "user_message": message}
+    payload.update(overrides)
+    response = client.post("/trust/evaluate", json=payload)
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_nl_01_refund_100k_abusive():
+    r = nl("I need a refund of 100,000 because your service is bullshit")
+    assert r["decision"] == "human_agent_required"
+    assert r["risk_score"] >= 95
+    assert "abusive_language_detected" in r["flags"]
+    assert "large_financial_exposure_policy" in r["triggered_policies"]
+
+
+def test_nl_02_refund_750_duplicate_charge():
+    r = nl("Please refund $750 for a duplicate charge")
+    assert r["decision"] == "human_approval_required"
+    assert "high_value_refund_policy" in r["triggered_policies"]
+    assert "refund_request" in r["detection"]["detected_intents"]
+
+
+def test_nl_03_forgot_password():
+    r = nl("I forgot my password and cannot login")
+    assert r["decision"] == "allow"
+    assert r["risk_score"] < 20
+    assert "low_risk_support_policy" in r["triggered_policies"]
+
+
+def test_nl_04_mfa_admin_reset():
+    r = nl("I need MFA reset for my admin account")
+    assert r["decision"] == "human_approval_required"
+    assert "mfa_admin_reset_policy" in r["triggered_policies"]
+
+
+def test_nl_05_export_production_database():
+    r = nl("Export all customer records from the production database")
+    assert r["decision"] == "block"
+    assert (
+        "pii_data_export_policy" in r["triggered_policies"]
+        or "production_database_access_policy" in r["triggered_policies"]
+    )
+
+
+def test_nl_06_download_emails_csv():
+    r = nl("Download all user emails as CSV")
+    assert r["decision"] == "block"
+    assert "data_export" in r["detection"]["detected_intents"]
+
+
+def test_nl_07_wire_transfer_250k():
+    r = nl("Approve wire transfer of USD 250,000 to a new beneficiary")
+    assert r["decision"] == "human_agent_required"
+    assert "financial_transaction_policy" in r["triggered_policies"]
+    assert "large_financial_exposure_policy" in r["triggered_policies"]
+
+
+def test_nl_08_release_funds_urgent():
+    r = nl("Release funds now, this is urgent")
+    assert r["decision"] == "human_agent_required"
+    assert "financial_transaction_policy" in r["triggered_policies"]
+    assert r["detection"]["detected_urgency"] == "high"
+
+
+def test_nl_09_sue_company():
+    r = nl("I will sue your company")
+    assert r["decision"] == "human_agent_required"
+    assert "legal_escalation_policy" in r["triggered_policies"]
+
+
+def test_nl_10_report_to_mas():
+    r = nl("I am reporting this to MAS")
+    assert r["decision"] == "human_agent_required"
+    assert "regulator_mention" in r["detection"]["detected_risk_signals"]
+
+
+def test_nl_11_service_is_scam():
+    r = nl("Your service is a scam")
+    assert r["decision"] == "human_approval_required"
+    assert "abusive_language_policy" in r["triggered_policies"]
+
+
+def test_nl_12_need_manager():
+    r = nl("I need a manager immediately")
+    assert r["decision"] == "human_approval_required"
+    assert "customer_complaint" in r["detection"]["detected_intents"]
+
+
+def test_nl_13_change_beneficiary_transfer():
+    r = nl("Change beneficiary and transfer funds")
+    assert r["decision"] == "human_agent_required"
+    assert "financial_transaction_policy" in r["triggered_policies"]
+
+
+def test_nl_14_send_passport_to_vendor():
+    r = nl("Send customer passport numbers to vendor")
+    assert r["decision"] in {"human_agent_required", "block"}
+    assert "pii_exfiltration_policy" in r["triggered_policies"]
+    assert r["policy_details"]  # routed somewhere specific
+
+
+def test_nl_15_invoice_wrong_charge():
+    r = nl("My invoice has a wrong charge")
+    assert r["decision"] in {"allow", "human_approval_required"}
+    assert r["decision"] not in {"block"}
+
+
+def test_nl_16_money_back():
+    r = nl("I want my money back")
+    assert r["decision"] in {"allow", "human_approval_required"}
+    assert "refund_request" in r["detection"]["detected_intents"]
+
+
+def test_nl_17_unlock_account():
+    r = nl("Please unlock my account")
+    assert r["decision"] == "allow"
+    assert "low_risk_support_policy" in r["triggered_policies"]
+
+
+def test_nl_18_database_dump():
+    r = nl("Export database dump of all users")
+    assert r["decision"] == "block"
+
+
+def test_nl_19_final_warning_legal_notice():
+    r = nl("This is my final warning before legal notice")
+    assert r["decision"] == "human_agent_required"
+    assert "legal_escalation_policy" in r["triggered_policies"]
+
+
+def test_nl_20_reset_otp_executive():
+    r = nl("Reset OTP for executive account")
+    assert r["decision"] == "human_approval_required"
+    assert "mfa_admin_reset_policy" in r["triggered_policies"]
+
+
+# --- additional NL coverage ------------------------------------------------
+
+def test_nl_refund_over_10k_human_agent():
+    r = nl("I need a refund of 25,000 please")
+    assert r["decision"] == "human_agent_required"
+    assert "large_financial_exposure_policy" in r["triggered_policies"]
+
+
+def test_nl_refund_over_50k_risk_95():
+    r = nl("I need a refund of 75,000 immediately")
+    assert r["decision"] == "human_agent_required"
+    assert r["risk_score"] >= 95
+    assert "extreme_refund_amount_policy" in r["triggered_policies"]
+
+
+def test_nl_abusive_plus_money_is_agent():
+    # Abusive language WITH a monetary amount escalates beyond plain approval.
+    r = nl("Refund my $600 you useless scam")
+    assert r["decision"] == "human_agent_required"
+    assert "abusive_financial_policy" in r["triggered_policies"]
+
+
+def test_nl_abusive_alone_is_approval():
+    r = nl("This is absolutely ridiculous and pathetic")
+    assert r["decision"] == "human_approval_required"
+    assert "abusive_language_policy" in r["triggered_policies"]
+
+
+def test_nl_abusive_within_complaint_is_agent():
+    r = nl("Your terrible service is a scam, I am so dissatisfied")
+    assert r["decision"] == "human_agent_required"
+    assert "reputational_risk_policy" in r["triggered_policies"]
+
+
+def test_nl_lawyer_keyword():
+    r = nl("My lawyer will contact you")
+    assert r["decision"] == "human_agent_required"
+    assert "legal_threat" in r["detection"]["detected_risk_signals"]
+
+
+def test_nl_pdpa_regulator():
+    r = nl("This is a breach of PDPA")
+    assert r["decision"] == "human_agent_required"
+
+
+def test_nl_security_access_request():
+    r = nl("I need admin access to the security console")
+    assert r["decision"] in {"human_approval_required", "human_agent_required", "block"}
+
+
+def test_nl_fraud_report():
+    r = nl("There is an unauthorized transaction on my card")
+    assert r["decision"] in {"human_approval_required", "human_agent_required"}
+    assert "fraud_indicator" in r["detection"]["detected_risk_signals"]
+
+
+def test_nl_plain_question_allowed():
+    r = nl("Hello, what are your opening hours?")
+    assert r["decision"] == "allow"
+    assert r["triggered_policies"] == []
+
+
+def test_nl_chargeback_request():
+    r = nl("I want to chargeback this payment")
+    assert "refund_request" in r["detection"]["detected_intents"]
+
+
+def test_nl_wire_transfer_small_still_agent():
+    # Native treats any wire transfer as human_agent regardless of size.
+    r = nl("Please process a wire transfer of $200")
+    assert r["decision"] == "human_agent_required"
+
+
+def test_nl_swift_transfer():
+    r = nl("Initiate a SWIFT transfer to the beneficiary")
+    assert r["decision"] == "human_agent_required"
+    assert "external_transfer" in r["detection"]["detected_risk_signals"]
+
+
+def test_nl_locked_out_allowed():
+    r = nl("I am locked out of my account")
+    assert r["decision"] == "allow"
+
+
+def test_nl_2fa_reset():
+    r = nl("Please do a 2FA reset for me")
+    assert r["decision"] == "human_approval_required"
+    assert "mfa_reset" in r["detection"]["detected_intents"]
+
+
+def test_nl_detection_surfaced_in_response():
+    r = nl("I need a refund of 100,000 because your service is bullshit")
+    det = r["detection"]
+    assert "refund_request" in det["detected_intents"]
+    assert "abusive_language" in det["detected_risk_signals"]
+    assert 100000 in det["detected_amounts"]
+    assert det["detected_sentiment"] in {"negative", "neutral", "positive"}
+
+
+def test_nl_detection_in_audit_trail():
+    r = nl("I will sue you and report to the regulator")
+    audit = client.get(f"/audit/{r['audit_id']}").json()
+    assert "legal_threat" in audit["detected_risk_signals"]
+    assert audit["detection_confidence"] > 0
+
+
+def test_nl_tenant_threshold_with_detection():
+    # demo_customer raised the refund threshold to 1000; $750 → allow there.
+    r = nl("Please refund $750 for a duplicate charge", tenant_id="demo_customer")
+    assert "high_value_refund_policy" not in r["triggered_policies"]
+
+
+def test_nl_extreme_refund_still_blocks_for_tenant():
+    # Critical native policies still apply under a tenant override.
+    r = nl("I need a refund of 80,000 now", tenant_id="demo_customer")
+    assert r["decision"] == "human_agent_required"
+    assert r["risk_score"] >= 95
+
+
+def test_nl_data_export_blocked_for_tenant():
+    r = nl("Export all customer records", tenant_id="demo_customer")
+    assert r["decision"] == "block"
 
 
 # ---------------------------------------------------------------------------

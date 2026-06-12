@@ -1,0 +1,9 @@
+{
+  "_comment": "Urgency vocabulary. The engine reports detected_urgency as 'high', 'medium', or 'none' based on the strongest match found. Informational in v0.1.",
+  "library": "urgency_terms",
+  "version": "v1",
+  "urgency": {
+    "high": ["urgent", "immediately", "right now", "asap", "final warning", "last chance", "emergency", "right away", "without delay", "escalate now"],
+    "medium": ["soon", "quickly", "promptly", "today", "as soon as possible"]
+  }
+}

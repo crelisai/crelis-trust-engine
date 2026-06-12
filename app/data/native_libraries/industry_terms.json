@@ -1,0 +1,12 @@
+{
+  "_comment": "Industry-context vocabulary. Each industry maps to phrases that, when found in the message, add that industry to detected_industry_context. Purely informational/contextual in v0.1.",
+  "library": "industry_terms",
+  "version": "v1",
+  "industries": {
+    "banking": ["bank", "wire transfer", "swift", "beneficiary", "funds", "loan", "mortgage", "account balance", "remittance"],
+    "healthcare": ["patient", "medical", "health record", "diagnosis", "prescription", "clinic", "hospital"],
+    "ecommerce": ["order", "cart", "shipping", "delivery", "product", "checkout", "marketplace"],
+    "insurance": ["policy", "claim", "premium", "coverage", "deductible", "underwriting"],
+    "telecom": ["sim", "data plan", "network", "roaming", "mobile plan", "broadband"]
+  }
+}

@@ -1,1 +1,1 @@
-"""The engine's pipeline stages: normalize → score → policies → route → audit."""
+"""Pipeline stages: normalize → detect → score → policies → route → audit."""
