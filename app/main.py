@@ -29,20 +29,17 @@ from app.models.response_models import (
     AuditListResponse,
     HealthResponse,
     MetricsResponse,
-    RiskFactor,
     TrustDecision,
 )
-from app.models.response_models import DetectionResult
 from app.services import (
     detection_engine,
     policy_loader,
     policy_resolver,
     policy_validator,
-    risk_scoring,
-    routing_engine,
 )
 from app.services.audit_service import audit_service
-from app.services.normalizer import normalize_request
+from app.services.evaluation import evaluate_request
+from app.api.qa_routes import router as qa_router
 
 app = FastAPI(
     title=config.ENGINE_NAME,
@@ -64,6 +61,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Trust Engine QA Center (lifecycle policy/detection/routing/audit/tenant QA).
+app.include_router(qa_router)
+
 
 # ---------------------------------------------------------------------------
 # Core endpoint
@@ -74,87 +74,10 @@ def evaluate(request: TrustRequest) -> TrustDecision:
     """
     Evaluate one AI action request and return a governance decision.
 
-    This is the engine's whole pipeline in five readable steps.
+    Thin wrapper over `app.services.evaluation.evaluate_request`, which runs the
+    five-stage pipeline (normalize → score → policies → route → audit).
     """
-    # 1. Normalize — clean the input into a predictable shape.
-    normalized = normalize_request(request)
-
-    # 2. Score — how risky is it, and how complete is our picture?
-    base_risk, risk_breakdown, flags = risk_scoring.calculate_risk(normalized)
-    confidence = risk_scoring.calculate_confidence(normalized)
-    if normalized["missing_critical"]:
-        flags = flags + [f"missing_{f}" for f in normalized["missing_critical"]]
-
-    # 3. Policies — resolve the tenant's policy set (native + customer
-    #    overrides + custom policies), then evaluate the request against it.
-    engine, resolved = policy_resolver.engine_for(request.tenant_id)
-    if resolved["customer_library_missing"]:
-        # Unknown tenant: we governed with native defaults — say so visibly.
-        flags = flags + ["tenant_library_not_found"]
-    triggered, risk_floor, risk_ceiling, risk_modifier = engine.evaluate(normalized)
-    if risk_modifier:
-        risk_breakdown = risk_breakdown + [
-            RiskFactor(
-                factor="policy_risk_modifiers",
-                points=risk_modifier,
-                detail="Risk adjustment contributed by triggered policies.",
-            )
-        ]
-
-    # 4. Route — pick the winning decision, final risk, destination, reasoning.
-    decision, route_to, final_risk, reasoning = routing_engine.decide(
-        normalized, triggered, base_risk, risk_floor, risk_ceiling, engine,
-        risk_modifier=risk_modifier,
-    )
-
-    # 5. Audit — record the decision in the tamper-evident log.
-    detection = normalized["detection"]
-    audit_event = audit_service.record(
-        request_id=normalized["request_id"],
-        source_system=normalized["source_system"],
-        industry=normalized["industry"],
-        task_type=normalized["task_type"],
-        decision=decision,
-        risk_score=final_risk,
-        confidence_score=confidence,
-        triggered_policies=[p.id for p in triggered],
-        reasoning=reasoning,
-        route_to=route_to,
-        detected_intents=normalized["detected_intents"],
-        detected_risk_signals=normalized["detected_risk_signals"],
-        detection_confidence=detection["detection_confidence"],
-    )
-
-    # 6. Respond.
-    return TrustDecision(
-        request_id=normalized["request_id"],
-        audit_id=audit_event.audit_id,
-        decision=decision,
-        risk_score=final_risk,
-        confidence_score=confidence,
-        triggered_policies=[p.id for p in triggered],
-        route_to=route_to,
-        reasoning=reasoning,
-        timestamp=audit_event.timestamp,
-        schema_version=config.DECISION_SCHEMA_VERSION,
-        risk_breakdown=risk_breakdown,
-        policy_details=triggered,
-        flags=flags,
-        detection=DetectionResult(
-            detected_intents=normalized["detected_intents"],
-            detected_entities={
-                k: [str(v) for v in vals]
-                for k, vals in detection["detected_entities"].items()
-            },
-            detected_risk_signals=normalized["detected_risk_signals"],
-            detected_sentiment=detection["detected_sentiment"],
-            detected_urgency=detection["detected_urgency"],
-            detected_industry_context=detection["detected_industry_context"],
-            detected_amounts=detection["detected_amounts"],
-            detection_confidence=detection["detection_confidence"],
-        ),
-        engine_version=config.ENGINE_VERSION,
-    )
+    return evaluate_request(request)
 
 
 # ---------------------------------------------------------------------------
