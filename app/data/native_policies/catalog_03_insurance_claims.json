@@ -1,0 +1,876 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Insurance & Claims Governance",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "ins_claim_above_auto_settlement_threshold_policy",
+      "name": "Claim approval above auto-settlement mandate",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Agent-initiated claim approvals above 5,000 exceed the straight-through settlement mandate most APAC insurers set for low-complexity claims. An authorised claims officer must countersign before any payment instruction is generated.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "claims_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["IN", "MY", "APAC"],
+      "regulatory_references": [
+        "IRDAI (Protection of Policyholders' Interests) Regulations 2017 reg. 15 — claim settlement procedures",
+        "Malaysia BNM Policy Document on Claims Settlement Practices — settlement authority and timeliness controls"
+      ],
+      "condition": {
+        "task_type_in": ["claim_approval", "claim_settlement"],
+        "amount_greater_than": 5000
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_total_loss_vehicle_declaration_policy",
+      "name": "Motor total-loss declaration referral",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Declaring a vehicle a total loss fixes the indemnity at sum insured less salvage and extinguishes the policyholder's repair option, so a licensed motor assessor must make the declaration. The agent may only assemble the damage file and repair-versus-write-off economics.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "motor_total_loss_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — licensed assessor sign-off on constructive total loss declarations"
+      ],
+      "condition": {
+        "message_contains_any": ["total loss", "constructive total loss", "write off the vehicle", "salvage value", "beyond economic repair"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_medical_claim_clinical_review_policy",
+      "name": "Medical claim requiring clinical review",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Hospitalisation and surgical claims that turn on medical necessity or experimental-treatment questions need a clinical reviewer on the medical panel; an AI agent cannot weigh treatment-protocol evidence. India's health claim rules require reasoned, clinically grounded decisions within defined timelines.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "claims_medical_panel",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["IN", "APAC"],
+      "regulatory_references": [
+        "IRDAI (Protection of Policyholders' Interests) Regulations 2017 reg. 16 — health insurance claim procedures"
+      ],
+      "condition": {
+        "message_contains_any": ["medical necessity", "experimental treatment", "clinical judgement", "treatment protocol", "specialist opinion", "hospitalisation claim"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_policy_exclusion_interpretation_policy",
+      "name": "Policy exclusion interpretation takeover",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Whether an exclusion clause defeats cover is a coverage-law question: automated denial on exclusion grounds is prohibited, and the file goes to coverage counsel instead. Australia's extension of the unfair contract terms regime to insurance makes mechanical exclusion readings legally hazardous.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "coverage_counsel",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia ASIC Act 2001 — unfair contract terms regime as extended to insurance contracts (5 April 2021)",
+        "Australia Insurance Contracts Act 1984 s.13 — duty of utmost good faith"
+      ],
+      "condition": {
+        "message_contains_any": ["exclusion clause", "policy exclusion", "not covered under the policy", "excluded peril", "exclusion applies"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_claim_denial_letter_policy",
+      "name": "Claim denial communication sign-off",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "A repudiation letter is an adverse decision that must state grounds and the policyholder's avenues of recourse, so a human claims officer signs every denial — the engine never auto-issues one. IRDAI requires written reasons and BNM requires the appeal route to be disclosed in the decision letter.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "claims_correspondence_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["IN", "MY", "APAC"],
+      "regulatory_references": [
+        "IRDAI (Protection of Policyholders' Interests) Regulations 2017 reg. 14(2)(i) — rejection to be communicated with reasons in writing",
+        "Malaysia BNM Policy Document on Claims Settlement Practices — communication of claim decisions"
+      ],
+      "condition": {
+        "task_type_in": ["claim_denial", "denial_letter_issuance", "claim_repudiation"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_catastrophe_bulk_claims_run_policy",
+      "name": "Catastrophe-event bulk claims batch",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Catastrophe-event batches compress thousands of claims into expedited workflows with relaxed evidence standards. APRA CPS 230 treats claims payment as a critical operation, so each batch-settlement run needs a named approver even when individual claims sit within delegated authority.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "cat_event_command",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "APRA CPS 230 — operational risk management for critical operations, including claims processing"
+      ],
+      "condition": {
+        "task_type_in": ["bulk_claim_processing", "catastrophe_claims_batch"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_minor_claimant_guardianship_policy",
+      "name": "Claim proceeds payable to a minor",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Proceeds payable to minors must be routed through a guardian or statutory trustee arrangement, and the guardianship documents have to be sighted before settlement. Paying the wrong adult on a juvenile policy is effectively unrecoverable.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "guardianship_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — guardianship verification before releasing proceeds involving minors"
+      ],
+      "condition": {
+        "message_contains_any": ["claimant is a minor", "minor beneficiary", "guardian consent", "payable to a minor", "juvenile policy"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_ex_gratia_payment_committee_policy",
+      "name": "Ex-gratia payment committee referral",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Ex-gratia payments are made outside policy terms and set precedent for future claims, so only the ex-gratia committee may commit the insurer. The offer letter must preserve the without-admission-of-liability position, which is drafting no agent performs unsupervised.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ex_gratia_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — board-delegated authority limits for ex-gratia settlements"
+      ],
+      "condition": {
+        "message_contains_any": ["ex gratia", "goodwill payment", "without admission of liability", "outside policy terms"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_low_value_claim_fast_track_policy",
+      "name": "Low-value claim straight-through settlement",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Claims Adjudication",
+      "description": "Fully documented claims under 1,000 within the fast-track mandate settle straight through. Prompt small-claim settlement is the outcome regulators actively encourage — both IRDAI and BNM penalise slow settlement with interest and conduct findings.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["IN", "MY", "APAC"],
+      "regulatory_references": [
+        "Malaysia BNM Policy Document on Claims Settlement Practices — timeliness standards for claims handling"
+      ],
+      "condition": {
+        "task_type_in": ["claim_approval"],
+        "amount_less_than": 1000
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_preexisting_condition_loading_policy",
+      "name": "Underwriting loading for pre-existing conditions",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Premium loadings and exclusion riders for a pre-existing condition are adverse underwriting outcomes that HKIA GL16 expects to be justified case by case by an underwriter. MAS FEAT additionally requires any model-driven loading to be explainable to the proposer.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "underwriting_referral",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "Hong Kong IA GL16 — Guideline on Underwriting Long Term Insurance Business",
+        "MAS FEAT Principles (2018) — Fairness"
+      ],
+      "condition": {
+        "message_contains_any": ["pre-existing condition", "premium loading", "medical loading", "exclusion rider", "substandard life"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_health_data_underwriting_handling_policy",
+      "name": "Health data handling in underwriting",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Health information collected for underwriting — physician statements, diagnostic reports, health declarations — is sensitive personal data. The agent may extract and structure it, but any use beyond the underwriting purpose or onward disclosure needs human sign-off under purpose-limitation rules.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "underwriting_referral",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "MY", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.18 — purpose limitation obligation",
+        "Malaysia PDPA 2010 s.40 — processing of sensitive personal data"
+      ],
+      "condition": {
+        "message_contains_any": ["medical history report", "health declaration", "attending physician statement", "medical examination results", "diagnostic report"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_genetic_test_underwriting_block_policy",
+      "name": "Predictive genetic test data interdiction",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Predictive genetic test results may not feed underwriting or claims decisions under Singapore's MOH moratorium and equivalent APAC industry undertakings, so the engine refuses these requests outright rather than escalating. There is no approver who can lawfully authorise the use.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Industry best practice — Singapore MOH/LIA Moratorium on Genetic Testing and Insurance (2021)"
+      ],
+      "condition": {
+        "message_contains_any": ["genetic test results", "predictive genetic test", "genomic screening", "dna test report"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_cover_decline_referral_policy",
+      "name": "Proposal decline or postponement referral",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Declining or postponing a proposal denies access to insurance and is the underwriting outcome most scrutinised under fairness principles. A senior underwriter must own both the decision and the recorded reason; the agent may only prepare the evidence summary.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "chief_underwriter",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Fairness",
+        "Hong Kong IA GL16 — Guideline on Underwriting Long Term Insurance Business"
+      ],
+      "condition": {
+        "message_contains_any": ["decline the application", "refuse cover", "uninsurable risk", "postpone the proposal", "decline to insure"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_high_sum_assured_underwriting_policy",
+      "name": "Jumbo sum assured underwriting takeover",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Sums assured at or above 1,000,000 carry financial-underwriting and money-laundering dimensions beyond mortality assessment, including source-of-wealth checks under enhanced due diligence. The chief underwriter's desk takes these cases personally.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "chief_underwriter",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS Notice 314 — Prevention of Money Laundering and Countering the Financing of Terrorism: Direct Life Insurers (enhanced CDD)"
+      ],
+      "condition": {
+        "task_type_in": ["underwriting_decision", "policy_issuance"],
+        "amount_at_least": 1000000
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_benefit_illustration_disclosure_log_policy",
+      "name": "A&H quote and illustration audit flag",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Underwriting & Risk Assessment",
+      "description": "Generating accident and health quotes and benefit illustrations is permitted automation, but every illustration is logged because the disclosure content is prescribed — non-guaranteed values must be shown at the mandated projection bases and free-look rights stated.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "MAS Notice 120 — Disclosure and Advisory Process Requirements for Accident and Health Insurance Products"
+      ],
+      "condition": {
+        "task_type_in": ["quote_generation", "benefit_illustration"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_surrender_value_quote_policy",
+      "name": "Surrender value quote conservation gate",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "A surrender value quote often crystallises a loss against premiums paid, and the quote must be accompanied by disclosure of the cover and accrued benefits being given up. The conservation conversation is a human task — auto-issued quotes risk facilitating uninformed exits.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "surrender_review_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["MY", "APAC"],
+      "regulatory_references": [
+        "Malaysia BNM Policy Document on Fair Treatment of Financial Consumers (2019) — fair dealing in product exit decisions"
+      ],
+      "condition": {
+        "message_contains_any": ["surrender value", "surrender the policy", "cash out my policy", "early surrender", "surrender charge"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_lapse_reinstatement_policy",
+      "name": "Policy lapse and reinstatement review",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "Reinstatement after lapse reopens the insurer's risk, usually with fresh declarations of health and payment of arrears with interest, so the servicing team must confirm evidence requirements before the agent commits to revival terms. India's regime gives policyholders defined revival rights that must be quoted accurately.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "policy_servicing_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["IN", "APAC"],
+      "regulatory_references": [
+        "IRDAI (Protection of Policyholders' Interests) Regulations 2017 — policy servicing obligations"
+      ],
+      "condition": {
+        "message_contains_any": ["reinstate my policy", "policy has lapsed", "reinstatement application", "lapsed policy", "revival of policy"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_beneficiary_nomination_change_policy",
+      "name": "Beneficiary nomination change verification",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "Beneficiary nomination changes are a classic account-takeover and undue-influence target, and under Singapore's statutory nomination framework a revocable nomination carries formal witnessing requirements. Identity and capacity verification is a human task before any change is recorded.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "nomination_verification",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Insurance Act 1966 s.49M — revocable nominations"
+      ],
+      "condition": {
+        "detected_entity_in": ["beneficiary"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_premium_refund_basis_policy",
+      "name": "Premium refund basis verification",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "Premium refunds on cancellation must be computed on the correct basis — pro-rata versus short-period — and netted against any outstanding claims before release. An approver confirms the basis before money leaves, because over-refunded premium is rarely recovered.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "refunds_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — pro-rata versus short-period refund basis verification on cancellation"
+      ],
+      "condition": {
+        "message_contains_any": ["premium refund", "pro rata refund", "unearned premium", "cancellation refund", "refund of premium"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_freelook_cancellation_policy",
+      "name": "Free-look cancellation straight-through",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "Cancellation within the statutory free-look window is an absolute policyholder right with a full premium refund less medical examination costs. Processing it immediately is the compliant outcome — delay is the only conduct risk — so the engine completes it and flags the case for the persistency report.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS Notice 120 — free-look provisions for accident and health insurance products",
+        "Industry best practice — APAC cooling-off period standards for long term policies"
+      ],
+      "condition": {
+        "message_contains_any": ["free look period", "cooling off period", "free-look cancellation", "cancel within the free look"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_group_policy_member_addition_policy",
+      "name": "Group scheme member addition flag",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "Adding members to an in-force group scheme within free-cover limits is routine volume work suited to automation. Entries are flagged so that additions above the free-cover limit surface in the daily underwriting exception report rather than slipping through as standard enrolments.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["group_member_addition", "group_policy_enrolment"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_policy_assignment_registration_policy",
+      "name": "Policy assignment deed validation",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Policy Servicing",
+      "description": "An assignment transfers policy rights, frequently to a lender as loan collateral, and the deed must be validated and registered against the policy record. A wrongly recorded assignment misdirects claim or maturity proceeds to the wrong party.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "policy_servicing_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Policies of Assurance Act 1867 — assignment of life policies"
+      ],
+      "condition": {
+        "message_contains_any": ["assign the policy", "policy assignment", "collateral assignment", "absolute assignment", "assignee bank"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_misselling_allegation_takeover_policy",
+      "name": "Agent mis-selling allegation takeover",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Distribution Conduct",
+      "description": "Allegations that an intermediary misrepresented the product, promised guaranteed returns, or had the customer sign blank forms are conduct red flags with potential licence consequences. The conduct team interviews the customer and pulls the point-of-sale file — no automated reply may characterise the allegation.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "conduct_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "Hong Kong Insurance Ordinance (Cap. 41) s.90 — conduct requirements for licensed insurance intermediaries",
+        "MAS FEAT Principles (2018) — Ethics"
+      ],
+      "condition": {
+        "message_contains_any": ["mis-sold", "agent misrepresented", "never explained the policy", "guaranteed returns promised", "signed blank forms", "forged my signature"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_policy_replacement_churning_policy",
+      "name": "Policy replacement and churning screen",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Distribution Conduct",
+      "description": "Transactions where an in-force policy is surrendered to fund a new one are the canonical churning pattern: the customer absorbs fresh acquisition costs and a new contestability period while the adviser earns first-year commission. The replacement desk must compare both policies before the new sale proceeds.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "replacement_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — replacement and switching comparison documentation per APAC supervisory expectations"
+      ],
+      "condition": {
+        "message_contains_any": ["replace your existing policy", "policy replacement", "surrender and switch", "switch to a new policy", "transfer the cash value"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_product_recommendation_audit_policy",
+      "name": "Retail product recommendation audit flag",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Distribution Conduct",
+      "description": "Automated product recommendations to retail customers are permitted, but every recommendation is flagged into the suitability audit trail. This supports FEAT accountability reviews of recommendation-model outcomes by customer segment, including detection of systematic steering toward high-commission products.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Accountability"
+      ],
+      "condition": {
+        "task_type_in": ["product_recommendation"],
+        "customer_tier_in": ["retail", "mass_market"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_vulnerable_customer_sales_policy",
+      "name": "Vulnerable customer extra-care handling",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Distribution Conduct",
+      "description": "Sales or servicing interactions involving elderly or vulnerable customers require extra-care handling — trusted-individual witnessing and extended cooling-off are Hong Kong supervisory expectations. A trained officer reviews the interaction before any product action completes.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "vulnerable_customer_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["HK", "APAC"],
+      "regulatory_references": [
+        "Industry best practice — HKIA expectations on sales to vulnerable customers (trusted individual arrangements)"
+      ],
+      "condition": {
+        "message_contains_any": ["elderly policyholder", "vulnerable customer", "cognitive decline", "power of attorney holder", "trusted individual"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_staged_accident_redflag_policy",
+      "name": "Staged-accident red flag investigation",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Fraud & Financial Crime",
+      "description": "Claims narratives carrying staged-accident markers — phantom passengers, cover incepted hours before the loss, inflated repair invoices, ghost brokers — go to the special investigation unit before any payment step. Customer-facing replies stay neutral to avoid tipping off the claimant.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "siu_triage",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — special investigation unit referral protocols for suspected claims fraud"
+      ],
+      "condition": {
+        "message_contains_any": ["staged accident", "inflated repair invoice", "backdated cover note", "ghost broker", "phantom passenger", "pre-damaged vehicle"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_fraud_signal_claims_screen_policy",
+      "name": "Generic fraud signal claims pause",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Fraud & Financial Crime",
+      "description": "A generic fraud indicator from the detection engine on an insurance interaction pauses automation for a desk review. Most flags clear quickly, so the gate is approval-level rather than full investigation — genuine claims must keep moving to meet settlement timelines.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "fraud_screening_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "detected_risk_signal_in": ["fraud_indicator"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_sanctions_designated_party_block_policy",
+      "name": "Sanctions-designated party interdiction",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Fraud & Financial Crime",
+      "description": "A payout, policy benefit, or cover request touching a sanctions-designated party is interdicted outright: targeted financial sanctions are strict-liability obligations and no customer configuration may weaken the screen. Only the sanctions desk can action an unblock after list verification.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "sanctions_compliance",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Singapore Terrorism (Suppression of Financing) Act 2002 — prohibition against dealing with designated persons",
+        "MAS Notice 314 — targeted financial sanctions obligations of direct life insurers"
+      ],
+      "condition": {
+        "message_contains_any": ["sanctions list match", "sanctioned entity", "designated person", "un security council list", "asset freeze order"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_premium_laundering_typology_policy",
+      "name": "Insurance laundering typology escalation",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Fraud & Financial Crime",
+      "description": "Large single premiums paid in cash or by unrelated third parties, followed by early surrender, is the classic laundering typology through life insurance. AML compliance must complete enhanced due diligence before the transaction proceeds, regardless of the policyholder's servicing history.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "aml_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "MY", "APAC"],
+      "regulatory_references": [
+        "MAS Notice 314 — Prevention of Money Laundering and Countering the Financing of Terrorism: Direct Life Insurers",
+        "Malaysia BNM AML/CFT and Targeted Financial Sanctions for Financial Institutions policy document"
+      ],
+      "condition": {
+        "message_contains_any": ["third party premium payment", "cash premium payment", "overpaid premium", "early surrender after lump sum", "single premium top-up"],
+        "amount_at_least": 20000
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_str_filing_duty_policy",
+      "name": "Suspicious transaction report filing duty",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Fraud & Financial Crime",
+      "description": "Filing a suspicious transaction report is a statutory duty of the MLRO and carries a tipping-off prohibition: the agent may compile supporting material but never files, delays, or discusses the report with anyone outside the reporting chain. This duty cannot be disabled by customer configuration.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "mlro_desk",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "MY", "APAC"],
+      "regulatory_references": [
+        "Singapore CDSA s.39 — duty to report suspicious transactions",
+        "Malaysia AMLA 2001 s.14 — suspicious transaction reporting"
+      ],
+      "condition": {
+        "task_type_in": ["str_filing", "suspicious_transaction_report", "regulatory_notification"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_reinsurance_cession_above_retention_policy",
+      "name": "Reinsurance cession above net retention",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Reinsurance & Large Loss",
+      "description": "Cessions above the net retention commit the reinsurance programme and may require facultative support, so the reinsurance desk validates treaty capacity and exclusions before any slip is bound. An agent binding cover outside treaty terms leaves the insurer holding the risk net.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "reinsurance_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — treaty capacity and exclusion verification before binding cessions"
+      ],
+      "condition": {
+        "task_type_in": ["reinsurance_cession", "facultative_placement"],
+        "amount_at_least": 500000
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_large_loss_reserve_committee_policy",
+      "name": "Large-loss case reserve committee gate",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Reinsurance & Large Loss",
+      "description": "Case reserves at or above 250,000 move the large-loss watchlist and can trigger reinsurance notification clauses, so the reserving committee confirms the estimate basis before posting. Systematic under-reserving distorts statutory solvency reporting and reinsurer relations.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "reserving_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — reserving committee governance over large-loss case estimates"
+      ],
+      "condition": {
+        "task_type_in": ["reserve_setting", "case_reserve_update"],
+        "amount_at_least": 250000
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_third_party_recovery_action_policy",
+      "name": "Subrogated recovery action counsel control",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Reinsurance & Large Loss",
+      "description": "Subrogated recovery actions put the insurer into a legal dispute conducted in the insured's name, so demand letters and recovery proceedings are counsel-controlled documents. The agent's role stops at assembling the quantum evidence and recovery prospects file.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "recovery_legal_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — counsel sign-off on subrogation demand letters and recovery proceedings"
+      ],
+      "condition": {
+        "message_contains_any": ["subrogation claim", "third party recovery", "letter of demand", "recovery proceedings", "negligent third party"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_policyholder_record_bulk_export_block_policy",
+      "name": "Bulk policyholder record export interdiction",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Data & Disclosure Governance",
+      "description": "Bulk extraction of policyholder records is interdicted: insurance datasets bundle health, financial, and identity data into one of the highest-sensitivity PII stores, and exfiltration triggers breach-notification duties across APAC. No customer may disable this screen.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "security_review",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.26D — data breach notification",
+        "APRA CPS 234 para 36 — notification of material information security incidents"
+      ],
+      "condition": {
+        "detected_intent_in": ["data_export"],
+        "detected_entity_in": ["customer_record", "nric"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_claims_data_tpa_sharing_policy",
+      "name": "Claims data sharing with administrators",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Data & Disclosure Governance",
+      "description": "Routing claims data to third-party administrators is permitted only under a current data-sharing agreement and outsourcing oversight, because the insurer remains accountable for outsourced processing. The TPA-oversight desk verifies the recipient and data scope before any feed change.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "tpa_oversight",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "APRA CPS 230 — management of material service providers",
+        "Singapore PDPA s.26 — transfer limitation obligation"
+      ],
+      "condition": {
+        "message_contains_any": ["third party administrator", "tpa data feed", "outsourced claims handling", "share claims data", "data sharing agreement"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ins_policyholder_detail_correction_policy",
+      "name": "Routine policyholder record correction",
+      "category": "Insurance & Claims Governance",
+      "subcategory": "Data & Disclosure Governance",
+      "description": "Correcting a policyholder's contact details or fixing typographical errors in non-financial record fields is routine servicing the engine completes straight through. The PDPA accuracy obligation favours prompt correction over queued review for these fields.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.23 — accuracy obligation"
+      ],
+      "condition": {
+        "task_type_in": ["contact_detail_update", "record_correction"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    }
+  ]
+}

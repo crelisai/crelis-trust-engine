@@ -1,0 +1,1359 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Fraud, AML & Financial Crime",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "aml_sanctions_list_match_block_policy",
+      "name": "Confirmed sanctions list match interdiction",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "A confirmed match against a UN, OFAC or domestic sanctions list halts all automated processing of the customer or payment instantly. Asset-freeze obligations are strict-liability in every APAC jurisdiction, so the engine interdicts rather than escalates.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "UN Security Council Consolidated List — targeted financial sanctions (global floor)",
+        "FATF Recommendation 6 — Targeted financial sanctions related to terrorism and terrorist financing"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "sanctions list match",
+          "matched the sanctions list",
+          "on the sanctions list",
+          "sanctions hit",
+          "matched a watchlist",
+          "ofac sdn match",
+          "confirmed watchlist hit",
+          "un sanctions hit",
+          "name matched the sanctions list",
+          "designated person match"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_sanctions_screening_override_block_policy",
+      "name": "Sanctions screening override attempt",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "Structured agent calls that attempt to bypass, suppress or release a sanctions screening control are interdicted at the action layer. No customer configuration, tier or urgency claim can authorise skipping the screen.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 6 — Targeted financial sanctions related to terrorism and terrorist financing",
+        "UN Security Council resolutions — asset freeze without delay and without prior notice"
+      ],
+      "condition": {
+        "task_type_in": [
+          "sanctions_screening_override",
+          "watchlist_alert_suppression",
+          "sanctions_hold_release"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_potential_screening_hit_adjudication_policy",
+      "name": "Potential name-screening hit adjudication",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "Fuzzy or partial name matches are the bread and butter of screening false positives, but only a trained analyst may discount one — the AI must never self-clear a possible designated party. A human screening analyst takes over the disposition.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "sanctions_alert_adjudication",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 6 — Targeted financial sanctions related to terrorism and terrorist financing"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "possible sanctions match",
+          "potential watchlist match",
+          "fuzzy name match",
+          "partial match on screening",
+          "name screening alert"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_sanctions_list_update_rescreen_policy",
+      "name": "Batch rescreening after list update",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "Re-running the customer book against a freshly published UN or national list update is exactly the kind of high-volume, deterministic task automation exists for. The run itself proceeds; any hits it produces are caught by the match policies.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance",
+        "fintech",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "UN Security Council Consolidated List — targeted financial sanctions (global floor)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "sanctions_list_update_rescreen",
+          "batch_watchlist_rescreening",
+          "screening_database_refresh"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_trade_sanctions_goods_vessel_policy",
+      "name": "Dual-use goods and vessel sanctions exposure",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "Trade finance instructions touching dual-use goods, embargoed ports or vessels flagged for sanctions evasion need a compliance sign-off before documents are processed. Goods- and shipping-based evasion sits outside ordinary name screening.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "trade_finance_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "trade_finance"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "UN Security Council resolutions — sectoral and goods-based embargoes"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "dual use goods",
+          "sanctioned port",
+          "vessel flagged for sanctions",
+          "embargoed destination",
+          "ship to ship transfer"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_sanctioned_ownership_aggregation_policy",
+      "name": "Sanctioned-party ownership aggregation",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Sanctions & Watchlists",
+      "description": "An entity that is not itself listed may still be caught where a designated person holds a controlling or majority stake. Ownership-aggregation questions require a compliance decision before the relationship or payment continues.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "sanctions_compliance_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "trade_finance",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — ownership aggregation analysis for entities controlled by designated persons"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "sectoral sanctions",
+          "majority owned by a sanctioned entity",
+          "sanctioned shareholder",
+          "owned or controlled by a designated person",
+          "fifty percent ownership rule"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_pep_relationship_senior_review_policy",
+      "name": "PEP onboarding and transaction review",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "Establishing or continuing a relationship with a politically exposed person requires senior management approval and enhanced due diligence — a statutory step the AI cannot substitute for. A senior reviewer takes the case over.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "edd_senior_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "insurance",
+        "fintech",
+        "wealth_management"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU",
+        "MY",
+        "IN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 12 — Politically exposed persons",
+        "MAS Notice 626 — Enhanced CDD for politically exposed persons",
+        "Hong Kong AMLO (Cap. 615) Sch. 2 — Special requirements for politically exposed persons"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "politically exposed person",
+          "pep screening hit",
+          "senior foreign political figure",
+          "head of state account",
+          "government minister as beneficial owner",
+          "pep family member"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_adverse_media_hit_review_policy",
+      "name": "Adverse media screening hit",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "Negative-news hits — press coverage of fraud, corruption or organised crime involvement — feed the customer risk rating but vary wildly in quality. An approver confirms relevance and severity before any rating or relationship action is taken.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "kyc_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "insurance",
+        "fintech",
+        "wealth_management"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — adverse media screening within ongoing CDD monitoring"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "adverse media hit",
+          "negative news screening",
+          "media reports of fraud involvement",
+          "press coverage of criminal charges",
+          "named in a corruption investigation"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_source_of_wealth_gap_policy",
+      "name": "Source-of-wealth gap on high-value client",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "When a private-banking or high-net-worth client cannot evidence where the money came from, the file cannot progress on the AI's say-so. Enhanced due diligence on source of wealth and source of funds needs a human approver before the relationship deepens.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "enhanced_due_diligence",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "wealth_management",
+        "insurance"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "MY",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "MAS Notice 626 — Enhanced CDD (source of wealth and source of funds)",
+        "BNM AML/CFT and Targeted Financial Sanctions Policy Document — enhanced due diligence"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "source of wealth",
+          "source of funds undocumented",
+          "unexplained wealth",
+          "cannot explain where the money came from",
+          "wealth inconsistent with profile"
+        ],
+        "customer_tier_in": [
+          "private_banking",
+          "high_net_worth",
+          "vip",
+          "premium"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_high_risk_jurisdiction_corridor_policy",
+      "name": "High-risk jurisdiction payment corridor",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "Transactions routed to or from jurisdictions on the FATF call-for-action or increased-monitoring lists carry mandatory enhanced measures. The corridor itself is the trigger — an approver applies the proportionate countermeasure rather than the engine guessing.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "aml_country_risk_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 19 — Higher-risk countries",
+        "FATF public statements — jurisdictions under increased monitoring"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "fatf grey list",
+          "fatf black list",
+          "high risk jurisdiction",
+          "increased monitoring jurisdiction",
+          "call for action jurisdiction"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_periodic_risk_rating_refresh_policy",
+      "name": "Periodic customer risk-rating refresh",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "Scheduled KYC review cycles and risk-score recalculations are deterministic, rules-driven jobs the engine runs without gating. Anything the refresh surfaces — a PEP flag, an adverse media hit — is escalated by its own policy.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "insurance",
+        "fintech",
+        "payments"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 10 — Customer due diligence (ongoing monitoring)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "customer_risk_rating_refresh",
+          "periodic_kyc_review",
+          "risk_score_recalculation"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_npo_charity_corridor_policy",
+      "name": "Charity and NPO payment corridor review",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Customer Risk Profiles",
+      "description": "Cross-border donation flows through charities and non-profits are a recognised terrorist-financing channel, but most NPO payments are legitimate — FATF expressly warns against blanket de-risking. Human approval keeps the corridor open while checking the counterparty.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "aml_country_risk_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 8 — Non-profit organisations"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "charity donation transfer",
+          "npo remittance",
+          "nonprofit payment corridor",
+          "religious charity transfer abroad",
+          "donation to an overseas foundation"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_structuring_below_threshold_policy",
+      "name": "Structuring and smurfing pattern",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "Splitting cash or transfers into amounts deliberately sized to dodge a reporting threshold is itself an offence in Australia, regardless of the source of funds. An AML investigator takes over because the pattern, not any single transaction, is the crime.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "aml_investigations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance",
+        "casino"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "MY",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia AML/CTF Act 2006 s.142 — Structuring offence (AUSTRAC)",
+        "FATF Recommendation 20 — Reporting of suspicious transactions"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "keep it under the reporting threshold",
+          "split the transfer into smaller amounts",
+          "just under the threshold",
+          "multiple smaller deposits",
+          "structure the deposits",
+          "avoid the reporting requirement"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_mule_account_indicator_policy",
+      "name": "Money mule account indicators",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "Offers to receive and forward funds for a commission, or to lend out account credentials, are the classic mule recruitment signature seen across JFIU and AUSTRAC typology alerts. A fraud investigator must engage before any payment on the account proceeds.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "fraud_investigations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — money mule typologies (JFIU and AUSTRAC indicator alerts)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "receive funds for a commission",
+          "let someone use my account",
+          "money mule",
+          "forward the money to another account",
+          "paid to receive transfers"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_rapid_pass_through_flow_policy",
+      "name": "Rapid in-and-out pass-through flow",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "Funds that arrive and leave within hours, leaving the account as a conduit rather than a store of value, are a layering hallmark. Monitoring output describing this pattern needs an approver to decide between continued monitoring and an STR referral.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "transaction_monitoring_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 10 — Customer due diligence (ongoing monitoring)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "rapid in and out",
+          "funds withdrawn immediately after deposit",
+          "pass through account",
+          "incoming funds moved out same day",
+          "conduit account activity"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_unrelated_third_party_payment_policy",
+      "name": "Third-party payment with no relationship",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "Payments funded by, or routed to, a third party with no documented connection to the customer break the assumption underlying the CDD file. The payment proceeds only after an approver records who the third party is and why they are involved.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "transaction_monitoring_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "insurance",
+        "payments",
+        "wealth_management"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 10 — Customer due diligence"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "third party payment",
+          "no apparent relationship to the payer",
+          "payment from an unrelated party",
+          "unknown third party deposit",
+          "premium paid by someone else"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_tbml_invoice_anomaly_policy",
+      "name": "Trade-based money laundering invoice anomaly",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "Over- or under-invoicing, phantom shipments and double invoicing move value across borders disguised as trade — the hardest ML typology to automate away, per FATF's own findings. Document anomalies route to a trade finance compliance specialist.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "trade_finance_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "trade_finance"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "MY",
+        "IN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "FATF — Trade-Based Money Laundering: Trends and Developments (2020)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "over invoicing",
+          "under invoicing",
+          "invoice value does not match the goods",
+          "phantom shipment",
+          "goods never shipped",
+          "double invoicing"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_dormant_account_burst_policy",
+      "name": "Dormant account sudden-activity burst",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "An account silent for years that abruptly receives and moves large sums is a takeover or mule-conversion signature, not a customer-behaviour quirk. An approver verifies the customer before automation resumes servicing the account.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "fraud_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — dormant account reactivation controls"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "dormant account suddenly active",
+          "inactive for years now transacting",
+          "reactivated dormant account",
+          "long inactive account large transfer",
+          "no activity until this month"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_monitoring_alert_triage_policy",
+      "name": "Transaction monitoring alert triage",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Suspicious Transaction Patterns",
+      "description": "First-pass enrichment and scoring of transaction-monitoring alerts — gathering account history, counterparty data and prior alert outcomes — is allowed automation that keeps analysts focused on judgment calls. The triage output never closes an alert on its own.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": [
+          "transaction_monitoring_alert_triage",
+          "velocity_alert_scoring",
+          "alert_enrichment_run"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_tipping_off_disclosure_block_policy",
+      "name": "Tipping-off disclosure interdiction",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "Any draft message that would reveal to a customer that an STR was filed or that an AML investigation is underway is interdicted before it leaves the system — tipping-off is a criminal offence for the institution and the individual across the region. Silence is the only compliant output.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "MY",
+        "AU",
+        "IN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore CDSA s.48 — Tipping-off",
+        "Malaysia AMLA 2001 s.35 — Tipping-off",
+        "FATF Recommendation 21 — Tipping-off and confidentiality"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "str has been filed",
+          "suspicious transaction report on your account",
+          "you are under aml investigation",
+          "we reported you to the authorities",
+          "tipping off the customer",
+          "tell the customer about the str",
+          "disclose the investigation to the customer"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_str_drafting_officer_policy",
+      "name": "STR drafting and filing by reporting officer",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "The decision to file a suspicious transaction report, and the narrative that goes to the FIU, is a statutory duty of the institution's reporting officer — the AI may assemble facts but a named human must own the disclosure. Drafts route to the AML reporting officer and stay strictly confidential.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "aml_reporting_officer",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "MY",
+        "AU",
+        "IN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore CDSA s.39 — Duty to disclose (STR)",
+        "Hong Kong OSCO s.25A — Disclosure of suspicious transactions to the JFIU",
+        "FATF Recommendation 20 — Reporting of suspicious transactions"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "draft a suspicious transaction report",
+          "prepare the str",
+          "suspicious activity report draft",
+          "file an str with the fiu",
+          "goaml filing",
+          "str narrative"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_austrac_ttr_filing_policy",
+      "name": "AUSTRAC threshold transaction report clock",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "Physical-currency transactions of AUD 10,000 or more must reach AUSTRAC as a TTR within 10 business days — a mechanical, deadline-driven filing the engine submits automatically and flags so the clock is auditable. Late filing, not filing itself, is the risk.",
+      "severity": "medium",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "remittance",
+        "casino"
+      ],
+      "applicable_regions": [
+        "AU"
+      ],
+      "regulatory_references": [
+        "Australia AML/CTF Act 2006 s.43 — Threshold transaction reports (AUD 10,000, AUSTRAC)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "threshold_transaction_report",
+          "ttr_filing"
+        ],
+        "amount_at_least": 10000
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_austrac_ifti_submission_policy",
+      "name": "AUSTRAC IFTI report submission",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "International funds transfer instructions are reportable to AUSTRAC regardless of amount, making IFTI submission a pure-volume compliance pipeline suited to automation. The flag keeps each batch visible in the audit trail.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "remittance",
+        "payments"
+      ],
+      "applicable_regions": [
+        "AU"
+      ],
+      "regulatory_references": [
+        "Australia AML/CTF Act 2006 s.45 — International funds transfer instruction reports (AUSTRAC)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "ifti_report_submission",
+          "international_funds_transfer_instruction_report"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_fiu_ind_reporting_signoff_policy",
+      "name": "FIU-IND CTR and STR filing sign-off",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "Filings to FIU-IND under the PMLA are made in the name of the Principal Officer, so batch CTR and STR submissions prepared by the engine need that officer's approval before transmission. The approval step is what Indian inspectors look for first.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "principal_officer_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments",
+        "insurance"
+      ],
+      "applicable_regions": [
+        "IN"
+      ],
+      "regulatory_references": [
+        "India PMLA 2002 s.12 — Reporting obligations",
+        "India PML (Maintenance of Records) Rules 2005 — CTR/STR filing to FIU-IND"
+      ],
+      "condition": {
+        "task_type_in": [
+          "fiu_ind_str_filing",
+          "fiu_ind_ctr_batch",
+          "pmla_report_submission"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_law_enforcement_records_request_policy",
+      "name": "Law enforcement and FIU records request",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Reporting Duties & Tipping-Off",
+      "description": "Production orders, police requests and FIU information demands must be validated and answered by legal or compliance staff — an automated agent releasing account records to a purported officer is an exfiltration vector dressed as cooperation.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "legal_and_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — law enforcement and FIU requests routed through legal/compliance verification"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "production order",
+          "court order for account records",
+          "police request for transaction records",
+          "fiu information request",
+          "law enforcement request for customer data"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_romance_scam_victim_policy",
+      "name": "Romance scam victim indicators",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Scam & Victim Response",
+      "description": "A customer sending money to an online partner they have never met in person is exhibiting the canonical romance scam pattern — and victims typically resist the suggestion. A trained scam-intervention specialist, not a chatbot, must handle the conversation.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "scam_intervention",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "remittance",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — anti-scam intervention protocols (ABS-MAS anti-scam measures, Singapore)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "romance scam",
+          "online partner asked for money",
+          "never met in person but sending money",
+          "overseas boyfriend needs money urgently",
+          "girlfriend i met online needs funds"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_investment_scam_victim_policy",
+      "name": "Investment scam victim indicators",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Scam & Victim Response",
+      "description": "Promises of guaranteed returns, pressure to top up a trading platform, or a platform that suddenly will not pay out mark the victim side of an investment scam. The transfer pauses with a scam-intervention specialist while the customer can still be reached.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "scam_intervention",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "fintech",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — anti-scam intervention protocols (ABS-MAS anti-scam measures, Singapore)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "investment opportunity guaranteed returns",
+          "guaranteed returns",
+          "double my money quickly",
+          "risk free investment with high returns",
+          "trading platform will not let me withdraw"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_app_fraud_recall_policy",
+      "name": "Authorised push payment fraud recall",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Scam & Victim Response",
+      "description": "When a victim reports being tricked into authorising a transfer, recovery odds collapse within hours as funds hop through mule accounts — recall requests jump the queue straight to a human who can invoke interbank recovery. Speed here is the control.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "fraud_recall_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — Singapore Shared Responsibility Framework for phishing scams (MAS/IMDA)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "i was tricked into sending money",
+          "recall the transfer i made to a scammer",
+          "sent money to a fraudster",
+          "victim of a push payment",
+          "stop the payment i was deceived"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_scam_accusation_triage_policy",
+      "name": "Service scam accusation triage",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Scam & Victim Response",
+      "description": "A customer calling the service itself a scam is venting a complaint, not reporting financial crime — it gets a human approver for tone and retention reasons, nothing heavier. Conflating accusation with victimhood would flood the fraud queue.",
+      "severity": "low",
+      "decision": "human_approval_required",
+      "route_to": "support_manager",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "is a scam",
+          "this is a scam",
+          "you are scamming me",
+          "total scam"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_scam_warning_outreach_policy",
+      "name": "Proactive scam warning outreach",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Scam & Victim Response",
+      "description": "Sending a templated scam-education warning to a customer whose activity matches a victim profile is protective outreach the engine performs automatically — earlier warnings measurably reduce completed scams. The flag records that an intervention was attempted.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "payments",
+        "fintech",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — proactive customer scam education and warnings"
+      ],
+      "condition": {
+        "task_type_in": [
+          "scam_warning_notification",
+          "fraud_education_message",
+          "scam_alert_outreach"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_crypto_offramp_new_wallet_policy",
+      "name": "Crypto offramp to newly added wallet",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Crypto & New Channels",
+      "description": "A first withdrawal to a freshly whitelisted or unhosted wallet is the moment stolen or scam-derived funds leave the regulated perimeter, so the offramp waits for an approver. Established, previously used addresses are unaffected.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "crypto_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "crypto_exchange",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 15 — New technologies and virtual assets",
+        "Singapore Payment Services Act 2019 — AML/CFT for DPT services (MAS Notice PSN02)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "crypto_withdrawal_new_address",
+          "fiat_offramp_first_withdrawal",
+          "wallet_whitelist_addition"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_crypto_mixer_exposure_policy",
+      "name": "Mixer and obfuscation exposure review",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Crypto & New Channels",
+      "description": "Deposits whose chain analytics show mixing services, tumblers or chain-hopping upstream need an approver to weigh exposure depth before crediting or releasing funds. Obfuscation is a risk indicator, not proof of crime, so review beats reflexive refusal.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "crypto_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "crypto_exchange",
+        "fintech"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 15 — New technologies and virtual assets",
+        "FATF — Updated Guidance for a Risk-Based Approach to Virtual Assets and VASPs (2021)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "mixing service",
+          "coin tumbler",
+          "mixer exposure",
+          "obfuscated transaction history",
+          "chain hopping"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_travel_rule_data_gap_policy",
+      "name": "Travel rule originator data gap",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Crypto & New Channels",
+      "description": "VASP-to-VASP transfers arriving without the required originator and beneficiary information fail the travel rule and cannot be auto-credited. An approver decides whether to request the data, return the transfer or restrict the funds.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "crypto_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "crypto_exchange",
+        "fintech",
+        "payments"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 16 — Wire transfers (travel rule)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "vasp_transfer_originator_check",
+          "travel_rule_data_validation"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_informal_value_transfer_policy",
+      "name": "Informal value transfer system indicators",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Crypto & New Channels",
+      "description": "References to hawala, hundi or unlicensed remittance agents point to value moving outside the licensed perimeter, where no CDD or reporting applies. An approver determines whether the customer is using, or unwittingly funding, an IVTS network.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "aml_country_risk_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "remittance",
+        "payments"
+      ],
+      "applicable_regions": [
+        "SG",
+        "MY",
+        "IN",
+        "HK",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "FATF Recommendation 14 — Money or value transfer services"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "hawala",
+          "hundi transfer",
+          "unlicensed remittance agent",
+          "informal value transfer",
+          "underground banking network"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_account_freeze_request_policy",
+      "name": "Protective account freeze request",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Account Controls & Internal Fraud",
+      "description": "A customer asking to freeze their own account on fraud grounds is requesting a protective, reversible control — one quick human approval balances speed against the risk of an impostor locking out the real owner.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "fraud_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — customer-initiated protective account holds"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "freeze my account",
+          "freeze the account",
+          "lock the account for fraud",
+          "stop all transactions on my account",
+          "put a hold on my account"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_compliance_hold_release_policy",
+      "name": "Unfreeze after compliance hold",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Account Controls & Internal Fraud",
+      "description": "Releasing an account frozen by AML or fraud compliance is the opposite of protective — done wrongly it hands laundered funds back or undermines an open investigation. Only the compliance owner of the original hold may lift it.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "aml_compliance_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "fintech",
+        "payments",
+        "crypto_exchange"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — compliance hold release requires AML officer sign-off"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "unfreeze my account",
+          "lift the compliance hold",
+          "release the hold on my account",
+          "remove the freeze",
+          "account still frozen after review"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aml_internal_fraud_indicator_policy",
+      "name": "Internal fraud and staff collusion indicators",
+      "category": "Fraud, AML & Financial Crime",
+      "subcategory": "Account Controls & Internal Fraud",
+      "description": "Allegations that an employee overrode an alert, bypassed controls or colluded with a customer cannot be triaged by systems the same employee may be able to influence. The case goes directly to internal investigations, outside the normal support flow.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "internal_investigations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — segregation of duties in internal fraud investigations"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "employee bypassed controls",
+          "staff collusion",
+          "insider facilitated the transfer",
+          "teller overrode the alert",
+          "internal fraud suspected"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    }
+  ]
+}

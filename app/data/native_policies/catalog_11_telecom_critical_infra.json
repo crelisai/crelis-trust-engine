@@ -1,0 +1,883 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Telecom, Critical Infrastructure & Government",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "cig_cii_config_change_control_policy",
+      "name": "CII network configuration change control",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "An agent proposing a configuration change on a system designated as critical information infrastructure must clear the operator's change-control board first. Designated CII owners in Singapore carry statutory duties to comply with codes of practice covering change management.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "noc_change_board",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "utilities", "energy", "water"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore Cybersecurity Act 2018 s.11 — Duty to comply with codes of practice",
+        "Australia SOCI Act 2018 Part 2A — Critical infrastructure risk management program"
+      ],
+      "condition": {
+        "task_type_in": ["cii_config_change", "network_config_change", "firewall_rule_update"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_core_router_bgp_change_policy",
+      "name": "Core routing / BGP change takeover",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "Edits to BGP announcements or core-router policy can blackhole national traffic in seconds, so a senior network engineer must own the change end to end. Route leaks and hijacks propagate globally before any rollback can land.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "network_engineering_escalation",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — MANRS routing security actions for network operators"
+      ],
+      "condition": {
+        "message_contains_any": ["bgp announcement", "bgp session", "route advertisement", "core router configuration", "as-path prepend", "prefix withdrawal", "route reflector change"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_mass_outage_notification_policy",
+      "name": "Mass outage customer notification sign-off",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "A drafted outage notification going to the whole customer base must be approved before send: wording drives regulator scrutiny and triple-zero/995 welfare checks. Australia now prescribes outage communications content and timing by industry standard.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "incident_communications_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "utilities"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Telecommunications (Customer Communications for Network Outages) Industry Standard 2024",
+        "IMDA Telecommunication Service Resilience Code of Practice"
+      ],
+      "condition": {
+        "task_type_in": ["outage_notification_broadcast"],
+        "message_contains_any": ["mass service outage", "network outage notification", "outage update to all customers", "service disruption announcement"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_interconnect_peering_change_policy",
+      "name": "Interconnect and peering arrangement changes",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "Modifying interconnect agreements or IX peering sessions affects competing carriers' traffic and is governed by the dominant-licensee obligations in the Singapore competition code. Commercial and regulatory review happens before the agent files anything.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "carrier_relations_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Code of Practice for Competition in the Provision of Telecommunication Services (Telecom Competition Code) — interconnection obligations"
+      ],
+      "condition": {
+        "message_contains_any": ["interconnect agreement", "peering session", "ix peering", "interconnection offer", "transit arrangement change"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_planned_maintenance_notice_policy",
+      "name": "Planned maintenance window notice",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "Issuing a routine planned-maintenance notice for a pre-approved change window is safe to automate; the window itself was already vetted through change control.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "utilities"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["planned_maintenance_notice", "maintenance_window_reminder"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_network_health_query_policy",
+      "name": "Network health and KPI reporting",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "Read-only queries against network health dashboards and service KPI reports carry no actuation risk and run fully automated.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "utilities", "energy"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["network_status_query", "service_kpi_report", "coverage_map_lookup"]
+      },
+      "risk_modifier": -5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_cii_incident_regulator_report_policy",
+      "name": "CII cybersecurity incident notification",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Network Operations & Change Control",
+      "description": "Statutory incident notifications to CSA or the Australian Cyber and Infrastructure Security Centre run on tight clocks (hours, not days) and bind the licensee's legal position — a designated incident manager must author and lodge the report.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "cyber_incident_manager",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom", "utilities", "energy", "water"],
+      "applicable_regions": ["SG", "AU"],
+      "regulatory_references": [
+        "Singapore Cybersecurity Act 2018 s.14 — Duty to report cybersecurity incidents",
+        "Australia SOCI Act 2018 s.30BC — Mandatory reporting of critical cyber security incidents"
+      ],
+      "condition": {
+        "task_type_in": ["cii_incident_report", "regulator_incident_notification"],
+        "message_contains_any": ["reportable cybersecurity incident", "csa incident notification", "mandatory incident report", "notifiable cyber incident"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_lawful_interception_request_policy",
+      "name": "Lawful interception request — legal channel only",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Lawful Interception & Authority Disclosure",
+      "description": "Any request to activate interception of communications goes exclusively to the carrier's lawful-intercept legal unit, which verifies the warrant or statutory authorisation before anything is provisioned. No automated system may acknowledge, action, or even confirm the existence of an intercept.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "lawful_intercept_legal_unit",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "IN", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Telecommunications (Interception and Access) Act 1979 Chapter 2 — Interception warrants",
+        "India Telecommunications Act 2023 s.20 — Interception and suspension powers"
+      ],
+      "condition": {
+        "message_contains_any": ["lawful interception", "interception warrant", "wiretap request", "communications intercept", "intercept this subscriber", "li provisioning"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_authority_data_disclosure_policy",
+      "name": "Law-enforcement customer data disclosure",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Lawful Interception & Authority Disclosure",
+      "description": "Police or agency requests for subscriber records must be matched against a valid production order or statutory authorisation by the disclosure team before a single record leaves the carrier. Australian carriers' duty to assist agencies sits alongside strict limits on what may be handed over.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "legal_disclosure_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Telecommunications Act 1997 s.313 — Assistance to agencies",
+        "Australia Telecommunications Act 1997 Part 13 — Protection of communications information"
+      ],
+      "condition": {
+        "message_contains_any": ["law enforcement request", "police data request", "production order", "disclosure to authorities", "agency request for subscriber records"]
+      },
+      "risk_modifier": 22,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_subscriber_location_access_policy",
+      "name": "Cell-site and subscriber location data access",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Lawful Interception & Authority Disclosure",
+      "description": "Cell-site records and live location traces reveal a person's movements and may only be released under a Chapter 4 authorisation or equivalent instrument, verified by a human. Agents must never resolve a location query directly, even for apparently internal requesters.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "legal_disclosure_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "SG", "IN"],
+      "regulatory_references": [
+        "Australia Telecommunications (Interception and Access) Act 1979 Chapter 4 — Access to telecommunications data"
+      ],
+      "condition": {
+        "message_contains_any": ["cell tower records", "cell site location", "subscriber location data", "location trace", "tower dump", "imsi location lookup"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_intercept_capability_config_policy",
+      "name": "Interception capability configuration change",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Lawful Interception & Authority Disclosure",
+      "description": "Structured agent calls that would alter mediation-platform or interception-capability configuration require sign-off from the LI compliance owner: capability plans are filed with the regulator and drift breaches the licence.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "li_compliance_owner",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "IN", "APAC"],
+      "regulatory_references": [
+        "Australia Telecommunications (Interception and Access) Act 1979 Part 5-4 — Interception capability plans"
+      ],
+      "condition": {
+        "proposed_action_in": ["modify_intercept_config", "update_mediation_platform", "li_capability_change"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_retained_metadata_query_policy",
+      "name": "Retained telecommunications metadata query",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Lawful Interception & Authority Disclosure",
+      "description": "Queries against the mandatory data-retention store (call records, IP allocations held under Part 5-1A) need approval from the records custodian, who confirms the requester's authority and logs the access for audit.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_retention_custodian",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU"],
+      "regulatory_references": [
+        "Australia Telecommunications (Interception and Access) Act 1979 Part 5-1A — Data retention"
+      ],
+      "condition": {
+        "message_contains_any": ["retained metadata", "data retention store", "retained call records", "ip allocation history"],
+        "detected_entity_in": ["phone_number", "account_number", "customer_record"]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_ot_write_command_block_policy",
+      "name": "OT/SCADA write command from IT systems",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "OT/SCADA & Industrial Safety",
+      "description": "Write commands originating in the IT estate — setpoint changes, RTU dispatch, PLC downloads — are blocked at the IT/OT boundary outright. Actuation of plant happens only from the engineering workstation inside the OT zone, per zone-and-conduit segmentation.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "ot_security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["utilities", "energy", "water", "telecom"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Australia SOCI Act 2018 Part 2A — Critical infrastructure risk management program",
+        "Industry best practice — ISA/IEC 62443 zone and conduit segmentation"
+      ],
+      "condition": {
+        "proposed_action_in": ["scada_write_command", "plc_setpoint_change", "rtu_command_dispatch", "plc_logic_download"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_safety_system_override_block_policy",
+      "name": "Industrial safety-system override interdiction",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "OT/SCADA & Industrial Safety",
+      "description": "Requests to bypass a safety interlock, disable an emergency shutdown, or force a safety instrumented system are never automatable under any configuration — defeating the last line of protection is how people die. This interdiction cannot be tuned or disabled by any tenant.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "process_safety_authority",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["utilities", "energy", "water"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — IEC 61511 safety instrumented systems lifecycle"
+      ],
+      "condition": {
+        "message_contains_any": ["bypass safety interlock", "override safety system", "disable emergency shutdown", "sis bypass", "force safety valve", "defeat the interlock"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_telemetry_threshold_override_policy",
+      "name": "Dam, grid and water telemetry threshold override",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "OT/SCADA & Industrial Safety",
+      "description": "Raising or suppressing alarm thresholds on dam gates, grid frequency, or water-treatment dosing telemetry masks developing failures across an entire asset class, so a control-room engineer must take the action personally with a second person verifying.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "control_room_supervisor",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["utilities", "energy", "water"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia SOCI Act 2018 Part 2A — Critical infrastructure risk management program",
+        "Singapore Cybersecurity Act 2018 s.11 — Duty to comply with codes of practice"
+      ],
+      "condition": {
+        "message_contains_any": ["telemetry threshold override", "alarm setpoint change", "dam gate threshold", "grid frequency threshold", "chlorine dosing limit", "raise the alarm limit"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_ot_historian_read_policy",
+      "name": "OT historian read-only query",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "OT/SCADA & Industrial Safety",
+      "description": "Pulling read-only historian data (trends, alarm history) across the IT/OT boundary is permitted but flagged: repeated wide pulls can map plant behaviour for an attacker, so the access pattern feeds the risk score.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["utilities", "energy", "water", "telecom"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — ISA/IEC 62443-3-3 SR 5.1 network segmentation"
+      ],
+      "condition": {
+        "task_type_in": ["ot_historian_read_query", "alarm_history_export", "trend_data_pull"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_ot_remote_access_grant_policy",
+      "name": "Vendor remote access into the OT network",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "OT/SCADA & Industrial Safety",
+      "description": "Granting a vendor a remote session into the SCADA or OT network is a standing CCoP control point: the OT security lead approves the window, the jump-host path, and the named individual before the session is opened.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "ot_security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["utilities", "energy", "water", "telecom"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "CSA Cybersecurity Code of Practice for Critical Information Infrastructure (CCoP 2.0) — remote access controls"
+      ],
+      "condition": {
+        "message_contains_any": ["remote access to scada", "vendor remote session", "ot network access", "jump host into plant network"],
+        "detected_risk_signal_in": ["admin_access"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_classified_data_prompt_block_policy",
+      "name": "Classified or restricted government data in prompts",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "Material marked at SECRET, CONFIDENTIAL, or RESTRICTED under government classification schemes must never enter a commercial AI pipeline; processing it outside accredited systems is a wrongful-communication offence, not a policy preference. The block cannot be disabled by any tenant.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "government_security_officer",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["government", "telecom", "defence"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore Official Secrets Act 1935 s.5 — Wrongful communication of information",
+        "Singapore Government Instruction Manual 8 (IM8) — ICT security and data classification (comparator)"
+      ],
+      "condition": {
+        "message_contains_any": ["classified document", "marked secret", "restricted government file", "official secret", "security classified material", "confidential cabinet paper"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_citizen_identity_chatbot_policy",
+      "name": "Citizen identity data in government chat channels",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "When a government chatbot conversation surfaces a national ID or passport number, the response is held for an officer's approval: confirming or echoing identity attributes in an unauthenticated chat is the classic vector for impersonated benefit claims.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "citizen_services_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["government"],
+      "applicable_regions": ["SG", "IN", "APAC"],
+      "regulatory_references": [
+        "Singapore Public Sector (Governance) Act 2018 — data safeguards for public agencies",
+        "India DPDP Act 2023 s.8 — Data Fiduciary Obligations"
+      ],
+      "condition": {
+        "detected_entity_in": ["nric", "passport"],
+        "channel_in": ["chat", "web_chat", "chatbot"],
+        "industry_in": ["government"]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_cross_agency_data_share_policy",
+      "name": "Cross-agency data sharing without an agreement",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "Moving citizen datasets between agencies requires an executed data-sharing direction or agreement; an agent asked to transfer records inter-agency hands the request to the data governance office to confirm one exists and covers the fields requested.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "data_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["government"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore Public Sector (Governance) Act 2018 — data sharing directions",
+        "Singapore Government Instruction Manual 8 (IM8) — data management policies (comparator)"
+      ],
+      "condition": {
+        "task_type_in": ["cross_agency_data_request", "inter_agency_transfer"],
+        "message_contains_any": ["data sharing agreement", "inter-agency transfer", "share the dataset with another agency", "agency to agency data feed"]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_national_id_bulk_query_block_policy",
+      "name": "National ID system queries at scale",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "Batch lookups against national identity systems — bulk NRIC matching, Aadhaar batch verification — are blocked: scale converts a lawful single-record check into de facto identity-database exfiltration, which the Aadhaar Act expressly prohibits.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["government", "telecom"],
+      "applicable_regions": ["SG", "IN"],
+      "regulatory_references": [
+        "India Aadhaar Act 2016 s.29 — Restriction on sharing identity information",
+        "Singapore PDPC Advisory Guidelines on the PDPA for NRIC and other National Identification Numbers (2018)"
+      ],
+      "condition": {
+        "message_contains_any": ["bulk nric lookup", "aadhaar batch verification", "national id batch query", "mass identity verification", "bulk singpass records"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_public_procurement_comms_policy",
+      "name": "Public-sector procurement communications",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "Outbound messages touching live tenders — clarifications, evaluation notes, award notices — go through the procurement officer before release, because uneven disclosure to bidders can void the tender and expose the agency to challenge.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "procurement_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["government"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore Government Procurement Act 1997 — fair and open procurement obligations"
+      ],
+      "condition": {
+        "message_contains_any": ["tender evaluation", "tender clarification", "procurement bid", "rfp response", "award of tender", "bid comparison"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_citizen_service_faq_policy",
+      "name": "Routine citizen service information",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Government Data & Classification",
+      "description": "Answering published-information questions — office hours, application steps, fee schedules — in a government service channel involves no personal data and is the intended automation surface for citizen chatbots.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["government"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["citizen_service_faq", "public_information_request"],
+        "industry_in": ["government"]
+      },
+      "risk_modifier": -5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_emergency_routing_change_policy",
+      "name": "Emergency-services call routing change",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Emergency Services & Public Safety",
+      "description": "Any change touching how 000, 995, or 112 calls route to answering points is owned end-to-end by a named emergency-services engineer — a misroute is a life-safety event and a breach of the carrier's emergency call determination. Never tunable by a tenant.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "emergency_services_engineering",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Telecommunications (Emergency Call Service) Determination 2019",
+        "Singapore Telecommunications Act 1999 — licensee obligations for essential services"
+      ],
+      "condition": {
+        "message_contains_any": ["emergency call routing", "000 routing", "995 call routing", "triple zero routing", "psap routing change", "112 call handling"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_emergency_alert_broadcast_policy",
+      "name": "Public emergency alert broadcast",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Emergency Services & Public Safety",
+      "description": "Initiating a cell-broadcast public warning reaches every handset in the target area and cannot be recalled; a false alert erodes the channel for real disasters. Only the authorised duty officer may trigger or cancel one.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "emergency_broadcast_duty_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom", "government"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Industry best practice — Common Alerting Protocol (CAP) governance for public warning systems"
+      ],
+      "condition": {
+        "message_contains_any": ["emergency alert broadcast", "cell broadcast warning", "public warning message", "send the evacuation alert", "cancel the emergency alert"]
+      },
+      "risk_modifier": 22,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_restoration_priority_fairness_policy",
+      "name": "Service restoration prioritisation review",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Emergency Services & Public Safety",
+      "description": "An agent-drafted restoration sequence after a major outage is reviewed for fairness before execution: hospitals, emergency services, and priority-assistance customers must rank ahead of commercially attractive accounts, and the rationale must survive regulator scrutiny.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "service_restoration_manager",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "utilities"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Industry best practice — priority assistance and equitable restoration sequencing"
+      ],
+      "condition": {
+        "task_type_in": ["restoration_priority_plan"],
+        "message_contains_any": ["restoration priority", "restoration sequence", "which customers to restore first"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_emergency_traffic_management_policy",
+      "name": "Emergency network traffic management",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Emergency Services & Public Safety",
+      "description": "Throttling or load-shedding plans during a disaster trade one user group's connectivity against another's; the network duty manager approves the plan and confirms emergency-services traffic is exempted before it is applied.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "network_duty_manager",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "IMDA Telecommunication Service Resilience Code of Practice"
+      ],
+      "condition": {
+        "message_contains_any": ["load shedding plan", "throttle network traffic", "emergency traffic management", "congestion control during disaster"]
+      },
+      "risk_modifier": 14,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_sim_swap_verification_policy",
+      "name": "SIM swap and number porting verification",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "SIM replacement, eSIM transfer, and port-out requests are the front door for account-takeover fraud against banking OTPs, so a trained agent re-verifies the subscriber through an out-of-band channel before any swap executes.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "fraud_prevention_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["SG", "IN", "AU", "APAC"],
+      "regulatory_references": [
+        "Industry best practice — SIM-swap fraud controls aligned with IMDA and DoT advisories"
+      ],
+      "condition": {
+        "message_contains_any": ["sim swap", "sim replacement", "esim transfer", "port out request", "transfer my number to a new sim"]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_cpni_disclosure_review_policy",
+      "name": "Subscriber usage and billing record disclosure",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "Call detail records and itemised billing histories are protected communications information; a privacy officer checks the legal basis and the recipient before any export, because Part 13 makes unauthorised disclosure an offence for the carrier's staff and systems alike.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["AU", "SG"],
+      "regulatory_references": [
+        "Australia Telecommunications Act 1997 Part 13 — Protection of communications information",
+        "Singapore PDPA s.24 — Protection Obligation"
+      ],
+      "condition": {
+        "message_contains_any": ["call detail records", "cdr export", "itemised call history", "billing records disclosure"],
+        "detected_risk_signal_in": ["pii_exposure", "external_transfer"]
+      },
+      "risk_modifier": 14,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_subscriber_portal_reset_policy",
+      "name": "Subscriber self-service password reset",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "Routine password resets on the subscriber self-care portal follow the standard verified flow and are the canonical low-risk automation case for a telco support agent.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "detected_intent_in": ["password_reset"],
+        "industry_in": ["telecom"]
+      },
+      "risk_modifier": -5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_bulk_sms_campaign_policy",
+      "name": "Bulk SMS campaign approval",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "Launching a bulk SMS or sender-ID campaign needs the messaging compliance team to verify consent records, sender-ID registration, and unsubscribe handling — anti-spam statutes in both Singapore and Australia attach per-message penalties.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "messaging_compliance_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "all"],
+      "applicable_regions": ["SG", "AU", "IN"],
+      "regulatory_references": [
+        "Singapore Spam Control Act 2007 — unsolicited commercial electronic messages",
+        "Australia Spam Act 2003 s.16 — consent requirement",
+        "India TRAI Telecom Commercial Communications Customer Preference Regulations 2018"
+      ],
+      "condition": {
+        "task_type_in": ["bulk_sms_campaign", "sender_id_registration"],
+        "message_contains_any": ["bulk sms", "sms blast", "mass text campaign", "marketing sms send"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_government_vip_account_policy",
+      "name": "VIP escalation on government accounts",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "Escalations flagged as VIP on government or ministerial accounts get a human approver: pretexting as a senior official is a recurring social-engineering pattern against carrier support desks.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "government_liaison_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom", "government"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "detected_intent_in": ["vip_escalation"],
+        "industry_in": ["government", "telecom"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_telecom_billing_dispute_flag_policy",
+      "name": "Telecom billing dispute risk flag",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Subscriber Data & Fraud Prevention",
+      "description": "Billing disputes on telecom accounts stay automated but carry a risk flag, since disputed roaming and premium-rate charges feed both TIO-style complaints and chargeback fraud patterns worth tracking in aggregate.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — telecommunications industry ombudsman complaint-handling benchmarks"
+      ],
+      "condition": {
+        "detected_intent_in": ["billing_dispute"],
+        "industry_in": ["telecom"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_spectrum_licence_filing_policy",
+      "name": "Spectrum and licence filing review",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Licensing, Spectrum & Interconnect",
+      "description": "Draft spectrum applications and licence filings bind the carrier to build-out and fee obligations for years; regulatory affairs reviews the lot before anything is lodged with IMDA, ACMA, or DoT.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "spectrum_regulatory_affairs",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["SG", "AU", "IN"],
+      "regulatory_references": [
+        "India Telecommunications Act 2023 s.4 — Assignment of spectrum",
+        "IMDA Spectrum Management Handbook"
+      ],
+      "condition": {
+        "task_type_in": ["spectrum_filing", "licence_application"],
+        "message_contains_any": ["spectrum licence", "frequency allocation", "spectrum auction bid", "apparatus licence"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_licence_breach_response_policy",
+      "name": "Licence condition breach response",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Licensing, Spectrum & Interconnect",
+      "description": "A show-cause notice or alleged breach of licence conditions threatens the authorisation the whole business runs on — responses are drafted under privilege by regulatory counsel, never sent by an automated agent.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "regulatory_counsel",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["IN", "SG", "AU", "APAC"],
+      "regulatory_references": [
+        "India Telecommunications Act 2023 — terms and conditions of authorisation",
+        "Singapore Telecommunications Act 1999 s.8 — licensing of telecommunication systems and services"
+      ],
+      "condition": {
+        "message_contains_any": ["show cause notice", "breach of licence conditions", "licence revocation", "regulatory direction to the licensee"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_licence_fee_payment_policy",
+      "name": "Large licence and spectrum fee payment",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Licensing, Spectrum & Interconnect",
+      "description": "Licence-fee and spectrum-charge payments above the operational threshold get finance sign-off before submission: misstated adjusted-gross-revenue calculations have produced decade-long disputes in the Indian market.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "regulatory_finance_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["IN", "SG", "AU"],
+      "regulatory_references": [
+        "Industry best practice — licence fee and adjusted gross revenue reconciliation controls"
+      ],
+      "condition": {
+        "task_type_in": ["licence_fee_payment", "spectrum_charge_remittance"],
+        "amount_greater_than": 50000
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "cig_data_localisation_transfer_policy",
+      "name": "Cross-border transfer of localised telecom data",
+      "category": "Telecom, Critical Infrastructure & Government",
+      "subcategory": "Licensing, Spectrum & Interconnect",
+      "description": "Proposals to mirror or migrate subscriber datasets offshore from Indonesia or Vietnam collide with hard localisation mandates; the data residency officer maps each dataset against the storage-in-country rules before any transfer is engineered.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "data_residency_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["telecom"],
+      "applicable_regions": ["ID", "VN", "APAC"],
+      "regulatory_references": [
+        "Indonesia Government Regulation 71/2019 art. 21 — electronic system data management",
+        "Vietnam Decree 53/2022/ND-CP art. 26 — data localisation requirements"
+      ],
+      "condition": {
+        "message_contains_any": ["offshore data transfer", "data localisation", "migrate subscriber data overseas", "cross-border data mirror", "replicate the database offshore"]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    }
+  ]
+}

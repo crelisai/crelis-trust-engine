@@ -1,0 +1,1324 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Healthcare & Life Sciences",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "hc_ai_diagnosis_request_policy",
+      "name": "Diagnosis request — clinician takeover",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "A user is asking the agent to name their condition ('do i have cancer', 'diagnose my symptoms'). Rendering a diagnosis is the practice of medicine reserved to a registered practitioner, so the conversation is handed to a clinician rather than answered or refused.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "clinical_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "SG",
+        "IN",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Healthcare Services Act 2020 — licensing of outpatient medical services (incl. telemedicine)",
+        "India Telemedicine Practice Guidelines 2020 — professional judgement of the Registered Medical Practitioner"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "diagnose my symptoms",
+          "what is my diagnosis",
+          "do i have cancer",
+          "is this a tumor",
+          "what illness do i have",
+          "tell me what disease i have"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_emergency_symptom_redflag_policy",
+      "name": "Emergency red-flag symptoms",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "Red-flag presentations such as chest pain, stroke signs or major bleeding can deteriorate within minutes. The agent must not triage these itself: a clinician takes over immediately and directs the person to emergency services.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "emergency_triage_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "insurance"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — emergency exclusion criteria in telehealth triage protocols"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "chest pain",
+          "shortness of breath",
+          "slurred speech",
+          "face drooping",
+          "severe bleeding",
+          "lost consciousness",
+          "severe allergic reaction"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_triage_priority_suggestion_policy",
+      "name": "Triage prioritisation suggestions need clinician sign-off",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "Agent-generated queue ordering for emergency or clinic waiting lists is decision support, not a decision: a triage nurse or physician must confirm the ranking before it changes who is seen first. Mis-ranking a deteriorating patient is the canonical SaMD harm scenario.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "triage_nurse_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia TGA — Regulation of software as a medical device (SaMD) guidance",
+        "Industry best practice — clinician-in-the-loop operation of the Australasian Triage Scale"
+      ],
+      "condition": {
+        "task_type_in": [
+          "triage_prioritisation",
+          "ed_queue_ranking",
+          "waitlist_reordering"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_discharge_instructions_automation_policy",
+      "name": "Automated discharge instructions",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "Drafting hospital discharge instructions is a legitimate automation use, but errors in follow-up timing or medication changes drive readmissions. The treating team approves the draft before it reaches the patient.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ward_clinician_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — discharge communication standards (ACSQHC Communicating for Safety)"
+      ],
+      "condition": {
+        "task_type_in": [
+          "discharge_summary_generation",
+          "discharge_instructions_automation"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_general_wellness_information_policy",
+      "name": "General wellness information",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "Generic lifestyle guidance — sleep habits, diet, exercise — carries no individualised clinical risk and falls outside SaMD scope, so the agent answers directly.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "healthy sleep habits",
+          "balanced diet tips",
+          "exercise recommendations for beginners",
+          "how much water should i drink"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_symptom_checker_flag_policy",
+      "name": "Symptom-checker use is flagged, not gated",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Clinical Decision Boundaries",
+      "description": "Running a structured symptom checker is permitted, but the session is flagged so the disclaimer, escalation pathways and audit trail required of clinical decision-support software are demonstrably attached.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia TGA — clinical decision support software exemption criteria (2021)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "symptom checker",
+          "check my symptoms",
+          "what could these symptoms mean"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_dosing_recommendation_policy",
+      "name": "Medication dosing recommendations",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "Dose selection, titration and paediatric weight-based calculations are the highest-consequence drug-safety territory an agent can wander into. Any dosing question is taken over by a pharmacist or prescriber — never answered automatically, never simply refused.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "pharmacist_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "pharmaceutical"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "India Telemedicine Practice Guidelines 2020 cl. 3.7.4 — prescribing limited to defined medicine lists",
+        "Industry best practice — pharmacist verification of dose changes (ISMP high-alert medication guidance)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "recommended dosage",
+          "what dosage",
+          "dosage of",
+          "dose of",
+          "how many milligrams",
+          "how much should i take",
+          "safe dose",
+          "increase my dose",
+          "correct dose for",
+          "dosage for my child",
+          "double my dose"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_drug_interaction_check_policy",
+      "name": "Drug-interaction warnings",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "Interaction queries ('safe to take together', warfarin combinations) can be drafted from the interaction database, but a pharmacist confirms the answer before release because context — renal function, dose, timing — changes the clinical significance.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "pharmacist_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "pharmaceutical"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — clinical screening of interaction alerts before patient communication"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "drug interaction",
+          "interact with my medication",
+          "safe to take together",
+          "mix these medications",
+          "taking warfarin with"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_prescription_renewal_review_policy",
+      "name": "Prescription renewals require prescriber review",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "Repeat-prescription workflows may be prepared by the agent, but issuing without prescriber review would constitute unsupervised prescribing. The renewal packet (adherence, last review date, monitoring bloods) goes to the prescriber for sign-off.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "prescriber_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "SG",
+        "IN",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Healthcare Services Act 2020 — MOH licensing terms on prescribing in licensed services",
+        "India Telemedicine Practice Guidelines 2020 — follow-up consultation prescribing conditions"
+      ],
+      "condition": {
+        "task_type_in": [
+          "prescription_renewal",
+          "repeat_prescription_processing"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_controlled_substance_request_policy",
+      "name": "Controlled-substance requests",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "Requests touching opioids, benzodiazepines or other scheduled drugs cannot be fulfilled or declined by an agent: several APAC regimes prohibit teleprescribing them outright, yet the requester may be in genuine untreated pain or withdrawal. A prescriber takes the conversation.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "prescriber_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "pharmaceutical"
+      ],
+      "applicable_regions": [
+        "IN",
+        "SG",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "India Telemedicine Practice Guidelines 2020 cl. 3.7.4 — Prohibited List (Schedule X and NDPS Act 1985 drugs)",
+        "Singapore Misuse of Drugs Regulations — controlled drug prescription requirements"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "controlled substance",
+          "opioid prescription",
+          "oxycodone refill",
+          "benzodiazepine prescription",
+          "morphine without a prescription",
+          "sleeping pills without a prescription",
+          "codeine refill"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_abrupt_medication_cessation_policy",
+      "name": "Abrupt medication cessation statements",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "A patient announcing they will stop antidepressants, anticoagulants or insulin is at risk of discontinuation syndrome, stroke or DKA. The agent must not endorse or argue; a clinician takes over to manage tapering and the underlying reason.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "clinical_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — supervised deprescribing and taper protocols"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "stop taking my antidepressants",
+          "quit my medication cold turkey",
+          "stop my blood thinners",
+          "stop taking my insulin"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_adverse_event_statutory_clock_policy",
+      "name": "Adverse event report — statutory clock starts",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Prescriptions & Medication Safety",
+      "description": "A reported serious adverse reaction starts statutory pharmacovigilance clocks (15 calendar days for serious cases under TGA and HSA sponsor rules); missing them is a regulator-notification breach, so this duty can never be disabled by a customer. The case is taken over and logged into the pharmacovigilance system immediately.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "pharmacovigilance_queue",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "pharmaceutical",
+        "healthcare",
+        "life_sciences"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia Therapeutic Goods Act 1989 s.29A — notification of adverse effects",
+        "Singapore Health Products Act 2007 — duty to inform HSA of defects and adverse effects"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "serious adverse event",
+          "adverse drug reaction",
+          "hospitalised after taking",
+          "severe side effect from",
+          "adverse reaction to the vaccine"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_bulk_record_export_block_policy",
+      "name": "Bulk patient-record export interdiction",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "A detected bulk data-export intent inside a healthcare context is treated as attempted exfiltration of the most sensitive data class the engine governs. The action is blocked outright; legitimate dataset releases go through the governed research-release workflow instead.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "pharmaceutical",
+        "life_sciences"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "JP",
+        "TH",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia My Health Records Act 2012 s.59 — unauthorised collection, use or disclosure",
+        "Thailand PDPA s.26 — sensitive personal data (health data)",
+        "Japan APPI art. 20(2) — special care-required personal information"
+      ],
+      "condition": {
+        "detected_intent_in": [
+          "data_export"
+        ],
+        "industry_in": [
+          "healthcare",
+          "telehealth",
+          "pharmaceutical",
+          "life_sciences"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_record_snooping_block_policy",
+      "name": "Record access beyond the care team",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "Requests to open records of a patient the requester is not treating — the classic snooping pattern behind most health-privacy enforcement actions — are refused outright and logged. Care-team membership, not curiosity, is the access basis.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia My Health Records Act 2012 s.59 — unauthorised collection, use or disclosure",
+        "US HIPAA Privacy Rule 45 CFR 164.502(b) — minimum necessary standard (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "another patient's record",
+          "not my patient",
+          "outside my care team",
+          "browse patient records",
+          "look up a patient i am not treating"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_insurer_employer_disclosure_policy",
+      "name": "Record disclosure to insurers or employers",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "Releasing medical records to an insurer or employer can be lawful with valid, scoped authorisation — and unlawful without it; Australia bans insurer/employer access to My Health Record entirely. A health-information officer verifies consent, scope and recipient before anything leaves.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "health_information_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "insurance"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "TH",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia My Health Records Act 2012 (as amended 2018) — prohibition on insurer and employer access",
+        "US HIPAA Privacy Rule 45 CFR 164.508 — authorizations (global comparator)",
+        "Thailand PDPA s.26 — explicit consent for health data"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "send my records to the insurer",
+          "share my medical records with the insurance company",
+          "release my medical records",
+          "medical report for my insurer",
+          "share my diagnosis with my employer"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_minor_record_access_policy",
+      "name": "Access to a minor's health records",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "Parents routinely and legitimately request children's results, but guardianship status, custody orders and the mature-minor doctrine all change who may see what. A records officer confirms the legal basis before release.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "medical_records_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "IN",
+        "SG",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "India DPDP Act 2023 s.9 — processing of children's personal data",
+        "Industry best practice — Gillick competence assessment for adolescent confidentiality"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "my child's medical records",
+          "my son's test results",
+          "my daughter's immunisation records",
+          "records for my teenager"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_vaccination_record_release_policy",
+      "name": "Own vaccination record release",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "Issuing a patient their own vaccination certificate over a verified-identity channel is a routine, high-volume request safe to automate; the release is flagged for the audit trail.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — verified-identity self-service release of immunisation summaries"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "vaccination certificate",
+          "immunisation history",
+          "copy of my vaccination record",
+          "proof of vaccination"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_record_amendment_request_policy",
+      "name": "Medical record amendment requests",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Patient Records & Confidentiality",
+      "description": "Correction rights exist across APAC privacy law, but clinical records are never silently rewritten: the original entry is preserved and the amendment appended after a health-information officer validates the change.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "medical_records_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "JP",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Japan APPI art. 29 — correction of retained personal data",
+        "Australia Privacy Act 1988 APP 13 — correction of personal information"
+      ],
+      "condition": {
+        "task_type_in": [
+          "medical_record_amendment",
+          "record_correction_request"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_cross_border_teleconsult_policy",
+      "name": "Cross-border telehealth licensure check",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "A consultation crossing a licensure border — patient in one jurisdiction, practitioner registered in another — may be unlicensed practice even when clinically sound. Compliance confirms the practitioner's registration covers the patient's location before the booking proceeds.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "telehealth_compliance_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "telehealth",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "SG",
+        "IN",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Healthcare Services Act 2020 — licensing of outpatient telemedicine services",
+        "India Telemedicine Practice Guidelines 2020 — applicability to RMPs registered under the IMC Act"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "doctor licensed overseas",
+          "consultation from another country",
+          "see a specialist abroad",
+          "prescribe for me from overseas"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_new_patient_teleconsult_policy",
+      "name": "First telehealth consultation onboarding",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "First consultations carry stricter duties than follow-ups — identity verification, suitability-for-telemedicine screening and consent capture. The onboarding pack the agent assembles is approved by the consulting clinician before the session starts.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "telehealth_clinician_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "telehealth",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "IN",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "India Telemedicine Practice Guidelines 2020 — first consultation requirements",
+        "Singapore MOH licensing terms — telemedicine patient suitability assessment"
+      ],
+      "condition": {
+        "task_type_in": [
+          "new_patient_teleconsult",
+          "first_video_consultation_setup"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_medical_certificate_issuance_policy",
+      "name": "Medical certificate issuance",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "A medical certificate is a legal attestation only a registered practitioner who has assessed the patient may sign; an agent issuing one would be certifying fitness it never examined. Requests route to a licensed practitioner — including the frequent 'backdated MC' ask, which the practitioner must personally decline.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "licensed_practitioner_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Medical Council Ethical Code and Ethical Guidelines (2016) — duties in issuing medical certificates"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "medical certificate",
+          "sick leave certificate",
+          "mc for work",
+          "backdated mc",
+          "fitness for duty certificate"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_teleconsult_recording_consent_policy",
+      "name": "Consultation recording and sharing",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "Recording a video consultation creates a new sensitive-data artefact requiring its own consent under APPI-style regimes, and sharing it multiplies the exposure. The privacy officer approves recording or onward sharing case by case.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "telehealth",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "JP",
+        "TH",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Japan APPI art. 20(2) — acquiring special care-required personal information requires consent",
+        "Thailand PDPA s.26 — sensitive personal data (health data)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "record this consultation",
+          "recording of my consultation",
+          "share the session recording",
+          "video recording of my appointment"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_teleconsult_nric_capture_policy",
+      "name": "NRIC capture during telehealth registration",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "Healthcare is one of the few sectors where collecting the NRIC is expressly permitted (it is required for medical records), so detection of an NRIC in a telehealth flow is allowed but flagged so retention and masking rules demonstrably apply.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "SG"
+      ],
+      "regulatory_references": [
+        "Singapore PDPC Advisory Guidelines on the PDPA for NRIC and Other National Identification Numbers (2018)"
+      ],
+      "condition": {
+        "detected_entity_in": [
+          "nric"
+        ],
+        "industry_in": [
+          "healthcare",
+          "telehealth"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_overseas_medication_shipping_policy",
+      "name": "Shipping medication across borders",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Telehealth & Cross-border Care",
+      "description": "Mailing prescription medicines to another country triggers import licensing and personal-importation scheme limits that vary by destination and drug schedule. Fulfilment pauses for a pharmacist's check of the destination rules.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "pharmacist_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth",
+        "pharmaceutical"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia TGA — Personal Importation Scheme conditions",
+        "Industry best practice — destination-country import verification before pharmacy dispatch"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "ship my medication overseas",
+          "mail my prescription abroad",
+          "send medicines to another country",
+          "personal importation of medicine"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_self_harm_crisis_takeover_policy",
+      "name": "Self-harm or suicide risk — immediate crisis takeover",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Mental Health & Crisis Response",
+      "description": "Any self-harm or suicidal language triggers an immediate warm transfer to the crisis queue with helpline details displayed while the human connects — never a block, because blocking severs contact with a person at risk at the exact moment they reached out. Non-disableable: no customer configuration may ever leave this unhandled.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "crisis_response_queue",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — Zero Suicide framework warm-transfer protocols (SOS Singapore, Lifeline Australia)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "self harm",
+          "self-harm",
+          "kill myself",
+          "kill themselves",
+          "end my life",
+          "end their life",
+          "take their own life",
+          "suicidal",
+          "hurt myself",
+          "hurt themselves",
+          "want to die",
+          "no reason to live",
+          "overdose on purpose"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_harm_to_others_risk_policy",
+      "name": "Risk-of-harm-to-others disclosure",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Mental Health & Crisis Response",
+      "description": "Statements of intent to harm another person engage duty-to-warn considerations that only a clinician can weigh against confidentiality. The session transfers to the crisis team for risk assessment rather than being refused or ignored.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "crisis_response_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — clinical duty-to-warn risk assessment (Tarasoff-informed protocols)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "hurt someone else",
+          "harm my family",
+          "thoughts of hurting others",
+          "violent thoughts about"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_mental_health_screening_scoring_policy",
+      "name": "Mental-health screening instrument scoring",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Mental Health & Crisis Response",
+      "description": "PHQ-9 and GAD-7 scores computed by the agent are screening signals, not diagnoses — and item 9 of the PHQ-9 is itself a suicide-risk probe. A clinician interprets the score and decides the follow-up before any result reaches the patient.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "clinical_review_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — clinician interpretation of validated screening instruments"
+      ],
+      "condition": {
+        "task_type_in": [
+          "mental_health_screening",
+          "phq9_scoring",
+          "gad7_scoring"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_therapist_substitute_request_policy",
+      "name": "Requests to replace licensed mental-health care",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Mental Health & Crisis Response",
+      "description": "Users asking the agent to 'be my therapist' or replace their psychiatrist are often signalling disengagement from care. A reviewer approves the boundary-setting response and checks whether the message warrants a clinical outreach rather than a canned redirect.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "mental_health_intake_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "telehealth"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — conversational AI boundaries in digital mental health (APS/RANZCP guidance)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "be my therapist",
+          "replace my psychiatrist",
+          "instead of seeing my psychologist",
+          "i fired my therapist"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_mental_wellness_content_policy",
+      "name": "Mental-wellness self-help content",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Mental Health & Crisis Response",
+      "description": "Low-acuity wellbeing content — mindfulness, breathing, sleep hygiene — is safe to deliver automatically and keeping it friction-free preserves engagement with people who may later disclose more.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "mindfulness exercises",
+          "breathing techniques",
+          "sleep hygiene tips",
+          "stress management techniques"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_trial_participant_data_policy",
+      "name": "Clinical-trial participant data handling",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Research, Trials & Genomics",
+      "description": "Participant-identifiable trial data sits under both privacy law and GCP confidentiality duties, and an unblinding request can invalidate a study. Research governance takes over any request touching participant lists or subject-level records.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "research_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "life_sciences",
+        "pharmaceutical",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "SG",
+        "KR",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Human Biomedical Research Act 2015 — restrictions on disclosure of individually-identifiable research information",
+        "ICH-GCP E6(R2) — confidentiality of trial subject records"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "clinical trial participant",
+          "trial participant list",
+          "study subject records",
+          "unblind the trial"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_research_consent_withdrawal_policy",
+      "name": "Research consent withdrawal",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Research, Trials & Genomics",
+      "description": "Withdrawal from a study must be honoured without penalty and documented against the protocol — but what happens to already-collected tissue and data is protocol-specific, so the coordinator confirms the downstream handling before the agent acknowledges completion.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "research_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "life_sciences",
+        "pharmaceutical",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "SG",
+        "KR",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Human Biomedical Research Act 2015 Part 3 — appropriate consent and its withdrawal",
+        "Korea Bioethics and Safety Act art. 16 — consent of human research subjects"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "withdraw from the study",
+          "leave the clinical trial",
+          "withdraw my research consent",
+          "stop participating in the trial"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_genetic_result_disclosure_policy",
+      "name": "Genetic test result disclosure",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Research, Trials & Genomics",
+      "description": "Results like a BRCA variant or Huntington's status are life-altering, frequently misread, and implicate blood relatives who never consented to testing. Disclosure happens only through a genetic counsellor or clinician — never as an automated message.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "genetic_counselling_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "healthcare",
+        "life_sciences"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — pre- and post-test genetic counselling (HGSA guidance)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "genetic test results",
+          "brca test result",
+          "carrier screening results",
+          "genome sequencing report",
+          "huntington's test result"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_genetic_data_insurer_block_policy",
+      "name": "Genetic data to insurers interdiction",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Research, Trials & Genomics",
+      "description": "Feeding genetic results into underwriting is prohibited genetic discrimination in Korea and barred by the Australian life-insurance moratorium; unlike general record releases there is no consent pathway that cures it in these regimes, so the transfer is blocked.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "insurance",
+        "healthcare",
+        "life_sciences"
+      ],
+      "applicable_regions": [
+        "KR",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Korea Bioethics and Safety Act art. 46 — prohibition of discrimination on grounds of genetic information",
+        "Industry best practice — FSC Moratorium on Genetic Tests in Life Insurance (Australia)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "genetic results to my insurer",
+          "dna test for underwriting",
+          "genetic risk score for insurance",
+          "send my genome to the insurance company"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_research_dataset_release_policy",
+      "name": "De-identified research dataset release",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Research, Trials & Genomics",
+      "description": "Releasing 'anonymised' health datasets is where re-identification failures happen — small cells, rare diagnoses, linkable dates. The data governance board reviews the de-identification assessment before the agent transmits anything.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_governance_board",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "life_sciences",
+        "healthcare",
+        "pharmaceutical"
+      ],
+      "applicable_regions": [
+        "SG",
+        "JP",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore PDPC Guide to Basic Anonymisation (2022)",
+        "Japan APPI arts. 41-42 — pseudonymously processed information"
+      ],
+      "condition": {
+        "task_type_in": [
+          "research_dataset_release",
+          "deidentified_data_sharing"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_therapeutic_claims_marketing_policy",
+      "name": "Therapeutic claims in marketing copy",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Insurance Interface & Therapeutic Marketing",
+      "description": "Copy claiming to cure cancer, treat COVID or reverse diabetes uses restricted or prohibited representations that require regulator pre-approval in Australia and attract strict liability. Regulatory affairs reviews the draft before publication anywhere in the funnel.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "regulatory_affairs_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "pharmaceutical",
+        "healthcare",
+        "life_sciences"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Australia Therapeutic Goods Act 1989 s.42DL — advertising offences (restricted and prohibited representations)",
+        "Therapeutic Goods (Therapeutic Goods Advertising Code) Instrument 2021"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "clinically proven to cure",
+          "miracle cure",
+          "guaranteed to cure",
+          "cures cancer",
+          "treats covid",
+          "reverses diabetes"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_claim_status_inquiry_policy",
+      "name": "Health-insurance claim status inquiries",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Insurance Interface & Therapeutic Marketing",
+      "description": "Telling a verified member where their hospitalisation claim or pre-authorisation sits in the pipeline is read-only and safe to automate; the flag keeps the interaction visible in audit without slowing it down.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "insurance",
+        "healthcare"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "my claim status",
+          "insurance claim status",
+          "pre-authorisation status",
+          "status of my hospitalisation claim"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hc_preauthorization_decision_policy",
+      "name": "Pre-authorisation and claim adjudication decisions",
+      "category": "Healthcare & Life Sciences",
+      "subcategory": "Insurance Interface & Therapeutic Marketing",
+      "description": "An agent may assemble the medical-necessity packet, but approving or denying cover for a treatment is a coverage decision with clinical consequences — a claims assessor with clinical input signs off, and denials are never auto-issued.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "claims_assessor_queue",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "insurance"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — clinician involvement in medical-necessity determinations"
+      ],
+      "condition": {
+        "task_type_in": [
+          "preauthorization_decision",
+          "health_claim_adjudication"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    }
+  ]
+}

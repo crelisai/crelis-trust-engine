@@ -1,0 +1,1035 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "AI Model Governance & Explainability",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "aim_credit_decision_no_reason_codes_policy",
+      "name": "Credit decision without explainability artefacts",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "An automated credit decision is being issued while the agent admits reason codes or an explainability report are unavailable. MAS FEAT Transparency expects data subjects to receive clear explanations for AI-driven credit outcomes, so the decision must pass to a human credit officer until artefacts exist.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "model_risk_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Transparency (T)",
+        "EU AI Act Annex III pt. 5(b) — Creditworthiness Assessment (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "without reason codes",
+          "no explainability report",
+          "cannot explain the credit score",
+          "decline reason unavailable",
+          "no adverse action notice"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_adverse_decision_no_recourse_policy",
+      "name": "Adverse automated decision with no recourse channel",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "The flow proposes communicating an adverse automated outcome while removing or omitting the customer's appeal channel. HKMA's consumer-protection expectations for big data analytics require a review-and-redress mechanism before such an outcome lands.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "responsible_ai_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "fintech"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "HKMA Circular — Consumer Protection in respect of Use of Big Data Analytics and AI (Nov 2019)",
+        "MAS FEAT Principles (2018) — Transparency (T)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "no appeal channel",
+          "without recourse",
+          "customer cannot appeal",
+          "suppress the appeal option",
+          "no recourse channel"
+        ]
+      },
+      "risk_modifier": 16,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_explainability_artefact_waiver_policy",
+      "name": "Waiver of explainability artefact generation",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "A structured agent call asks to waive reason-code or explanation generation for a decisioning pipeline. Waivers are occasionally legitimate (e.g. pure fraud interdiction models) but each one needs a documented sign-off because it weakens the transparency posture MAS and IMDA assess.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ai_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Transparency (T)",
+        "IMDA Model AI Governance Framework (2020) — Stakeholder Interaction & Communication"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "waive_explainability_artefacts",
+          "skip_reason_code_generation",
+          "disable_explanation_service"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_customer_explanation_request_policy",
+      "name": "Customer asks why the model decided against them",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "A customer is asking for the reasons behind an automated lending or application outcome. Serving the stored reason codes is a routine transparency duty the assistant may fulfil itself, flagged so supervisors can audit explanation quality.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech", "insurance"],
+      "applicable_regions": ["SG", "HK", "AU", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Transparency (T)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "why was my loan declined",
+          "explain my credit decision",
+          "reason for rejecting my application",
+          "why did the system decline me"
+        ]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_black_box_model_regulated_use_policy",
+      "name": "Opaque model proposed for a regulated decision",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "The conversation describes putting an uninterpretable model into a banking or insurance decision path with no interpretability method attached. Under the Veritas assessment methodology the institution must evidence a transparency assessment first, so a governance approver gates the step.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "model_risk_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS Veritas Methodology — FEAT Transparency Assessment",
+        "HKMA High-level Principles on AI (2019) — Explainability"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "black box model",
+          "no interpretability method",
+          "unexplainable model",
+          "cannot produce feature attributions"
+        ],
+        "industry_in": ["banking", "insurance"]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_vulnerable_segment_auto_decision_policy",
+      "name": "Automated decisioning over vulnerable customers",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Explainability & Recourse",
+      "description": "An automated credit or collections decision is about to be applied to a customer flagged as elderly, in hardship, or otherwise vulnerable. Both the Australian voluntary AI Ethics Principles and Chinese algorithm-recommendation rules single out vulnerable groups for heightened care, so a human specialist must own the outcome.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "vulnerable_customer_care",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech", "insurance"],
+      "applicable_regions": ["AU", "CN", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia AI Ethics Principles (2019, voluntary) — Fairness",
+        "China Algorithmic Recommendation Provisions (2022) — Protection of Vulnerable User Groups",
+        "HKMA Circular — Consumer Protection in respect of Use of Big Data Analytics and AI (Nov 2019)"
+      ],
+      "condition": {
+        "task_type_in": ["automated_credit_decision", "collections_decision"],
+        "message_contains_any": [
+          "vulnerable customer",
+          "financial hardship",
+          "elderly customer",
+          "hardship application"
+        ]
+      },
+      "risk_modifier": 17,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_deploy_without_independent_validation_policy",
+      "name": "Model deployment skipping independent validation",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "The request seeks to push a model live while explicitly skipping or bypassing independent validation. HKMA's high-level principles make rigorous validation by a function independent of the developers a precondition for production use, so an expert must intervene rather than merely approve.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "model_validation_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "HKMA High-level Principles on AI (2019) — Rigorous Model Validation",
+        "MAS FEAT Principles (2018) — Accountability (A)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "skip the validation",
+          "without independent validation",
+          "bypass model validation",
+          "no validation report",
+          "validation can wait"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_production_model_deployment_gate_policy",
+      "name": "Production model deployment gate",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "Any structured request to deploy or promote a model into production routes through a release approver who confirms validation evidence, rollback plan, and inventory registration are in place, mirroring the operations-management practices in IMDA's framework.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "mlops_release_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework (2020) — Operations Management"
+      ],
+      "condition": {
+        "task_type_in": ["model_deployment", "model_promotion"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_model_drift_threshold_unreviewed_policy",
+      "name": "Model drift past threshold left unreviewed",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "Population-stability or performance drift has breached its alert threshold and someone proposes ignoring or suppressing the alert. Continuing to score customers on a drifted model without review undermines the ongoing-monitoring duty regulators expect, so an approver must decide remediate-or-accept.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "model_monitoring_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "HKMA High-level Principles on AI (2019) — Ongoing Monitoring and Maintenance",
+        "MAS FEAT Principles (2018) — Accountability (A)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "drift beyond threshold",
+          "ignore the drift alert",
+          "psi threshold exceeded",
+          "suppress drift monitoring",
+          "drift alert unreviewed"
+        ]
+      },
+      "risk_modifier": 13,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_routine_model_retraining_policy",
+      "name": "Scheduled model retraining run",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "Scheduled retraining on an approved dataset within an existing governance envelope is routine MLOps and may run automatically; the flag keeps each run visible in the governance log for the next periodic review.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework (2020) — Operations Management"
+      ],
+      "condition": {
+        "task_type_in": ["model_retraining", "scheduled_retraining"]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_model_card_documentation_missing_policy",
+      "name": "Model card or inventory documentation missing",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "The agent reports that a model in scope has no model card, documentation, or inventory entry. Japan's AI Guidelines for Business and IMDA both treat documented model purpose and limitations as a baseline control, so progress pauses for a documentation owner's approval.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ai_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["JP", "SG", "APAC"],
+      "regulatory_references": [
+        "Japan AI Guidelines for Business v1.0 (METI/MIC, 2024) — Transparency",
+        "IMDA Model AI Governance Framework (2020) — Internal Governance Structures"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "no model card",
+          "missing model documentation",
+          "undocumented model",
+          "no model inventory entry"
+        ]
+      },
+      "risk_modifier": 9,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_model_rollback_decommission_policy",
+      "name": "Model rollback or decommissioning",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Model Lifecycle & Validation",
+      "description": "Rolling back to a previously approved champion model or retiring a model is a risk-reducing action and may proceed automatically, with a flag so the inventory and downstream consumers get reconciled afterwards.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — model inventory and retirement controls"
+      ],
+      "condition": {
+        "task_type_in": ["model_rollback", "model_decommissioning"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_high_value_automated_credit_policy",
+      "name": "High-value fully automated credit decision",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "Credit decisions at or above 50,000 carry exposure where FEAT Accountability expects clear human ownership of the outcome, and the EU AI Act treats creditworthiness models as high-risk. The decision itself moves to a credit officer instead of straight-through processing.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "credit_risk_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["SG", "HK", "AU", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Accountability (A)",
+        "EU AI Act Annex III pt. 5(b) — Creditworthiness Assessment (global comparator)"
+      ],
+      "condition": {
+        "task_type_in": ["automated_credit_decision", "loan_origination_scoring"],
+        "amount_at_least": 50000
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_insurance_pricing_no_actuarial_signoff_policy",
+      "name": "AI insurance pricing without actuarial sign-off",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "An AI-derived premium or pricing change is being pushed while bypassing the actuarial control cycle. Pricing adequacy and fairness remain an accountable human function in every APAC insurance regime, so an actuary must take the case over.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "actuarial_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["insurance"],
+      "applicable_regions": ["SG", "HK", "AU", "JP", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Accountability (A)",
+        "Industry best practice — actuarial control cycle for pricing models"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "without actuarial sign-off",
+          "skip actuarial review",
+          "no actuarial approval",
+          "bypass the actuary"
+        ],
+        "industry_in": ["insurance"]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_algorithmic_price_collusion_policy",
+      "name": "Algorithmic pricing coordination with competitors",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "The request asks a pricing model to mirror or coordinate with competitor pricing algorithms, a pattern competition authorities increasingly treat as hub-and-spoke collusion even without an explicit agreement. Legal counsel must take over before any pricing logic changes.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "legal_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — competition-law exposure of algorithmic pricing coordination"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "match competitor pricing algorithm",
+          "coordinate prices with competitors",
+          "align our prices with theirs",
+          "sync pricing with the other platforms"
+        ]
+      },
+      "risk_modifier": 16,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_social_scoring_use_block_policy",
+      "name": "Social-scoring style model use interdiction",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "Building or applying a general trustworthiness score over people's social behaviour, detached from the context the data was collected in, is a prohibited practice under the EU AI Act and incompatible with every APAC ethics framework Crelis maps to. The engine refuses outright; no customer configuration can re-enable it.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "EU AI Act art. 5(1)(c) — Prohibited Social Scoring (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "social scoring",
+          "social credit score",
+          "trustworthiness score based on behaviour",
+          "score citizens by conduct"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_workplace_emotion_recognition_block_policy",
+      "name": "Emotion recognition on employees interdiction",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "Inferring employees' emotions from faces, voice, or keystrokes for monitoring or appraisal is prohibited in the workplace under the EU AI Act and sits squarely against the human-centred values strand of Australia's voluntary principles. The platform blocks the request and the interdiction is not customer-tunable.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "EU AI Act art. 5(1)(f) — Emotion Recognition in the Workplace (global comparator)",
+        "Australia AI Ethics Principles (2019, voluntary) — Human-centred Values"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "emotion recognition",
+          "detect employee emotions",
+          "analyse staff facial expressions",
+          "emotion detection in the workplace",
+          "infer mood from keystrokes"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_differential_pricing_loyal_customers_policy",
+      "name": "Algorithmic differential pricing of existing customers",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Automated Decisioning Boundaries",
+      "description": "The model is being asked to charge loyal or returning customers more than new ones based on profiled willingness to pay. China's algorithm-recommendation provisions expressly prohibit unreasonable differential pricing, and conduct regulators elsewhere in APAC treat it as an unfair-outcome marker, so a pricing approver reviews first.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "pricing_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "SG", "HK", "APAC"],
+      "regulatory_references": [
+        "China Algorithmic Recommendation Provisions (2022) — Prohibition of Unreasonable Differential Pricing",
+        "HKMA Circular — Consumer Protection in respect of Use of Big Data Analytics and AI (Nov 2019)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "charge loyal customers more",
+          "personalised price increase",
+          "differential pricing by profile",
+          "big data price discrimination"
+        ]
+      },
+      "risk_modifier": 11,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_genai_regulated_advice_passthrough_policy",
+      "name": "GenAI output presented as regulated advice",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "Someone proposes letting raw model output stand as financial, legal, or medical advice to a customer. Regulated advice carries licensing and suitability duties a language model cannot discharge, so a licensed human professional must take over the interaction.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "compliance_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "fintech", "healthcare", "legal"],
+      "applicable_regions": ["SG", "HK", "AU", "APAC"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Accountability",
+        "MAS FEAT Principles (2018) — Ethics (E)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "let the chatbot give financial advice",
+          "present it as legal advice",
+          "medical advice from the model",
+          "investment recommendation from the llm",
+          "send the model answer as official advice"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_undisclosed_synthetic_media_block_policy",
+      "name": "Undisclosed synthetic media generation",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "Generating deepfake or synthetic media while stripping or omitting the required disclosure label violates China's deep-synthesis labelling regime and Korea's generative-output labelling duty, with the EU AI Act imposing the same transparency obligation. Unlabelled synthesis is refused.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "KR", "APAC", "global"],
+      "regulatory_references": [
+        "China Provisions on Deep Synthesis of Internet Information Services (2023) — Conspicuous Labelling of Synthetic Content",
+        "Korea AI Framework Act (2025) — Generative AI Output Labelling",
+        "EU AI Act art. 50 — Transparency for Synthetic Content (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "deepfake video",
+          "undisclosed synthetic media",
+          "remove the ai watermark",
+          "without the synthetic content label",
+          "unlabeled deepfake"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_ungrounded_genai_customer_comms_policy",
+      "name": "Hallucination-prone output into customer communications",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "Generated text is about to reach customers with grounding, citation, or fact checks deliberately skipped. IMDA's GenAI framework places testing-and-assurance duties on deployers precisely because confabulated product or rate details create mis-selling exposure; an editor approves before send.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "content_review_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Testing & Assurance"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "send without fact check",
+          "unverified model output",
+          "skip the grounding check",
+          "no citation check",
+          "publish the draft as is"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_labelled_genai_marketing_content_policy",
+      "name": "Labelled generative marketing content",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "Producing marketing or campaign copy through the approved generative pipeline, which applies provenance labels automatically, is permitted; the flag feeds the disclosure-compliance sample that checks labels survived downstream editing.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "KR", "APAC"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Content Provenance",
+        "Korea AI Framework Act (2025) — Generative AI Output Labelling"
+      ],
+      "condition": {
+        "task_type_in": ["marketing_copy_generation", "generative_content_publication"]
+      },
+      "risk_modifier": 7,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_prompt_log_purge_request_policy",
+      "name": "Purging prompt and output retention records",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "A request to delete prompt logs or disable output logging removes the evidentiary trail supervisors and incident responders rely on, and cuts against the incident-reporting dimension of IMDA's GenAI framework. A records officer must take the request over and assess retention duties first.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ai_governance_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Incident Reporting",
+        "Industry best practice — supervisory record-keeping expectations for model inputs and outputs"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "delete the prompt logs",
+          "purge model outputs",
+          "disable output logging",
+          "turn off prompt logging"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_unlogged_output_regulated_process_policy",
+      "name": "Model output entering a regulated process unlogged",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Generative AI Output Controls",
+      "description": "In a banking, insurance, or securities workflow the agent proposes acting on model output with no audit trail. HKMA expects AI-assisted decisions to be auditable end to end, so an approver confirms logging is restored before the step proceeds.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "internal_audit_liaison",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "securities"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "HKMA High-level Principles on AI (2019) — Auditability"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "without an audit trail",
+          "no audit log",
+          "bypass the audit log",
+          "nothing gets logged"
+        ],
+        "industry_in": ["banking", "insurance", "securities"]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_hitl_removal_regulated_flow_policy",
+      "name": "Removing human-in-the-loop from a regulated flow",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Human Oversight",
+      "description": "Stripping the human checkpoint out of a regulated decision flow defeats the oversight architecture that IMDA's human-involvement guidance, Korea's high-impact AI duties, and EU AI Act Article 14 all mandate. The request escalates to the governance office and this control can never be disabled by a customer.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "ai_governance_office",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "KR", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework (2020) — Human Involvement in AI-Augmented Decision-Making",
+        "Korea AI Framework Act (2025) — High-Impact AI Human Oversight",
+        "EU AI Act art. 14 — Human Oversight (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "remove human in the loop",
+          "without human review",
+          "fully automate the approval",
+          "remove the human checkpoint",
+          "disable manual review"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_override_human_reviewer_decision_policy",
+      "name": "Overriding a human reviewer's model-decision outcome",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Human Oversight",
+      "description": "An agent is asked to overturn a rejection or correction issued by the designated human reviewer. Letting automation outrank its own overseer inverts the accountability chain FEAT requires, so the conflict goes to a senior model-risk owner rather than being resolved by the machine.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "senior_model_risk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Accountability (A)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "override the reviewer decision",
+          "overrule the human reviewer",
+          "ignore the reviewer rejection",
+          "the model knows better than the reviewer"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_oversight_threshold_relaxation_policy",
+      "name": "Relaxing automated-decision oversight thresholds",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Human Oversight",
+      "description": "Raising auto-approval limits or thinning review sampling changes how much decisioning escapes human eyes, which IMDA frames as a deliberate, risk-assessed choice of oversight model. The change request needs a governance approver, not a unilateral agent action.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "model_risk_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework (2020) — Human Involvement in AI-Augmented Decision-Making"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "raise_auto_approval_threshold",
+          "relax_review_sampling",
+          "reduce_oversight_coverage"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_periodic_oversight_attestation_policy",
+      "name": "Periodic human-oversight attestation run",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Human Oversight",
+      "description": "Compiling the periodic attestation that human-oversight controls operated as designed is a routine governance task the agent may complete itself; the flag ensures the attestation lands in the accountability record Japan's business guidelines expect operators to keep.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["JP", "APAC", "global"],
+      "regulatory_references": [
+        "Japan AI Guidelines for Business v1.0 (METI/MIC, 2024) — Accountability"
+      ],
+      "condition": {
+        "task_type_in": ["oversight_attestation", "periodic_model_review"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_kill_switch_disable_request_policy",
+      "name": "Disabling model kill switch or fallback",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Human Oversight",
+      "description": "Disabling the kill switch, circuit breaker, or fallback path leaves no safe way to halt a misbehaving model mid-incident. Because fail-safe controls are the backbone of the safety dimension in IMDA's GenAI framework, a reliability owner must take over the request.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "site_reliability_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Safety & Alignment"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "disable the kill switch",
+          "remove the circuit breaker",
+          "bypass the fallback",
+          "disable the rollback mechanism"
+        ]
+      },
+      "risk_modifier": 19,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_training_on_customer_data_no_consent_policy",
+      "name": "Training on customer data without a consent basis",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Data & Training Provenance",
+      "description": "Customer records or conversations are proposed as training material with no consent or legal basis established. Singapore's PDPA consent obligation and China's generative-AI training-data rules both make this a lawyer-and-DPO question, not an engineering convenience, so a data-protection officer takes the case.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "data_protection_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "CN", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.13–14 — Consent Obligation",
+        "China Interim Measures for Generative AI Services (2023) art. 7 — Training Data Legality"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "train on customer data without consent",
+          "no consent basis for training",
+          "fine-tune on customer conversations",
+          "use customer records for training"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_finetune_on_production_incidents_policy",
+      "name": "Fine-tuning on production incident data",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Data & Training Provenance",
+      "description": "Incident tickets and postmortems often embed live credentials, customer identifiers, and system internals, so using them as fine-tuning corpus risks memorisation and leakage through future completions. A data-governance approver checks the corpus was sanitised before the job runs.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — production data minimisation in ML pipelines"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "fine-tune on incident tickets",
+          "train on production incidents",
+          "use incident data for fine-tuning",
+          "feed postmortems into the model"
+        ]
+      },
+      "risk_modifier": 11,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_training_data_lineage_unknown_policy",
+      "name": "Training corpus with unknown provenance",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Data & Training Provenance",
+      "description": "A dataset of unknown origin, missing lineage records, or scraped without permission is being registered for training. IMDA's GenAI framework makes data provenance a core deployer duty, so registration waits for a data steward's verdict on source legitimacy and licensing.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "JP", "APAC"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Data",
+        "Japan AI Guidelines for Business v1.0 (METI/MIC, 2024) — Transparency"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "unknown data provenance",
+          "no data lineage record",
+          "scraped without permission",
+          "unlicensed dataset"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_synthetic_training_data_generation_policy",
+      "name": "Synthetic training data generation",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Data & Training Provenance",
+      "description": "Generating synthetic records from an approved generator to augment training sets is a privacy-preserving technique the platform encourages; the flag tags the output so downstream models record synthetic-data ancestry in their lineage.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Data"
+      ],
+      "condition": {
+        "task_type_in": ["synthetic_data_generation", "training_data_augmentation"]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_third_party_model_no_due_diligence_policy",
+      "name": "Third-party model adopted without due diligence",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Third-Party & Shadow Models",
+      "description": "A vendor or open-weight model is being wired into a business process while skipping the vendor assessment. HKMA's principles hold institutions accountable for outcomes of third-party AI as if it were their own, so a vendor-risk approver must clear the gap first.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "vendor_risk_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "AU", "APAC"],
+      "regulatory_references": [
+        "HKMA High-level Principles on AI (2019) — Oversight of Third-Party Vendors",
+        "Australia AI Ethics Principles (2019, voluntary) — Accountability"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "without vendor due diligence",
+          "no third party assessment",
+          "skip the vendor review",
+          "no due diligence on the model provider"
+        ]
+      },
+      "risk_modifier": 13,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_shadow_model_governance_bypass_policy",
+      "name": "Shadow model bypassing governance interdiction",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Third-Party & Shadow Models",
+      "description": "Deploying an unregistered shadow model outside the model inventory deliberately evades validation, monitoring, and accountability controls, leaving the firm unable to answer for decisions the model makes. The platform refuses the action; the proper path is registering the model through the inventory.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC", "global"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Accountability (A)",
+        "Industry best practice — model inventory completeness"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "shadow model",
+          "bypass model governance",
+          "deploy unregistered model",
+          "outside the model inventory"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_external_model_api_onboarding_policy",
+      "name": "External model API onboarding",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Third-Party & Shadow Models",
+      "description": "Connecting an external LLM or model API into the stack creates a new accountability boundary covering data residency, output liability, and uptime dependencies. An architecture approver signs off so the integration enters the inventory with contractual controls attached.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "architecture_review_board",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "IMDA Model AI Governance Framework for Generative AI (2024) — Accountability"
+      ],
+      "condition": {
+        "task_type_in": ["external_model_integration", "llm_api_onboarding"]
+      },
+      "risk_modifier": 9,
+      "version": "v1"
+    },
+    {
+      "policy_id": "aim_sandbox_model_evaluation_policy",
+      "name": "Sandboxed model evaluation experiment",
+      "category": "AI Model Governance & Explainability",
+      "subcategory": "Third-Party & Shadow Models",
+      "description": "Evaluating candidate models inside the segregated sandbox, with no customer data or production traffic in scope, is exactly where experimentation should happen and may proceed automatically; the flag records the experiment so promising candidates enter the inventory by the front door.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — segregated sandbox experimentation"
+      ],
+      "condition": {
+        "task_type_in": ["model_evaluation", "sandbox_experiment"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    }
+  ]
+}

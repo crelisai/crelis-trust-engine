@@ -1,0 +1,1239 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Intellectual Property & Confidentiality",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "ipc_source_code_personal_export_block_policy",
+      "name": "Source code exfiltration to personal accounts",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "An export request that combines repository content with a data-export intent — for example mailing the codebase to a personal address or syncing a private repo to a personal cloud drive — is interdicted outright. Once source leaves controlled infrastructure the trade-secret status of the crown-jewel asset cannot be restored.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Common law duty of confidence — Coco v A N Clark (Engineers) Ltd [1969] RPC 41",
+        "Industry best practice — source code exfiltration is irreversible trade-secret destruction"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "send the source code",
+          "zip up the source code",
+          "upload the source code",
+          "copy the entire codebase",
+          "entire codebase",
+          "clone the repository",
+          "git history",
+          "source code to my personal",
+          "codebase to my personal",
+          "private repo"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_external_repo_access_grant_policy",
+      "name": "Repository access grant to external party",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "Structured agent actions that add an outside collaborator or share a repository link grant standing access to technical IP, not a one-off disclosure. A human must confirm the contractor agreement and least-privilege scope before the grant executes.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "proposed_action_in": [
+          "grant_repository_access",
+          "add_external_collaborator",
+          "share_repo_link"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_proprietary_algorithm_disclosure_policy",
+      "name": "Proprietary algorithm description request",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "Requests to explain how the ranking algorithm, pricing model internals or matching engine actually work are a classic soft-extraction vector: each answer alone looks harmless, together they reconstruct the secret. IP counsel approves what level of abstraction may be shared.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — algorithm internals are protectable only while kept confidential"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "proprietary algorithm",
+          "ranking algorithm",
+          "pricing model internals",
+          "matching engine",
+          "model architecture details"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_departing_employee_code_hoard_policy",
+      "name": "Departure-pattern bulk code collection",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "Language typical of pre-departure hoarding — bulk-cloning everything, mirroring repos, taking a copy of the codebase before a last day — matches the dominant fact pattern in APAC trade-secret litigation. The insider-threat desk takes over to preserve evidence and stop the collection.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "insider_threat_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "JP",
+        "KR",
+        "CN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Korea Unfair Competition Prevention and Trade Secret Protection Act art. 2 — Trade Secret Infringement",
+        "China Anti-Unfair Competition Law art. 9 — Trade Secret Infringement"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "download all repositories",
+          "bulk clone",
+          "copy of the codebase",
+          "mirror every repo",
+          "before my last day"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_engineering_publication_review_policy",
+      "name": "Pre-publication review of engineering content",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "Engineering blog posts, conference talks and whitepapers routinely leak patentable subject matter or system internals without anyone intending to. A lightweight IP review gate on these structured publication tasks catches novelty-destroying detail before it goes public.",
+      "severity": "low",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — pre-publication IP review prevents inadvertent trade-secret and patent-novelty loss"
+      ],
+      "condition": {
+        "task_type_in": [
+          "engineering_blog_publication",
+          "conference_talk_submission",
+          "whitepaper_release"
+        ]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_permissive_license_reuse_allow_policy",
+      "name": "Permissively licensed code reuse (flag)",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Source Code & Technical Assets",
+      "description": "Incorporating MIT, Apache or BSD licensed components is routine engineering work and proceeds without a gate, but it is flagged so the OSS inventory stays current and attribution notices are not silently dropped.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "mit license",
+          "apache license",
+          "bsd license",
+          "permissive license"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_secret_formula_external_block_policy",
+      "name": "Trade-secret formula in outbound content",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "Secret formulas, proprietary formulations and manufacturing recipes lose statutory protection the moment reasonable secrecy measures lapse, so the engine refuses to compose or transmit content containing them. There is no approval path because no recipient outside the secrecy perimeter is acceptable by default.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "JP",
+        "KR",
+        "CN",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Japan Unfair Competition Prevention Act art. 2 — Acts of Unfair Competition (Trade Secrets)",
+        "China Anti-Unfair Competition Law art. 9 — Trade Secret Infringement"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "secret formula",
+          "proprietary formulation",
+          "manufacturing recipe",
+          "master batch record",
+          "process recipe"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_unsolicited_competitor_secret_policy",
+      "name": "Unsolicited competitor confidential material",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "When a competitor's confidential material arrives unsolicited — a leaked roadmap, a former employer's documents, their internal pricing sheet — the safe response is clean-room handling: quarantine it, do not read further, and let counsel manage return or destruction. Using it taints every downstream work product.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Common law duty of confidence — third-party recipient liability for information received in confidence"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "competitor confidential",
+          "leaked roadmap",
+          "former employer documents",
+          "their internal pricing sheet"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_misappropriated_material_block_policy",
+      "name": "Use of misappropriated confidential material",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "Any instruction to incorporate stolen trade secrets, leaked source code or other illegally obtained documents into our work is refused outright. Knowing use of misappropriated material is itself an infringing act under every APAC trade-secret regime, independent of who took it.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "CN",
+        "JP",
+        "KR",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "China Anti-Unfair Competition Law art. 9 — Trade Secret Infringement",
+        "Korea Unfair Competition Prevention and Trade Secret Protection Act art. 2 — Trade Secret Infringement"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "stolen trade secrets",
+          "misappropriated documents",
+          "leaked source code",
+          "illegally obtained documents"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_process_specification_release_policy",
+      "name": "Manufacturing process detail release",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "Suppliers and auditors legitimately need some process detail, but process specifications, equipment calibration settings, yield data and tooling drawings are exactly the know-how that walks out through the supply chain. Counsel confirms the confidentiality terms cover the specific items before release.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "manufacturing",
+        "pharmaceuticals",
+        "semiconductors",
+        "automotive"
+      ],
+      "applicable_regions": [
+        "JP",
+        "KR",
+        "CN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Japan Unfair Competition Prevention Act art. 2 — Acts of Unfair Competition (Trade Secrets)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "process specifications",
+          "equipment calibration settings",
+          "production yield data",
+          "tooling drawings"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_reverse_engineering_request_policy",
+      "name": "Reverse-engineering assistance request",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "Asking the agent to reverse engineer, decompile a binary, disassemble firmware or extract model weights sits in legally uneven territory across APAC — lawful in some markets for interoperability, contractually barred in most licence terms. Counsel decides per target and jurisdiction.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "reverse engineer",
+          "decompile the binary",
+          "disassemble the firmware",
+          "extract model weights"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_public_technique_discussion_allow_policy",
+      "name": "Publicly documented technique discussion",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Trade Secrets & Proprietary Know-How",
+      "description": "Explaining a published research paper, a textbook method, an open standard or a publicly documented API carries no confidentiality exposure — public information cannot be a trade secret — so the agent handles it without escalation.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "published research paper",
+          "textbook method",
+          "open standard",
+          "publicly documented api"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_mna_inside_information_block_policy",
+      "name": "Inside information in outbound communication",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "An agent action that would push M&A code-name material, a pending acquisition or other material non-public information to an external recipient or public channel before announcement is interdicted — this is the communication leg of insider-trading liability, not merely a confidentiality lapse. No customer configuration may relax it.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU"
+      ],
+      "regulatory_references": [
+        "Singapore Securities and Futures Act s.218 — Prohibited Conduct by Connected Persons",
+        "Hong Kong Securities and Futures Ordinance Part XIVA — Disclosure of Inside Information",
+        "Australia Corporations Act 2001 s.1043A — Insider Trading Prohibition"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "send_external_message",
+          "share_document_externally",
+          "post_public_content"
+        ],
+        "message_contains_any": [
+          "inside information",
+          "material non-public information",
+          "pending acquisition",
+          "undisclosed merger",
+          "project codename"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_earnings_prerelease_agent_policy",
+      "name": "Unreleased earnings material handling",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "Quarterly results, profit guidance and unpublished financials are inside information until the exchange announcement is made, and selective pre-release is a listing-rule breach in every APAC market we operate in. The disclosure committee owns every touch of this material — statutory duty, never automatable.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "disclosure_committee",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU"
+      ],
+      "regulatory_references": [
+        "SGX Listing Rules Rule 703 — Disclosure of Material Information",
+        "ASX Listing Rule 3.1 — Continuous Disclosure",
+        "Hong Kong Securities and Futures Ordinance Part XIVA — Disclosure of Inside Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "earnings results",
+          "quarterly results",
+          "results announcement",
+          "profit guidance",
+          "unpublished financials"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_price_sensitive_incident_policy",
+      "name": "Share-price-sensitive incident in messages",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "A message describing an incident as market sensitive, moving the share price or warranting a trading halt may itself create a continuous-disclosure obligation with an immediacy clock. The disclosure committee must assess materiality before any automated reply characterises or spreads the information.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "disclosure_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "HK"
+      ],
+      "regulatory_references": [
+        "ASX Listing Rule 3.1 — Continuous Disclosure",
+        "SGX Listing Rules Rule 703 — Disclosure of Material Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "share price",
+          "price sensitive",
+          "market sensitive",
+          "trading halt"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_pre_announcement_tipping_policy",
+      "name": "Pre-announcement trading or tipping language",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "Phrases proposing to buy shares before, sell before the news, trade before the announcement, or tip someone off describe procuring and tipping offences, not just policy breaches. Compliance surveillance takes the conversation over immediately and preserves the record.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "compliance_surveillance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "AU",
+        "HK"
+      ],
+      "regulatory_references": [
+        "Singapore Securities and Futures Act s.219 — Prohibited Conduct by Other Persons",
+        "Australia Corporations Act 2001 s.1043A — Insider Trading Prohibition"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "buy shares before",
+          "sell before the news",
+          "trade before the announcement",
+          "tip him off",
+          "tip her off"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_mna_data_room_access_policy",
+      "name": "Deal data room access and content requests",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "Requests touching a data room, due diligence materials or deal documents sit inside the M&A perimeter where every access is logged against the insider list. A human approver confirms the requester is wall-crossed before the agent grants access or summarises content.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "disclosure_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Hong Kong Securities and Futures Ordinance Part XIVA — Disclosure of Inside Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "data room",
+          "due diligence materials",
+          "deal documents",
+          "virtual data room"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_insider_list_wall_cross_policy",
+      "name": "Insider list and wall-crossing administration",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "Adding names to an insider list, executing a wall crossing or amending the restricted list changes who may lawfully hold inside information, so the change itself needs a named human owner. The agent may draft but not commit these records.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "disclosure_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "banking",
+        "securities",
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU"
+      ],
+      "regulatory_references": [
+        "Industry best practice — insider/restricted list maintenance under information-barrier controls"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "insider list",
+          "wall crossing",
+          "information barrier",
+          "restricted list"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_published_disclosure_allow_policy",
+      "name": "Already-announced information reuse",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Inside Information & Market Disclosure",
+      "description": "Information that is already announced, contained in a public filing or an annual report has ceased to be inside information, so summarising or recirculating it is safe for full automation.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "HK",
+        "AU",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "already announced",
+          "public filing",
+          "annual report",
+          "announced to the market"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_copyleft_contamination_policy",
+      "name": "Copyleft licence contamination check",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Third-Party IP & Licensing",
+      "description": "Pulling GPL or AGPL licensed code into a proprietary codebase can trigger an obligation to release our own source — a commercial outcome no engineer should commit to unilaterally. The OSS compliance desk approves the component, the linkage model and any isolation strategy.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "oss_compliance_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — GPL/AGPL copyleft obligations can compel proprietary source disclosure"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "gpl licensed",
+          "agpl licensed",
+          "copyleft license",
+          "gpl code"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_stock_asset_license_policy",
+      "name": "Stock photo, image and font licence verification",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Third-Party IP & Licensing",
+      "description": "Stock photos, stock images and fonts are the most common source of copyright demand letters in APAC marketing operations because seat counts, media types and territories are licensed narrowly. A human verifies the specific licence covers the proposed use before assets ship.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "AU",
+        "JP",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Singapore Copyright Act 2021 — Exclusive Rights of Copyright Owners",
+        "Australia Copyright Act 1968 s.36 — Infringement by Doing Acts Comprised in Copyright"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "stock photo",
+          "stock image",
+          "font license",
+          "image licensing"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_ai_character_infringement_policy",
+      "name": "AI-generated content imitating protected marks or characters",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Third-Party IP & Licensing",
+      "description": "Generation requests invoking a famous cartoon character, a trademarked logo, a celebrity likeness or a lookalike mascot put the company on the wrong side of copyright, trademark and personality-rights claims simultaneously. IP counsel handles these directly because near-miss variants are still actionable.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "JP",
+        "KR",
+        "CN",
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Japan Copyright Act — reproduction and adaptation rights in characters and artistic works"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "famous cartoon character",
+          "trademarked logo",
+          "celebrity likeness",
+          "lookalike mascot"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_third_party_code_attribution_policy",
+      "name": "Third-party code snippet provenance check",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Third-Party IP & Licensing",
+      "description": "A stack overflow snippet or code copied from github arrives with licence terms most contributors never check, and vendored code drifts out of its notice obligations. A reviewer confirms provenance and attribution before the commit lands in a shipping product.",
+      "severity": "low",
+      "decision": "human_approval_required",
+      "route_to": "oss_compliance_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "stack overflow snippet",
+          "copied from github",
+          "vendored code"
+        ]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_competitor_comparative_marketing_policy",
+      "name": "Comparative marketing using competitor marks",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Third-Party IP & Licensing",
+      "description": "A comparison chart, competitor benchmark or other comparative advertising names a rival's marks and invites trademark and misleading-conduct exposure if any claim is unsubstantiated. Counsel signs off the substantiation file before the material is published.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "AU",
+        "SG",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Industry best practice — comparative advertising requires substantiated claims and nominative trademark use"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "comparison chart",
+          "competitor benchmark",
+          "comparative advertising",
+          "versus their product"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_nda_cross_customer_reuse_policy",
+      "name": "NDA-covered partner material reuse across customers",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "Material received under NDA from one partner cannot be repackaged for another relationship — purpose-limitation clauses survive even when the content looks generic. When a request references partner confidential or NDA-covered material in a new context, counsel maps the permitted-purpose clause before anything moves.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Common law duty of confidence — purpose limitation on information disclosed under NDA"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "under nda",
+          "nda covered",
+          "partner confidential",
+          "received under nda"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_customer_deliverable_reuse_policy",
+      "name": "Customer deliverable reuse for another client",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "Asking to reuse the deliverable or repurpose the report from a previous engagement for another client raises a contract-by-contract ownership question: many APAC services agreements assign deliverable IP to the paying customer. An approver checks who owns the work product before any reuse.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "consulting",
+        "technology",
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "reuse the deliverable",
+          "repurpose the report",
+          "previous engagement materials",
+          "another client"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_partner_offboarding_access_policy",
+      "name": "Partner access termination at contract end",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "Contract-end offboarding tasks must revoke every repository, drive and portal grant the partner accumulated, and confidentiality clauses usually require certified return or destruction of our material. A human signs off the revocation checklist rather than trusting a single automated sweep.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": [
+          "partner_offboarding",
+          "contract_termination_processing"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_due_diligence_response_policy",
+      "name": "Vendor due-diligence disclosure response",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "A due diligence questionnaire, security questionnaire or vendor assessment invites detailed disclosure of architecture, controls and sometimes customer information, and over-answering is the norm when automated. A human owner curates the response pack against what the diligence NDA actually permits.",
+      "severity": "medium",
+      "decision": "human_agent_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "due diligence questionnaire",
+          "security questionnaire",
+          "vendor assessment"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_nda_template_request_allow_policy",
+      "name": "Standard NDA template issuance",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "Issuing the pre-approved mutual NDA template from the legal library is deliberately self-service — it is the control that makes everything else safe, so the agent completes these structured requests without escalation.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": [
+          "nda_template_request",
+          "mutual_nda_generation"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_roadmap_external_share_policy",
+      "name": "Product roadmap disclosure to outside parties",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "NDA & Partner Confidentiality",
+      "description": "Sharing the product roadmap, unreleased features or an upcoming release plan outside the company is only acceptable behind a signed confidentiality agreement, and sales teams routinely skip that step under deal pressure. An approver verifies NDA status before the roadmap deck leaves.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "product roadmap",
+          "unreleased features",
+          "upcoming release plan"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_patent_prefiling_disclosure_policy",
+      "name": "Public disclosure before patent filing",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Patents & Filings",
+      "description": "Describing an unfiled invention publicly destroys absolute novelty in Singapore, Japan, Korea, China and most APAC patent systems — grace periods are narrow and unreliable. When a message ties a patent application or invention disclosure to a not-yet-filed state, patent counsel takes over before a priority date is forfeited.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "SG",
+        "JP",
+        "KR",
+        "CN",
+        "APAC"
+      ],
+      "regulatory_references": [
+        "Industry best practice — public disclosure before filing destroys patent novelty in absolute-novelty jurisdictions"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "patent application",
+          "invention disclosure",
+          "not yet filed",
+          "priority date"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_invention_vendor_discussion_policy",
+      "name": "Unfiled invention detail shared with vendors",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Patents & Filings",
+      "description": "A prototype demonstration or technical brief that exposes invention details to a vendor before filing is a controlled disclosure only if a confidentiality agreement is in place first. The approver's single question — is the disclosure covered — protects both novelty and ownership of improvements.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "ip_counsel_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — vendor disclosures of unfiled inventions require prior confidentiality undertakings"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "prototype demonstration",
+          "invention details",
+          "unfiled invention"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_published_patent_discussion_allow_policy",
+      "name": "Granted or published patent discussion",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Patents & Filings",
+      "description": "Analysing a granted patent, a published patent application or an expired patent uses material the patent system has already made public, so freedom-to-operate style discussion proceeds without a gate.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "granted patent",
+          "published patent application",
+          "expired patent"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_press_embargo_policy",
+      "name": "Embargoed press material handling",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Brand & Public Disclosure",
+      "description": "Material marked under embargo or embargoed until a set time — including any press release draft — must not be summarised, forwarded or quoted by an automated agent, because a single early send breaks the embargo for every outlet at once. Corporate comms controls timing and distribution end to end.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "corporate_comms_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "under embargo",
+          "embargoed until",
+          "press release draft"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_prototype_photo_social_policy",
+      "name": "Prototype imagery on social channels",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Brand & Public Disclosure",
+      "description": "A prototype photo, an unreleased device shot, an engineering sample image or a behind the scenes photo posted socially can leak design IP, void patent novelty and pre-announce a launch in one move. Brand protection clears the imagery before anything is scheduled for posting.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "brand_protection_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — pre-launch imagery is both trade-secret and patent-novelty exposure"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "prototype photo",
+          "unreleased device",
+          "engineering sample",
+          "behind the scenes photo"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_reseller_brand_misuse_policy",
+      "name": "Reseller misuse of brand assets",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Brand & Public Disclosure",
+      "description": "Reports of unauthorized logo use, a modified version of our logo, or a counterfeit listing in a reseller channel need an enforcement decision — cease-and-desist, marketplace takedown or partner remediation — that weighs the commercial relationship. Brand protection runs the playbook; the agent only gathers evidence.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "brand_protection_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "CN",
+        "APAC",
+        "global"
+      ],
+      "regulatory_references": [
+        "Industry best practice — trademark enforcement via graduated takedown and partner remediation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "unauthorized logo use",
+          "modified our logo",
+          "counterfeit listing"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "ipc_brand_guideline_use_allow_policy",
+      "name": "Brand asset use within published guidelines",
+      "category": "Intellectual Property & Confidentiality",
+      "subcategory": "Brand & Public Disclosure",
+      "description": "Employee and partner requests that explicitly work from the brand guidelines or the official logo pack are the sanctioned path for mark usage, so the agent fulfils them directly while logging usage for the brand team.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": [
+        "all"
+      ],
+      "applicable_regions": [
+        "global"
+      ],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "brand guidelines",
+          "official logo pack",
+          "approved brand templates"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    }
+  ]
+}

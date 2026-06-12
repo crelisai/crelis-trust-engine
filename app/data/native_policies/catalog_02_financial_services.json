@@ -1,0 +1,999 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Financial Services & Banking",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "fs_beneficiary_registration_change_policy",
+      "name": "Beneficiary registration and payee changes",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Adding or amending a payment beneficiary is the canonical first step of authorised-push-payment fraud, so registration changes are handed to a human payments specialist for out-of-band verification before any transfer can reference the new payee. The change itself is never hard-blocked: legitimate payee updates are routine and must remain possible.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "payments_verification_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "HKMA SPM TM-E-1 — Risk Management of E-banking",
+        "MAS Technology Risk Management Guidelines 2021 s.14 — Online Financial Services"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "add a new beneficiary",
+          "register a new payee",
+          "change beneficiary details",
+          "amend the beneficiary account",
+          "update the payee account number",
+          "new payee registration"
+        ],
+        "detected_entity_in": ["beneficiary"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_corporate_high_value_payment_chain_policy",
+      "name": "High-value corporate payment release",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Corporate payment releases of SGD/USD 250,000 and above sit outside any single officer's delegated authority and must pass through the documented approval chain, with a named senior manager accountable for the release. An AI agent may prepare the instruction but a human authoriser completes it.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "corporate_payments_authorisers",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS Guidelines on Individual Accountability and Conduct — Specific Guideline 1"
+      ],
+      "condition": {
+        "task_type_in": ["corporate_payment_release", "bulk_payment_authorisation"],
+        "amount_at_least": 250000
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_payment_recall_swift_gpi_policy",
+      "name": "Payment recall and SWIFT gpi stop requests",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Recalling an outgoing payment or invoking a SWIFT gpi stop-and-recall is time-critical and interacts with correspondent banks, so it goes straight to the payments investigations team rather than an automated path. Recall windows close in minutes and a mishandled recall can strand funds at an intermediary.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "payments_investigations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — SWIFT gpi Stop and Recall (gSRP) service rules"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "recall the payment",
+          "swift gpi stop",
+          "stop and recall",
+          "cancel the outgoing wire",
+          "sent to the wrong beneficiary",
+          "funds went to the wrong account"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_standing_instruction_amendment_policy",
+      "name": "Standing instruction amendments",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Amending a standing instruction or GIRO arrangement silently changes where money flows every cycle, so a human approver confirms the customer's mandate before the new schedule takes effect. Unlike one-off transfers, an undetected bad amendment repeats monthly.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "payment_mandates_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "MY", "HK"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "standing instruction",
+          "standing order amendment",
+          "amend my giro arrangement",
+          "change the recurring transfer",
+          "cancel the monthly deduction"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_vendor_payment_run_release_policy",
+      "name": "Vendor payment run release",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Batch vendor and accounts-payable runs aggregate many invoices into one release, so runs of 100,000 or more require a maker-checker sign-off on the run totals and the vendor master deltas since the last run. Invoice-redirection fraud typically surfaces as a quiet bank-detail change inside an otherwise normal batch.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "accounts_payable_checker",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — maker-checker control on batch payment release"
+      ],
+      "condition": {
+        "task_type_in": ["vendor_payment_run", "accounts_payable_batch_release"],
+        "amount_at_least": 100000
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_payroll_bank_file_change_policy",
+      "name": "Payroll bank file changes",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Changes to a payroll bank file — new salary accounts, amended amounts, replacement files — are a favourite vector for business email compromise because the file is trusted and runs on a deadline. A payroll control officer re-verifies the change with the originating employer contact through a known channel before the file is accepted.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "payroll_control_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK", "AU"],
+      "regulatory_references": [
+        "Industry best practice — dual authorisation of payroll disbursement files"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "payroll bank file",
+          "salary file amendment",
+          "replace the payroll file",
+          "upload a new salary file",
+          "change the salary crediting account"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_bulk_cheque_stop_payment_policy",
+      "name": "Bulk cheque stop payments",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Stopping a whole cheque series or every outstanding cheque on an account usually signals a lost cheque book or suspected compromise, and it can bounce legitimate in-flight payments. An operations approver confirms the scope of the stop and whether a fraud marker should be set before execution.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "branch_operations_supervisor",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK", "MY", "IN"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "stop all cheques",
+          "bulk cheque stop",
+          "stop payment on the cheque book",
+          "cancel the entire cheque series",
+          "lost my cheque book"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_card_dispute_provisional_credit_policy",
+      "name": "Card dispute provisional credit",
+      "category": "Financial Services & Banking",
+      "subcategory": "Payments & Transfers",
+      "description": "Posting provisional credit for a disputed card transaction commits the bank's money before the chargeback is decided, so a disputes officer validates the claim narrative and scheme timeframes first. The agent can assemble the dispute file; the credit itself needs a human approval.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "card_disputes_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — card scheme chargeback and provisional credit rules"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "provisional credit",
+          "chargeback",
+          "dispute this card transaction",
+          "unauthorised card transaction",
+          "card charge i did not make"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_dormant_account_reactivation_policy",
+      "name": "Dormant account reactivation",
+      "category": "Financial Services & Banking",
+      "subcategory": "Account Lifecycle",
+      "description": "Reactivating a dormant account requires a fresh customer due diligence check before transactional capability is restored, because dormant accounts are targeted for takeover precisely when no one is watching them. A human approver confirms identity re-verification is complete before lifting the dormancy flag.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "branch_cdd_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS Notice 626 — Customer Due Diligence (ongoing monitoring)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "dormant account reactivation",
+          "reactivate my dormant account",
+          "inactive account activation",
+          "remove the dormancy status",
+          "unclaimed balance claim"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_account_closure_funds_remittance_policy",
+      "name": "Account closure with funds remittance",
+      "category": "Financial Services & Banking",
+      "subcategory": "Account Lifecycle",
+      "description": "Closing an account and remitting the residual balance combines an irreversible relationship action with a money movement to a destination that has never received funds before. A human officer verifies the closure mandate and the receiving account ownership before the balance leaves the bank.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "account_servicing_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "close the account and transfer the balance",
+          "account closure with remittance",
+          "remit the closing balance",
+          "close my account and send the money",
+          "closure proceeds to another bank"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_deceased_estate_settlement_policy",
+      "name": "Deceased customer estate settlement",
+      "category": "Financial Services & Banking",
+      "subcategory": "Account Lifecycle",
+      "description": "Estate claims turn on legal documents — grant of probate, letters of administration, survivorship rules — that an automated agent cannot verify, and releasing funds to the wrong claimant exposes the bank to liability to the rightful estate. All deceased-customer servicing goes to the estates team.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "estate_settlements_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK", "AU", "MY"],
+      "regulatory_references": [
+        "Industry best practice — verification of grant of probate before release of estate funds"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "deceased account holder",
+          "estate settlement claim",
+          "letters of administration",
+          "grant of probate",
+          "survivorship claim",
+          "account of my late father",
+          "account of my late mother"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_account_opening_enquiry_allow_policy",
+      "name": "Account opening and product enquiries",
+      "category": "Financial Services & Banking",
+      "subcategory": "Account Lifecycle",
+      "description": "Pre-sale enquiries about opening an account, eligibility and published product features involve no customer data changes and no funds, so they stay fully automated. Onboarding itself is governed by the separate CDD policies once an application starts.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["account_opening_enquiry", "product_information_request"],
+        "industry_in": ["banking"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_term_deposit_breakage_waiver_policy",
+      "name": "Term deposit breakage penalty waiver",
+      "category": "Financial Services & Banking",
+      "subcategory": "Account Lifecycle",
+      "description": "Waiving the penalty on a premature term deposit uplift is a pricing concession that erodes the bank's funding economics and is reserved to deposit supervisors, not the frontline or an agent. The uplift itself can proceed; only the penalty waiver needs sign-off.",
+      "severity": "low",
+      "decision": "human_approval_required",
+      "route_to": "deposits_supervisor",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "MY", "IN"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "premature withdrawal penalty",
+          "break the fixed deposit",
+          "uplift the term deposit early",
+          "waive the breakage fee",
+          "early withdrawal of my fd"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_credit_limit_delegation_breach_policy",
+      "name": "Credit limit increase beyond delegated authority",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "Limit increases of 25,000 or more sit above standard frontline delegation in most APAC lending authority matrices and must be decided by a credit officer with the right approval grade, against the customer's refreshed serviceability position. The agent may pre-assess but cannot commit the bank's credit exposure.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "credit_approval_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — delegated lending authority matrices"
+      ],
+      "condition": {
+        "task_type_in": ["credit_limit_increase", "facility_limit_amendment"],
+        "amount_at_least": 25000
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_early_loan_settlement_quote_policy",
+      "name": "Early loan settlement quotes",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "Producing an early settlement or redemption figure is a read-only calculation from the loan ledger with no funds movement, so it stays automated with a flag for the relationship record. Acting on the quote — receiving the payoff and discharging security — is handled by separate payment policies.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "early settlement quote",
+          "redemption statement",
+          "early repayment figure",
+          "loan payoff amount",
+          "full settlement figure for my loan"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_digital_lending_third_party_disbursal_policy",
+      "name": "Digital loan disbursal to third-party accounts",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "RBI's digital lending framework requires loan proceeds to flow directly into the borrower's own bank account, so any disbursal instruction pointing at an external or third-party destination is pulled out of the automated flow for a lending officer to examine. Pass-through arrangements via lending service providers' pool accounts are specifically what the rule exists to stop.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "digital_lending_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["IN"],
+      "regulatory_references": [
+        "RBI Digital Lending Guidelines 2022 — Direct Disbursal of Loan Proceeds"
+      ],
+      "condition": {
+        "task_type_in": ["digital_loan_disbursal", "loan_drawdown_release"],
+        "detected_risk_signal_in": ["external_transfer"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_credit_decline_review_request_policy",
+      "name": "Credit decline explanation and review requests",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "When a customer challenges an automated lending decision, FEAT transparency expectations mean the bank owes them a meaningful explanation and a channel for review by someone with authority over the model outcome. The agent must not improvise a rationale for a decision the scorecard made.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "credit_decision_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Transparency",
+        "MAS FEAT Principles (2018) — Ethics and Accountability"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "why was my loan declined",
+          "loan application was rejected",
+          "appeal the credit decision",
+          "reassess my loan application",
+          "credit score used to reject me"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_overdraft_excess_authorisation_policy",
+      "name": "Overdraft and excess-over-limit authorisation",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "Authorising a temporary overdraft or paying an item into excess is an on-the-spot credit decision against the customer's behaviour score, and it belongs to a credit control officer rather than a conversational agent. Declining or honouring the excess changes the bank's exposure either way.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "credit_control_officer",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "temporary overdraft",
+          "authorise the excess",
+          "excess over limit",
+          "overdraft extension",
+          "honour the payment despite insufficient funds"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_customer_rate_adjustment_policy",
+      "name": "Interest rate adjustments on customer accounts",
+      "category": "Financial Services & Banking",
+      "subcategory": "Credit & Lending Decisions",
+      "description": "Repricing an individual customer's deposit or lending rate off the published board rate is a discretionary pricing exception that must be approved within the pricing authority grid, and FEAT fairness expectations require that like customers are treated alike. Structured rate-exception requests therefore route to a human approver with the comparable-customer context.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "pricing_exceptions_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Fairness"
+      ],
+      "condition": {
+        "task_type_in": ["interest_rate_adjustment", "deposit_rate_exception", "lending_rate_exception"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_fx_rate_override_policy",
+      "name": "FX rate overrides",
+      "category": "Financial Services & Banking",
+      "subcategory": "Treasury & Markets Operations",
+      "description": "Overriding the system FX rate on a customer conversion books an off-market trade against the treasury position and is a classic conduct and P&L-manipulation hotspot, so overrides go to the treasury desk for rate verification and booking. Frontline staff and agents may quote the card rate but never improve it unilaterally.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "treasury_fx_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — FX Global Code Principle 12 (off-market rate transactions)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "fx rate override",
+          "special exchange rate",
+          "off market rate",
+          "better rate than the board rate",
+          "preferential fx rate"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_treasury_dealing_limit_breach_policy",
+      "name": "Treasury dealing limit breaches",
+      "category": "Financial Services & Banking",
+      "subcategory": "Treasury & Markets Operations",
+      "description": "A breached dealer, counterparty or intraday limit must be escalated to market risk control immediately for ratification or unwind — an agent cannot decide to run an open breach. Limit breaches left to automation are how unauthorised-trading losses compound before anyone looks.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "market_risk_control",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — front office dealing limit governance and breach ratification"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "dealer limit breach",
+          "counterparty limit exceeded",
+          "intraday limit breach",
+          "stop loss limit breached",
+          "position limit exceeded"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_trade_finance_document_discrepancy_policy",
+      "name": "Trade finance document discrepancies",
+      "category": "Financial Services & Banking",
+      "subcategory": "Treasury & Markets Operations",
+      "description": "Deciding whether a discrepant presentation under a letter of credit is acceptable is a document-examination judgement under UCP 600 with direct payment consequences for the applicant and issuing bank. A trade finance checker rules on the discrepancy; the agent may only list what it found.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "trade_finance_checkers",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK", "IN", "MY"],
+      "regulatory_references": [
+        "Industry best practice — ICC UCP 600 art. 14 standard for examination of documents"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "documentary discrepancy",
+          "letter of credit discrepancy",
+          "discrepant documents",
+          "bill of lading does not match",
+          "refuse the presentation",
+          "waiver of discrepancies"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_nostro_break_flag_policy",
+      "name": "Nostro and suspense break enquiries",
+      "category": "Financial Services & Banking",
+      "subcategory": "Treasury & Markets Operations",
+      "description": "Questions about unreconciled nostro entries or ageing suspense items are investigative and read-only, so the agent may answer from the reconciliation system while flagging the conversation for the reconciliations team's awareness. Persistent breaks are an early indicator of booking errors or concealment.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "nostro break",
+          "unreconciled nostro entry",
+          "suspense account ageing",
+          "reconciliation break older than"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_business_hours_system_cutover_policy",
+      "name": "System cutover during business hours",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Scheduling a production change, cutover or maintenance window inside business hours risks breaching the tolerance levels set for critical operations such as payments and customer channels, so the request must clear the technology change board with a rollback plan. Out-of-hours windows remain the default the board will push towards.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "technology_change_board",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["AU", "SG", "MY"],
+      "regulatory_references": [
+        "APRA CPS 230 — tolerance levels for critical operations",
+        "MAS Technology Risk Management Guidelines 2021 s.7 — IT Service Management (change management)"
+      ],
+      "condition": {
+        "task_type_in": ["production_change_request", "system_cutover_scheduling", "maintenance_window_booking"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_disaster_recovery_invocation_policy",
+      "name": "Disaster recovery and BCP invocation",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Declaring a disaster, failing over to the DR site or activating the business continuity plan is a crisis-management decision with regulator-notification consequences, reserved to the designated incident commander. An agent surfacing such a request hands over immediately with the triggering context attached.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "crisis_management_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["AU", "SG", "MY", "APAC"],
+      "regulatory_references": [
+        "APRA CPS 230 — business continuity planning",
+        "MAS Technology Risk Management Guidelines 2021 s.8 — IT Resilience"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "invoke disaster recovery",
+          "failover to the dr site",
+          "activate the business continuity plan",
+          "declare a disaster",
+          "data centre is down"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_core_banking_production_access_block_policy",
+      "name": "Core banking production access interdiction",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Direct agent access to the production core banking database bypasses every application-level control — entitlements, maker-checker, audit journaling — so the request is refused outright rather than escalated. Legitimate data needs are served through governed extracts, never raw production access.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 s.9 — Access Control",
+        "APRA CPS 234 para 21 — information security controls",
+        "BNM Risk Management in Technology (RMiT) — Access Control"
+      ],
+      "condition": {
+        "detected_intent_in": ["production_database_access"],
+        "detected_entity_in": ["production_system", "database"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_payment_credential_exfiltration_block_policy",
+      "name": "Payment system credential exfiltration interdiction",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Requests to disclose or transmit SWIFT, RTGS or payment gateway credentials are refused outright: compromised payment-rail credentials are the precondition for the large-scale fraudulent transfer attacks the SWIFT Customer Security Programme exists to prevent. There is no legitimate servicing scenario in which these secrets leave the secure store.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — SWIFT Customer Security Controls Framework",
+        "MAS Technology Risk Management Guidelines 2021 s.9 — Access Control"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "swift login credentials",
+          "rtgs access credentials",
+          "payment gateway api key",
+          "share the swift password",
+          "send me the hsm pin",
+          "core banking admin credentials"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_bulk_account_data_export_block_policy",
+      "name": "Bulk customer account data export interdiction",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Exporting customer account records in bulk through a servicing agent breaches banking secrecy obligations and is indistinguishable from data exfiltration, so the attempt is blocked and logged. Approved reporting pipelines with masking and entitlement checks are the only sanctioned route for bulk data.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Banking Act 1970 s.47 — banking secrecy (customer information)",
+        "MAS Technology Risk Management Guidelines 2021 s.11 — Data and Infrastructure Security"
+      ],
+      "condition": {
+        "detected_intent_in": ["data_export"],
+        "detected_entity_in": ["account_number", "customer_record"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_ebanking_security_incident_policy",
+      "name": "E-banking security incident reports",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Reports that internet or mobile banking is compromised or showing unauthorised logins start the incident clock — including supervisory notification expectations — so they bypass the automated queue and go straight to technology incident response. The agent's only job is rapid, lossless handover of what the customer observed.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "technology_incident_response",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["HK", "SG"],
+      "regulatory_references": [
+        "HKMA SPM TM-G-1 — General Principles for Technology Risk Management",
+        "MAS Notice on Technology Risk Management — incident notification"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "internet banking outage",
+          "mobile banking is down",
+          "online banking compromised",
+          "unauthorised logins detected",
+          "phishing site copying your bank",
+          "otp i never requested"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_retail_credential_reset_allow_policy",
+      "name": "Routine retail banking credential resets",
+      "category": "Financial Services & Banking",
+      "subcategory": "Operational Resilience & Technology",
+      "description": "Self-service internet banking password resets that pass the standard identity challenge are the canonical low-risk automation case in retail banking and stay fully automated. Anything touching admin accounts or MFA enrolment is governed by the separate security policies.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "detected_intent_in": ["password_reset"],
+        "industry_in": ["banking", "fintech"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_kyc_periodic_refresh_overdue_policy",
+      "name": "Overdue KYC periodic refresh actions",
+      "category": "Financial Services & Banking",
+      "subcategory": "Customer Due Diligence & Conduct",
+      "description": "When a periodic CDD review falls overdue, the consequential servicing actions — restricting the account, chasing documents, or lifting a restriction after refresh — must be confirmed by a CDD officer because the refresh outcome can change the customer's risk rating. The agent may prepare the document checklist but not decide the restriction.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "cdd_review_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK", "MY"],
+      "regulatory_references": [
+        "MAS Notice 626 — Customer Due Diligence (periodic review)"
+      ],
+      "condition": {
+        "task_type_in": ["kyc_periodic_refresh", "cdd_refresh_action", "kyc_restriction_lift"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_expired_cdd_document_flag_policy",
+      "name": "Expired identification document flag",
+      "category": "Financial Services & Banking",
+      "subcategory": "Customer Due Diligence & Conduct",
+      "description": "A customer mentioning an expired passport or identity document during routine servicing is allowed to continue the conversation, but the interaction is flagged so the CDD refresh workflow picks up the stale document before the next gated transaction. No gating is needed for the enquiry itself.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "identity document has expired",
+          "expired passport on file",
+          "my passport has expired",
+          "renew my identification documents",
+          "id card expired last month"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_financial_hardship_assistance_policy",
+      "name": "Financial hardship assistance requests",
+      "category": "Financial Services & Banking",
+      "subcategory": "Customer Due Diligence & Conduct",
+      "description": "Hardship and repayment-relief requests involve a vulnerable customer and a credit decision at once: moratoria, restructures and payment holidays must be assessed by a trained officer under the bank's hardship framework, not templated by an agent. Mishandled hardship cases are a recurring conduct finding across APAC supervisors.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "customer_assist_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["AU", "SG", "MY"],
+      "regulatory_references": [
+        "Industry best practice — ABA Banking Code of Practice (financial difficulty provisions)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "financial hardship",
+          "cannot afford the repayments",
+          "repayment moratorium",
+          "payment holiday request",
+          "restructure my loan",
+          "lost my job and cannot pay"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_product_mis_selling_complaint_policy",
+      "name": "Product mis-selling complaints",
+      "category": "Financial Services & Banking",
+      "subcategory": "Customer Due Diligence & Conduct",
+      "description": "Allegations that a product was mis-sold or unsuitable for the customer's risk profile are conduct matters that feed the bank's complaints and suitability remediation registers, and any response can prejudice the case. A conduct officer owns the substantive reply; FEAT fairness applies where an algorithmic recommendation drove the sale.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "conduct_review_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Fairness"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "mis-sold this product",
+          "unsuitable product recommendation",
+          "not suitable for my risk profile",
+          "misrepresented the returns",
+          "never explained the risks"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_fee_waiver_beyond_authority_policy",
+      "name": "Fee waivers above frontline authority",
+      "category": "Financial Services & Banking",
+      "subcategory": "Fees & Delegated Authority",
+      "description": "Waiving more than 250 in fees exceeds the standard frontline goodwill envelope and must be countersigned within the fee-authority grid, with the cumulative waiver history for the customer in view. Repeated just-below-threshold waivers are themselves a leakage pattern reviewers watch for.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "fee_authority_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["fee_waiver_request", "charge_reversal_request"],
+        "amount_greater_than": 250
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_goodwill_fee_waiver_allow_policy",
+      "name": "Small goodwill fee waivers",
+      "category": "Financial Services & Banking",
+      "subcategory": "Fees & Delegated Authority",
+      "description": "Goodwill waivers under 100 sit inside the delegated frontline envelope and are allowed automatically, with a flag so monthly conduct reporting can spot concentration on any one customer or staff pattern. Keeping small waivers automated protects the human queues for decisions that need them.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["fee_waiver_request"],
+        "amount_less_than": 100
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "fs_private_banking_pricing_concession_policy",
+      "name": "Relationship-managed pricing concessions",
+      "category": "Financial Services & Banking",
+      "subcategory": "Fees & Delegated Authority",
+      "description": "Concessions above 5,000 sought by premium and private banking clients are commercially sensitive and precedent-setting for the whole book, so the relationship manager's supervisor approves them rather than the servicing agent. Tier alone never lowers the control bar; it only changes who approves.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "private_banking_supervisor",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking"],
+      "applicable_regions": ["SG", "HK"],
+      "regulatory_references": [],
+      "condition": {
+        "customer_tier_in": ["premium", "private_banking", "priority"],
+        "amount_greater_than": 5000
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    }
+  ]
+}

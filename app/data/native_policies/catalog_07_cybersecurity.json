@@ -1,0 +1,863 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Cybersecurity & Access Control",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "sec_api_secret_message_exfiltration_block_policy",
+      "name": "API key / secret pasted in conversation",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "A live API key, client secret or bearer token appearing in a message body is treated as credential exfiltration in progress: chat and ticket channels are logged, replicated and searchable, so the secret is burned the moment it lands. The action is interdicted outright and the secret must be rotated.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Access Management (secure storage of authentication secrets)",
+        "Industry best practice — secrets never transit chat, email or ticketing channels"
+      ],
+      "condition": {
+        "message_contains_any": ["api key", "client secret", "secret access key", "bearer token", "service account key", "hardcoded secret"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_ssh_private_key_export_block_policy",
+      "name": "SSH / TLS private key export interdiction",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "Requests to export, copy or transmit private key material (SSH keys, PEM bundles, keypairs) are blocked: a private key that leaves its host or HSM boundary can impersonate the workload indefinitely and cannot be 'un-leaked', only revoked.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — private key material is non-exportable; generate-in-place or HSM-bound keys only"
+      ],
+      "condition": {
+        "message_contains_any": ["ssh private key", "id_rsa", "pem file", "export the private key", "copy the private key", "download the keypair"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_password_sharing_request_policy",
+      "name": "Password sharing solicitation",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "Someone asking another person (or the agent) to hand over a password is the canonical social-engineering opener — legitimate IT processes never need the plaintext credential. A human security analyst takes over to assess whether this is phishing, insider pressure or a broken process.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — credentials are individual and non-transferable; no support process requires plaintext disclosure"
+      ],
+      "condition": {
+        "message_contains_any": ["share your password", "share the password", "send me the password", "give me the password", "tell me your password", "lend me your login"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_service_account_rotation_skip_policy",
+      "name": "Service account credential rotation waiver",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "Skipping or deferring scheduled rotation of service-account keys extends the blast radius of any prior undetected leak. A security owner must approve the waiver, record the compensating control and set a hard expiry on the exception.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Access Management (periodic review and rotation of system account credentials)"
+      ],
+      "condition": {
+        "message_contains_any": ["skip rotation", "skip the rotation", "postpone key rotation", "defer credential rotation", "rotation exception", "extend the key expiry"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_routine_self_service_credential_reset_policy",
+      "name": "Routine self-service credential reset",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "Forgotten-password and authenticator re-enrolment flows that pass the standard identity checks are the textbook low-risk automation case: high volume, well-instrumented, fully reversible. The engine keeps them automated.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "detected_risk_signal_in": ["credential_reset"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_vault_secret_checkout_flag_policy",
+      "name": "Brokered vault secret checkout (flagged)",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Credential & Secret Handling",
+      "description": "Checking a secret out of the enterprise vault through the brokered, audited workflow is permitted to proceed automatically, but each checkout is flagged so the SOC can correlate unusual volumes or off-hours retrieval patterns.",
+      "severity": "medium",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — secrets access is brokered, short-lived and centrally audited"
+      ],
+      "condition": {
+        "task_type_in": ["secrets_vault_checkout", "secret_retrieval", "vault_token_issue"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_new_admin_account_creation_policy",
+      "name": "New administrator account provisioning",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "Creating a brand-new administrator or superuser identity permanently widens the privileged attack surface and is a favourite persistence technique after compromise. The IAM team must verify the business owner, scope and recertification date before any account is minted.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "identity_access_management",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "MY", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Administrative Accounts (secure every administrative account)",
+        "BNM Risk Management in Technology (RMiT) — Access Control (privileged account lifecycle)"
+      ],
+      "condition": {
+        "message_contains_any": ["create a new admin", "new administrator", "provision an admin", "grant administrator role", "add a superuser"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_privileged_session_no_ticket_policy",
+      "name": "Privileged session without a change ticket",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "Privileged work performed outside an approved change record breaks the link between elevation and authorisation that examiners test first. A duty security engineer must take the request, open the ticket and supervise the session rather than let it proceed undocumented.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "MY", "HK", "APAC"],
+      "regulatory_references": [
+        "BNM Risk Management in Technology (RMiT) — Privileged Access Management (just-in-time, ticketed elevation)",
+        "HKMA TM-G-1 — change management controls over production systems"
+      ],
+      "condition": {
+        "message_contains_any": ["without a change ticket", "no change ticket", "without a change request", "skip the change ticket", "no cr number"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_executive_mfa_bypass_policy",
+      "name": "MFA bypass / exemption request",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "Requests to switch off or exempt an account from multi-factor authentication — typically framed as executive convenience — remove the single control that defeats most credential-stuffing and phishing attacks. Security operations must handle these directly; executives get a hardware-token alternative, not an exemption.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Multi-Factor Authentication (mandatory for administrative and critical system access)"
+      ],
+      "condition": {
+        "message_contains_any": ["bypass mfa", "mfa bypass", "disable mfa", "mfa exemption", "exempt from mfa", "turn off two factor", "remove the authenticator requirement"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_admin_mfa_reset_verification_policy",
+      "name": "MFA re-enrolment on a privileged account",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "An MFA reset that touches an administrative account is the standard account-takeover pivot, so it gets stepped-up identity proofing by a human approver instead of self-service. Legitimate admins clear this in minutes; attackers with only a stolen password do not.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "identity_verification",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Access Management (strong authentication for privileged users)"
+      ],
+      "condition": {
+        "detected_intent_in": ["mfa_reset"],
+        "detected_risk_signal_in": ["admin_access"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_privilege_elevation_action_policy",
+      "name": "Structured privilege-elevation actions",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "Agent-to-agent calls that grant production access, add sudoers entries or assign admin roles are queued for a security approver with the requested scope and duration attached. Least-privilege review happens before the grant, not at the quarterly recertification.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "BNM Risk Management in Technology (RMiT) — Access Control (least privilege and need-to-have)"
+      ],
+      "condition": {
+        "proposed_action_in": ["grant_production_access", "elevate_privileges", "add_to_sudoers", "assign_admin_role"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_break_glass_account_use_policy",
+      "name": "Break-glass / firecall account activation",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Privileged Access Management",
+      "description": "Activating a break-glass or firecall account is, by definition, an exception to every normal access control, so a duty security engineer must witness the activation, confirm the emergency is real and start the 24-hour post-use review clock.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "APAC", "global"],
+      "regulatory_references": [
+        "HKMA Cyber Resilience Assessment Framework (C-RAF 2.0) — access control maturity (emergency access governance)",
+        "Industry best practice — break-glass use reviewed within 24 hours of activation"
+      ],
+      "condition": {
+        "message_contains_any": ["break glass", "break-glass", "firecall account", "emergency admin access", "emergency elevation"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_security_group_world_open_policy",
+      "name": "Security group opened to 0.0.0.0/0",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Opening an ingress rule to the entire internet is the single most common cloud breach precursor, and 'temporary' world-open rules have a habit of becoming permanent. A network security engineer must take the request and substitute a scoped CIDR, VPN path or load-balancer pattern.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "network_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Network Perimeter Defence (restrict external connections to legitimate traffic)"
+      ],
+      "condition": {
+        "message_contains_any": ["0.0.0.0/0", "open to the world", "allow all inbound", "open to all ips", "any-any rule", "public ingress on all ports"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_firewall_rule_change_policy",
+      "name": "Firewall / security-group rule change",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Structured firewall and security-group change tasks route to the network security queue for rule review: source scoping, expiry date and business justification are checked against the perimeter standard before the change ships.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "network_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Network Security (firewall rule review and approval)"
+      ],
+      "condition": {
+        "task_type_in": ["firewall_change", "firewall_rule_update", "security_group_update"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_external_domain_certificate_policy",
+      "name": "Certificate issuance for external domains",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Issuing TLS certificates — especially wildcards — for externally-facing domains can silently enable impersonation of the company's own services if the CSR or domain ownership is wrong. The PKI team validates domain control and certificate scope before issuance.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "pki_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — CA/Browser Forum baseline requirements for domain validation; wildcard issuance restricted"
+      ],
+      "condition": {
+        "message_contains_any": ["issue a certificate", "tls certificate", "ssl certificate", "wildcard certificate", "certificate signing request"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_encryption_downgrade_policy",
+      "name": "Encryption downgrade or removal request",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Turning off TLS, downgrading protocol versions or moving a data flow to plaintext is occasionally requested to 'fix' an integration, but it silently strips confidentiality from every record in transit. Security architecture must own the decision and document any deviation from approved cryptographic standards.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_architecture",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Cryptography (approved algorithms and protocol versions)"
+      ],
+      "condition": {
+        "message_contains_any": ["disable encryption", "turn off tls", "downgrade tls", "plaintext connection", "remove encryption", "weaken the cipher"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_production_pentest_scheduling_policy",
+      "name": "Penetration testing against production",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Offensive testing aimed at production systems needs scoping sign-off: rules of engagement, blast-radius limits, SOC notification and a rollback plan, so the exercise is distinguishable from a real attack and cannot take down live services.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_testing",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Cyber Security Assessment (penetration testing scope and authorisation)",
+        "HKMA C-RAF — intelligence-led Cyber Attack Simulation Testing (iCAST) governance"
+      ],
+      "condition": {
+        "message_contains_any": ["penetration test", "pen test", "pentest", "red team exercise"],
+        "detected_entity_in": ["production_system"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_network_config_review_allow_policy",
+      "name": "Read-only network configuration review (flagged)",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Network & Infrastructure Change",
+      "description": "Read-only firewall audits, ACL recertification and network configuration reviews change nothing and support the control environment, so they run automatically — flagged only so the recertification trail shows who looked at what.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — periodic firewall rule recertification"
+      ],
+      "condition": {
+        "task_type_in": ["network_config_review", "firewall_rule_audit", "acl_recertification"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_logging_disable_block_policy",
+      "name": "Disabling logging / monitoring interdiction",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Monitoring & Logging Integrity",
+      "description": "Switching off audit logging, CloudTrail, the SIEM feed or monitoring is the move attackers (and occasionally pressured insiders) make immediately before doing something they do not want recorded. Audit-trail destruction is interdicted outright — there is no legitimate same-channel reason to go dark.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Security Monitoring (integrity and continuity of security event logging)"
+      ],
+      "condition": {
+        "message_contains_any": ["disable logging", "turn off logging", "stop logging", "disable audit logging", "disable cloudtrail", "disable the siem", "turn off monitoring"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_alert_suppression_policy",
+      "name": "Security alert suppression / muting",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Monitoring & Logging Integrity",
+      "description": "Muting or snoozing security alerts blinds the SOC exactly when an attacker most wants it blinded, and noisy-alert fatigue is the usual cover story. A SOC shift lead must own any suppression, with the suppressed rule, scope and re-enable time recorded.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_operations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — alert suppression requires SOC shift-lead sign-off with automatic re-enable"
+      ],
+      "condition": {
+        "message_contains_any": ["suppress the alert", "suppress alerts", "mute the alerts", "silence the alarm", "disable alerting", "snooze the alert"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_log_retention_shortening_policy",
+      "name": "Log retention reduction or purge",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Monitoring & Logging Integrity",
+      "description": "Shortening retention or purging audit logs destroys the forensic record regulators and incident responders depend on — APAC supervisors expect security events to remain investigable well after the fact. Retention changes go to security governance, who check the legal-hold and regulatory minimums first.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "AU", "APAC"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Security Monitoring (retention of security events for investigation)",
+        "Industry best practice — retention changes screened against legal hold before execution"
+      ],
+      "condition": {
+        "message_contains_any": ["shorten log retention", "reduce log retention", "purge the logs", "delete audit logs", "truncate the logs", "lower retention period"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_edr_exclusion_policy",
+      "name": "EDR / antivirus exclusion addition",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Monitoring & Logging Integrity",
+      "description": "Adding an EDR or antivirus exclusion creates a permanent blind spot that malware authors deliberately target (drop the payload in the excluded path). Endpoint security reviews the hash, path scope and justification before any exclusion lands.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "endpoint_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Malware Protection (measures to mitigate malware risk on every system)"
+      ],
+      "condition": {
+        "message_contains_any": ["antivirus exclusion", "edr exclusion", "exclude from scanning", "defender exception", "whitelist this executable", "malware scan exemption"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_detection_rule_tuning_flag_policy",
+      "name": "Detection content tuning (flagged)",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Monitoring & Logging Integrity",
+      "description": "Routine SIEM rule tuning and alert-threshold adjustments are normal detection-engineering work and proceed automatically, but every change is flagged into the SOC change log so coverage regressions can be traced to a specific tuning event.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["siem_rule_tuning", "alert_threshold_review", "detection_content_update"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_production_backup_deletion_block_policy",
+      "name": "Production backup deletion interdiction",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Endpoint, Media & Backup Protection",
+      "description": "Deleting production backups or snapshot chains is page one of the ransomware playbook — destroy the recovery path, then encrypt. The action is interdicted unconditionally; capacity reclamation runs through the storage lifecycle process, never an ad-hoc delete.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — IT Resilience (protection and recoverability of backups)",
+        "Industry best practice — immutable, offline-capable backup copies"
+      ],
+      "condition": {
+        "message_contains_any": ["delete the backup", "delete backups", "purge backups", "remove the snapshots", "delete all snapshots", "destroy the backup", "wipe the backups"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_usb_media_exception_policy",
+      "name": "USB / removable media exception",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Endpoint, Media & Backup Protection",
+      "description": "Removable media is blocked by default because it is both a malware ingress and a data-egress channel that bypasses every network control. Exceptions are time-boxed, device-specific and approved by endpoint security with the data classification recorded.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "endpoint_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — removable media denied by default; time-boxed, device-bound exceptions only"
+      ],
+      "condition": {
+        "message_contains_any": ["usb access", "usb drive", "removable media", "thumb drive", "usb exception", "external hard drive"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_backup_restore_drill_allow_policy",
+      "name": "Backup restore drill (flagged)",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Endpoint, Media & Backup Protection",
+      "description": "Scheduled restore tests and DR drills into isolated recovery environments prove the backups actually work — the control regulators ask about after every ransomware case — and run automatically, flagged so the resilience evidence file picks them up.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — IT Resilience (regular recovery testing)"
+      ],
+      "condition": {
+        "task_type_in": ["backup_restore_test", "dr_drill", "recovery_point_verification"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_endpoint_local_admin_policy",
+      "name": "Local administrator rights on endpoints",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Endpoint, Media & Backup Protection",
+      "description": "Granting local admin on a laptop defeats application control and lets any phished payload install at will, so standing grants are exceptional. Endpoint security approves only against a named software need and prefers just-in-time elevation tooling.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "endpoint_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Administrative Accounts (restrict and secure administrative privileges)"
+      ],
+      "condition": {
+        "message_contains_any": ["local admin rights", "local administrator", "admin rights on my laptop", "make me admin", "admin on my machine"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_data_centre_access_policy",
+      "name": "Data centre physical access request",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Endpoint, Media & Backup Protection",
+      "description": "Physical access to data halls and racks is the layer where logical controls stop mattering, so badge grants and escorted visits are approved per visit against the access list, with the cage, time window and escort recorded.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "facilities_security",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — Data Centre Protection (physical access controls)"
+      ],
+      "condition": {
+        "message_contains_any": ["data centre access", "data center access", "server room", "physical access to the rack", "colo badge"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_patch_deferral_policy",
+      "name": "Security patch deferral beyond SLA",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Vulnerability & Patch Management",
+      "description": "Deferring a security patch past its remediation SLA converts a known, scored vulnerability into accepted risk — a decision that belongs to the vulnerability management owner, who must record compensating controls and a hard new deadline, not to the requesting team.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "vulnerability_management",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS Notice on Cyber Hygiene — Security Patches (apply within a timeframe commensurate with risk)"
+      ],
+      "condition": {
+        "message_contains_any": ["defer the patch", "postpone the patch", "delay patching", "patch exception", "skip the patch", "extend the patching deadline"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_active_exploitation_response_policy",
+      "name": "Actively exploited vulnerability handling",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Vulnerability & Patch Management",
+      "description": "Mentions of zero-days, in-the-wild exploitation or remote code execution against the estate are emergency-change territory: a human incident responder must triage exposure and trigger out-of-band patching rather than letting the request sit in a normal queue.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [
+        "Industry best practice — known-exploited vulnerabilities (KEV-listed) trigger emergency change procedures"
+      ],
+      "condition": {
+        "message_contains_any": ["actively exploited", "zero day", "zero-day", "exploit in the wild", "remote code execution", "critical cve"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_nonprod_vuln_scan_allow_policy",
+      "name": "Non-production vulnerability scan scheduling",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Vulnerability & Patch Management",
+      "description": "Scheduling authenticated vulnerability scans against staging and other non-production environments is routine hygiene with no service-impact risk, so the engine lets these tasks run without a human in the loop.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["vulnerability_scan_scheduling", "staging_security_scan"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_eol_software_exception_policy",
+      "name": "End-of-life software exception",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Vulnerability & Patch Management",
+      "description": "Keeping end-of-life or unsupported software in service means no vendor patches will ever arrive for new vulnerabilities. Security governance approves only with compensating controls (isolation, virtual patching) and a funded decommission date attached.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "security_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "MY", "APAC"],
+      "regulatory_references": [
+        "MAS Technology Risk Management Guidelines 2021 — System Obsolescence Management (EOL systems require risk assessment and replacement plans)"
+      ],
+      "condition": {
+        "message_contains_any": ["end of life", "end-of-life", "unsupported software", "unsupported version", "legacy system exception", "extended support waiver"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_mas_one_hour_incident_clock_policy",
+      "name": "MAS 1-hour incident notification clock",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Incident Response & Regulatory Notification",
+      "description": "For MAS-regulated financial institutions, discovery of a relevant cyber incident — system compromise, ransomware, a security breach affecting critical systems or customer information — starts a 1-hour clock to notify MAS. The duty incident manager must take over immediately; this statutory duty cannot be disabled or delegated to automation.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["banking", "insurance", "fintech", "capital_markets"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "MAS Notices on Technology Risk Management — notify MAS within 1 hour of discovering a relevant incident",
+        "MAS Technology Risk Management Guidelines 2021 — Cyber Incident Response and Management"
+      ],
+      "condition": {
+        "message_contains_any": ["cyber incident", "security breach", "system compromise", "ransomware", "malware outbreak", "data breach"],
+        "industry_in": ["banking", "insurance", "fintech", "capital_markets"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_certin_six_hour_reporting_policy",
+      "name": "CERT-In 6-hour incident reporting duty",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Incident Response & Regulatory Notification",
+      "description": "Entities operating in India must report specified cyber incidents to CERT-In within 6 hours of noticing them under the April 2022 Directions — one of the tightest statutory windows anywhere. Anything invoking the CERT-In reporting process goes straight to the incident response team to start the clock correctly.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN"],
+      "regulatory_references": [
+        "India CERT-In Directions of 28 April 2022 (under IT Act 2000 s.70B(6)) — 6-hour reporting of specified cyber incidents"
+      ],
+      "condition": {
+        "message_contains_any": ["cert-in", "indian computer emergency response team", "six-hour reporting", "six hour reporting"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_apra_incident_notification_policy",
+      "name": "APRA CPS 234 notification handling",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Incident Response & Regulatory Notification",
+      "description": "APRA-regulated entities must notify APRA of material information security incidents within 72 hours and of material control weaknesses within 10 business days. Drafting or sending these notifications needs a compliance approver so materiality assessment and timing are defensible.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "compliance_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "superannuation"],
+      "applicable_regions": ["AU"],
+      "regulatory_references": [
+        "APRA CPS 234 para 35 — notify APRA of material information security incidents within 72 hours",
+        "APRA CPS 234 para 36 — notify material control weaknesses within 10 business days"
+      ],
+      "condition": {
+        "message_contains_any": ["notify apra", "apra notification", "notifiable incident", "material information security incident", "control weakness notification"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_ir_runbook_lookup_allow_policy",
+      "name": "Incident-response runbook and status lookups",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Incident Response & Regulatory Notification",
+      "description": "Fetching IR runbooks, summarising incident status for stakeholders and preparing tabletop-exercise material are read-only support tasks during which automation speeds responders up rather than adding risk, so they stay fully automated.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["ir_runbook_lookup", "incident_status_update", "tabletop_exercise_prep"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "sec_cii_change_reporting_policy",
+      "name": "Singapore CII system change / reporting duties",
+      "category": "Cybersecurity & Access Control",
+      "subcategory": "Incident Response & Regulatory Notification",
+      "description": "Owners of designated critical information infrastructure in Singapore carry statutory duties to CSA, including reporting prescribed cybersecurity incidents affecting the CII. Requests touching CII systems or CSA reporting obligations route to compliance so the Cybersecurity Act duties are discharged on time.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "compliance_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "Singapore Cybersecurity Act 2018 s.14 — duty to report cybersecurity incidents in respect of critical information infrastructure"
+      ],
+      "condition": {
+        "message_contains_any": ["critical information infrastructure", "cii system", "cii incident", "report to csa", "csa reporting"]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    }
+  ]
+}

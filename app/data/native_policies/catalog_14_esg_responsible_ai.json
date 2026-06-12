@@ -1,0 +1,1089 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "ESG & Responsible AI",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "esg_carbon_neutral_claim_approval_policy",
+      "name": "Absolute carbon-neutrality claim gate",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Absolute neutrality language such as 'carbon neutral' or 'climate positive' in agent-drafted marketing requires certified substantiation (Climate Active or an equivalent scheme) before anything is published. ASIC and the ACCC have both pursued firms whose neutrality claims outran their evidence, so a sustainability compliance reviewer must sight the certification basis first.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "sustainability_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — Principle 1 Make Accurate and Truthful Claims",
+        "ASIC greenwashing enforcement practice (ASIC v Mercer Superannuation, Federal Court 2024)",
+        "Singapore Code of Advertising Practice — environmental claims (truthful presentation)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "carbon neutral",
+          "carbon negative",
+          "climate positive",
+          "climate neutral",
+          "net zero certified",
+          "zero emissions company"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_vague_green_claim_approval_policy",
+      "name": "Unqualified eco-descriptor review",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Vague descriptors like 'eco-friendly' or 'ocean safe' fail the ACCC's specificity expectations because consumers cannot tell which environmental attribute is claimed or how it was measured. A brand compliance approver must replace the generality with a substantiated, specific claim or strike it.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "brand_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — Principle 3 Avoid Broad and Unqualified Claims",
+        "Singapore Code of Advertising Practice — environmental claims (truthful presentation)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "eco-friendly",
+          "eco friendly",
+          "environmentally friendly",
+          "100% sustainable",
+          "planet friendly",
+          "earth friendly",
+          "ocean safe",
+          "green packaging"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_net_zero_target_statement_policy",
+      "name": "Net-zero target statement substantiation",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Forward-looking decarbonisation statements are misleading unless made on reasonable grounds: a board-endorsed transition plan, interim milestones and a credible pathway. The Vanguard and Active Super proceedings show regulators treat unsupported future claims exactly like false present ones, so a reviewer confirms the basis before the target is communicated.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "sustainability_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "NZ", "APAC"],
+      "regulatory_references": [
+        "ASIC INFO 271 — How to Avoid Greenwashing When Offering or Promoting Sustainability-Related Products",
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — claims about the future"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "net zero by 2030",
+          "net zero by 2040",
+          "net zero by 2050",
+          "net zero target",
+          "our net zero commitment",
+          "science based targets"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_carbon_offset_claim_verification_policy",
+      "name": "Carbon credit and offset claim verification",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Claims that rest on offsets are only as good as the underlying units: the approver must verify the credits exist, are retired against this claim, and are not double-counted across entities or reporting periods. Offset-heavy claims without abatement context are a recurring ACCC sweep finding.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "sustainability_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — claims relying on offsets",
+        "Climate Active Carbon Neutral Standard (AU) — offset eligibility and retirement"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "carbon offsets",
+          "carbon credits",
+          "offset our emissions",
+          "offsetting program",
+          "australian carbon credit units",
+          "verified carbon units"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_comparative_green_claim_policy",
+      "name": "Comparative environmental claim review",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Comparative superiority claims ('greener than', 'lowest emissions in the industry') demand like-for-like, current data for both sides of the comparison, which generated copy almost never carries. The approver checks the comparator set, the metric and the data vintage before release.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "brand_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "NZ", "APAC"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — comparative claims"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "greener than",
+          "lowest emissions in the industry",
+          "most sustainable brand",
+          "less plastic than",
+          "cleanest energy provider",
+          "lowest carbon footprint in"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_renewable_energy_claim_policy",
+      "name": "Renewable energy usage claim check",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "Statements that operations run on renewable electricity must reconcile with certificate holdings or accreditation for the period claimed — a '100% renewable' line drafted from last year's procurement is misleading this year. Approval confirms the certificate position before publication.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "sustainability_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — Principle 2 Have Evidence to Back Up Claims",
+        "GreenPower Program Rules (AU) — accredited renewable electricity claims"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "100% renewable energy",
+          "powered by renewables",
+          "renewable energy certificates",
+          "solar powered operations",
+          "green power accredited",
+          "runs on clean energy"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_green_claims_regulator_inquiry_policy",
+      "name": "Regulator inquiry into environmental claims",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Environmental Claims",
+      "description": "When a regulator is referenced in connection with greenwashing or sustainable-finance claims, the matter is enforcement-grade: ACCC sweeps and ASIC civil proceedings both began as information requests. Only the regulatory response team may draft or send anything; the AI must not characterise the firm's claims.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "regulatory_response_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "NZ", "APAC"],
+      "regulatory_references": [
+        "ASIC greenwashing enforcement practice (ASIC v Vanguard Investments Australia, Federal Court 2024)",
+        "ACCC greenwashing internet sweep (2023) — enforcement practice"
+      ],
+      "condition": {
+        "detected_risk_signal_in": ["regulator_mention"],
+        "message_contains_any": [
+          "greenwashing",
+          "misleading environmental claims",
+          "sustainable finance claims",
+          "green claims investigation"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_vendor_esg_questionnaire_response_policy",
+      "name": "ESG questionnaire response from approved data",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Completing client or vendor ESG questionnaires from the pre-approved disclosure data room is routine work the agent can do unaided. It is flagged so every response stays traceable to assured figures rather than improvised ones.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["esg_questionnaire_response", "supplier_esg_survey_response"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_sustainability_report_publication_policy",
+      "name": "Sustainability report drafting sign-off",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Agent-drafted sections of a sustainability or climate report feed a regulated filing: SGX requires ISSB-aligned climate reporting from FY2025 and SEBI's BRSR binds India's top listed entities. The disclosure committee must approve every generated section before it enters the report workflow.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "disclosure_committee",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "IN", "APAC"],
+      "regulatory_references": [
+        "SGX Listing Rules 711A–711B — Sustainability Reporting (ISSB-aligned climate reporting from FY2025)",
+        "India SEBI BRSR framework (2021) — Business Responsibility and Sustainability Report for top listed entities",
+        "IFRS S2 — Climate-related Disclosures"
+      ],
+      "condition": {
+        "task_type_in": [
+          "sustainability_report_drafting",
+          "climate_disclosure_drafting",
+          "esg_report_section_generation"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_climate_risk_investor_comms_policy",
+      "name": "Climate risk content in investor communications",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Climate risk narrative aimed at investors is regulated disclosure in New Zealand's climate statements regime and an exchange expectation in Japan, so scenario-analysis or transition-risk content cannot leave the building on an agent's say-so. Investor relations review reconciles the draft with the entity's filed climate statements.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "investor_relations_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["NZ", "JP", "SG", "APAC"],
+      "regulatory_references": [
+        "NZ Financial Markets Conduct Act 2013 Part 7A — climate statements (Financial Sector (Climate-related Disclosures) Amendment Act 2021)",
+        "Tokyo Stock Exchange Corporate Governance Code (2021) Supplementary Principle 3-1-3 — TCFD-aligned disclosure",
+        "MAS Guidelines on Environmental Risk Management (Banking, 2020) — disclosure of environmental risk information"
+      ],
+      "condition": {
+        "task_type_in": ["investor_communication", "earnings_call_briefing"],
+        "message_contains_any": [
+          "climate risk",
+          "transition risk",
+          "physical climate risk",
+          "scenario analysis",
+          "climate resilience"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_fund_labelling_claim_policy",
+      "name": "ESG fund and product labelling claims",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Calling a retail product an 'ESG fund' or 'sustainable fund' triggers MAS's naming and disclosure expectations — the label must reflect the fund's actual investment strategy and selection criteria. Product compliance verifies the label against the prospectus before any generated material uses it.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "product_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "asset_management", "insurance", "wealth_management"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "MAS Circular CFC 02/2022 — Disclosure and Reporting Guidelines for Retail ESG Funds",
+        "ASIC INFO 271 — How to Avoid Greenwashing When Offering or Promoting Sustainability-Related Products"
+      ],
+      "condition": {
+        "industry_in": ["banking", "asset_management", "insurance", "wealth_management"],
+        "message_contains_any": [
+          "esg fund",
+          "sustainable fund",
+          "green bond",
+          "sustainability-linked loan",
+          "ethical investment option",
+          "impact fund"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_sustainability_data_tampering_block_policy",
+      "name": "Assured sustainability data tampering interdiction",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Structured agent calls that rewrite assured or already-published sustainability data destroy the reporting integrity that SGX rules and the ISSB baseline presuppose. There is no approval path: genuine errors go through the formal restatement and re-assurance process, never an in-place edit.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "IN", "APAC", "global"],
+      "regulatory_references": [
+        "SGX Listing Rules 711A–711B — Sustainability Reporting (board responsibility for the report)",
+        "IFRS S1 — General Requirements for Disclosure of Sustainability-related Financial Information (fair presentation)"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "alter_reported_emissions_data",
+          "edit_published_sustainability_report",
+          "restate_assured_esg_metrics",
+          "modify_ghg_inventory_records"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_fabricated_esg_metrics_block_policy",
+      "name": "Fabricated ESG metrics refusal",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Sustainability Reporting & Disclosure",
+      "description": "Explicit requests to invent, inflate or massage ESG figures for publication are refused outright — a fabricated scope 3 number or invented diversity statistic is misleading conduct the moment it is communicated, and no human approver can cure fabrication.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "ACCC Making Environmental Claims: A Guide for Business (2023) — Principle 1 Make Accurate and Truthful Claims",
+        "ASIC sustainable-finance greenwashing enforcement practice (misleading or deceptive conduct)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "make up the emissions figures",
+          "invent the diversity numbers",
+          "fabricate the esg data",
+          "inflate our renewable percentage",
+          "massage the sustainability numbers",
+          "change the reported scope 3 figures"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_modern_slavery_statement_edit_policy",
+      "name": "Modern slavery statement edit control",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Social & Human Rights",
+      "description": "A modern slavery statement is a statutory document with mandatory content criteria that must be approved by the principal governing body, so agent edits cannot flow through unreviewed. Legal counsel checks every change against the s.16 criteria and the version the board actually approved.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "legal_counsel",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia Modern Slavery Act 2018 (Cth) s.16 — mandatory criteria for modern slavery statements",
+        "Australia Modern Slavery Act 2018 (Cth) s.13 — reporting requirement and approval by principal governing body"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "modern slavery statement",
+          "modern slavery reporting",
+          "slavery and human trafficking statement",
+          "modern slavery register"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_supplier_screening_override_policy",
+      "name": "Supplier ESG screening override approval",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Social & Human Rights",
+      "description": "Waiving or overriding a supplier's failed ESG screen guts the due-diligence process the entity describes in its own modern slavery statement, creating a documented gap between stated and actual practice. Procurement governance must record the justification and any remediation conditions before the override stands.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "procurement_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC", "global"],
+      "regulatory_references": [
+        "Australia Modern Slavery Act 2018 (Cth) s.16 — mandatory criteria (due diligence and remediation processes)",
+        "Industry best practice — UN Guiding Principles on Business and Human Rights, due diligence"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "override_supplier_esg_screening",
+          "waive_supplier_esg_due_diligence",
+          "approve_supplier_despite_esg_flag"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_supply_chain_forced_labour_policy",
+      "name": "Forced labour allegation escalation",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Social & Human Rights",
+      "description": "An allegation of forced labour, child labour or debt bondage anywhere in the supply chain triggers investigation and remediation duties that an AI cannot discharge — and a clumsy automated reply can retaliate against the reporter. Ethics investigations takes the matter over immediately and preserves the evidence trail.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "ethics_investigations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC", "global"],
+      "regulatory_references": [
+        "Australia Modern Slavery Act 2018 (Cth) s.16 — mandatory criteria (risks of modern slavery in operations and supply chains)",
+        "Industry best practice — UN Guiding Principles on Business and Human Rights, remediation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "forced labour",
+          "child labour",
+          "debt bondage",
+          "withheld worker passports",
+          "human trafficking in the supply chain",
+          "sweatshop conditions"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_indigenous_consultation_policy",
+      "name": "Indigenous and community consultation routing",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Social & Human Rights",
+      "description": "Matters touching native title, traditional owners or cultural heritage carry statutory consultation procedures and free-prior-and-informed-consent expectations that no automated channel can satisfy. Community relations specialists own these conversations end to end.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "community_relations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "NZ", "APAC"],
+      "regulatory_references": [
+        "Australia Native Title Act 1993 (Cth) — future acts regime",
+        "Industry best practice — free, prior and informed consent (UN Declaration on the Rights of Indigenous Peoples)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "native title",
+          "traditional owners",
+          "indigenous community consultation",
+          "cultural heritage site",
+          "free prior and informed consent",
+          "sacred site"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_diversity_statistics_claim_policy",
+      "name": "Diversity statistics in external content",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Social & Human Rights",
+      "description": "Publishing workforce diversity or pay-gap figures in marketing invites the same substantiation scrutiny as green claims — social-washing with stale or cherry-picked statistics is misleading conduct, and AU gender figures must match what is lodged with WGEA. A reviewer ties every number to the current reported dataset.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "people_culture_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia Workplace Gender Equality Act 2012 (Cth) — public reporting of gender equality indicators",
+        "Industry best practice — substantiation of social and diversity claims"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "gender pay gap",
+          "women in leadership",
+          "workforce diversity statistics",
+          "first nations employment rate",
+          "most inclusive employer",
+          "diversity hiring numbers"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_financial_hardship_routing_policy",
+      "name": "Financial hardship empathy routing",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Vulnerable Customers & Fair Dealing",
+      "description": "A customer disclosing financial hardship has statutory options — hardship notices, repayment variations — and a code-based right to genuine assistance, none of which should be mediated by a chatbot. The conversation routes to a trained care specialist who can assess the hardship request properly.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "customer_care_specialist",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "utilities", "telecommunications"],
+      "applicable_regions": ["AU", "NZ", "APAC"],
+      "regulatory_references": [
+        "Australia Banking Code of Practice — financial difficulty provisions",
+        "National Credit Code (Sch 1, NCCP Act 2009) s.72 — hardship notices"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "financial hardship",
+          "hardship assistance",
+          "cannot afford my repayments",
+          "struggling to pay my bills",
+          "lost my job and cannot pay",
+          "hardship variation"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_elderly_vulnerable_customer_policy",
+      "name": "Older and cognitively impaired customer care",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Vulnerable Customers & Fair Dealing",
+      "description": "Indicators of advanced age, dementia or substitute decision-making (powers of attorney) raise capacity, elder-abuse and suitability questions an automated flow will miss. A care specialist verifies authority and adapts the interaction before any account action proceeds.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "customer_care_specialist",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "wealth_management", "utilities"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Banking Code of Practice — inclusive and accessible banking for older customers",
+        "MAS Guidelines on Fair Dealing (2024) — fair dealing outcomes across customer segments"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "my elderly mother",
+          "my elderly father",
+          "has dementia",
+          "cognitive decline",
+          "aged care home",
+          "power of attorney"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_family_violence_disclosure_policy",
+      "name": "Family and domestic violence disclosure handling",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Vulnerable Customers & Fair Dealing",
+      "description": "Disclosure of family violence or financial abuse demands a safety-first response: secure contact channels, no information leakage to the perpetrator, and a single trained handler so the customer never repeats their story to a machine. This is an immediate human takeover with the highest care priority.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "customer_care_specialist",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "NZ", "APAC"],
+      "regulatory_references": [
+        "Australia Banking Code of Practice — customers experiencing vulnerability (family and domestic violence)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "domestic violence",
+          "family violence",
+          "escaping an abusive partner",
+          "financial abuse",
+          "my ex controls my account",
+          "i am not safe at home"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_deceased_estate_support_policy",
+      "name": "Bereavement and deceased estate routing",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Vulnerable Customers & Fair Dealing",
+      "description": "Death notifications and deceased estate administration combine grief with legal formalities — probate, account freezes, authority checks — where a scripted bot response causes real distress and operational error. A bereavement-trained specialist handles the matter from first contact.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "customer_care_specialist",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "wealth_management", "telecommunications"],
+      "applicable_regions": ["AU", "NZ", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Banking Code of Practice — deceased estates handling"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "my husband passed away",
+          "my wife passed away",
+          "deceased estate",
+          "report a death on the account",
+          "grant of probate",
+          "my mother died"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_language_barrier_support_policy",
+      "name": "Language barrier interpreter routing",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Vulnerable Customers & Fair Dealing",
+      "description": "A customer signalling limited English proficiency cannot give informed consent through an English-only automated flow, and fair-dealing outcomes require communication the customer actually understands. The interaction moves to a human who can engage interpreter services.",
+      "severity": "medium",
+      "decision": "human_agent_required",
+      "route_to": "customer_care_specialist",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Banking Code of Practice — accessibility and interpreter support",
+        "MAS Guidelines on Fair Dealing (2024) — clear, relevant and timely information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "i need an interpreter",
+          "do not understand english well",
+          "english is not my first language",
+          "speak to someone in mandarin",
+          "translator please"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_accessible_format_request_policy",
+      "name": "Accessible document format fulfilment",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Inclusive Design & Responsible AI",
+      "description": "Requests for large print, braille, audio or easy-read versions of documents are routine accessibility fulfilment the agent should complete without friction — making the customer wait for approval would itself be an accessibility failure. Flagged only so fulfilment rates are auditable.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — WCAG 2.2 AA alternative format provision"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "large print statement",
+          "braille version",
+          "audio version of the document",
+          "easy read format",
+          "accessible pdf"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_accessibility_human_alternative_policy",
+      "name": "AI-only channel accessibility failure",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Inclusive Design & Responsible AI",
+      "description": "When a customer reports that a disability or assistive technology prevents them from using the automated channel, continuing to serve them through that channel is disability discrimination in service provision. A human alternative must be offered immediately, not after a triage queue.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "accessibility_support",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC", "global"],
+      "regulatory_references": [
+        "Australia Disability Discrimination Act 1992 (Cth) s.24 — goods, services and facilities",
+        "Industry best practice — WCAG 2.2 AA with human service fallback"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "i am blind",
+          "my screen reader does not work",
+          "i am deaf",
+          "hearing impaired",
+          "cannot use the chatbot because of my disability",
+          "assistive technology is not supported"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_ai_content_disclosure_policy",
+      "name": "AI-generated content disclosure check",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Inclusive Design & Responsible AI",
+      "description": "Publishing AI-generated material to public channels without the disclosure label the firm's transparency commitments require erodes the FEAT transparency posture regulators now examine. The approver confirms the AI-provenance label is present and correctly worded before release.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "brand_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "MAS FEAT Principles (2018) — Transparency",
+        "Industry best practice — provenance labelling of AI-generated content"
+      ],
+      "condition": {
+        "proposed_action_in": ["publish_ai_generated_content"],
+        "channel_in": ["social_media", "advertising", "press_release"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_discriminatory_ad_targeting_block_policy",
+      "name": "Discriminatory audience exclusion interdiction",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Inclusive Design & Responsible AI",
+      "description": "Configuring ad or offer audiences to exclude people by ethnicity, religion, age or disability is unlawful discrimination in the supply of services, not a marketing optimisation. The engine refuses the targeting instruction outright rather than routing it for sign-off.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC", "global"],
+      "regulatory_references": [
+        "Australia Racial Discrimination Act 1975 (Cth) s.13 — provision of goods and services",
+        "MAS FEAT Principles (2018) — Fairness"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "exclude by ethnicity",
+          "exclude indigenous customers",
+          "target only young applicants",
+          "exclude people with disabilities",
+          "exclude by religion",
+          "screen out older customers"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_employee_volunteering_data_policy",
+      "name": "Employee volunteering and giving data use",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Community & Philanthropy",
+      "description": "Compiling aggregated volunteering hours or workplace-giving participation for internal reporting carries little external risk and is safe to automate. The flag keeps the aggregation auditable in case the figures later migrate into public social-impact claims.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "employee volunteering hours",
+          "workplace giving program",
+          "payroll giving",
+          "volunteer leave days",
+          "staff volunteering statistics"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_routine_sponsorship_approval_policy",
+      "name": "Routine sponsorship and donation approval",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Community & Philanthropy",
+      "description": "Modest sponsorships and charitable donations still need a corporate affairs check for conflicts of interest, anti-bribery exposure and recipient legitimacy, but below the major-gift threshold a single approver is proportionate.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "corporate_affairs",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — anti-bribery screening of donations and sponsorships (ISO 37001)"
+      ],
+      "condition": {
+        "task_type_in": ["sponsorship_request", "charitable_donation_request"],
+        "amount_less_than": 25000
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_major_donation_commitment_policy",
+      "name": "Major philanthropic commitment escalation",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Community & Philanthropy",
+      "description": "Donations or sponsorships at or above the major-gift threshold concentrate bribery, conflict-of-interest and reputational exposure in a single decision, and often carry tax and disclosure consequences. A corporate affairs specialist negotiates and documents these commitments personally.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "corporate_affairs",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — major gift governance and anti-bribery controls (ISO 37001)"
+      ],
+      "condition": {
+        "task_type_in": ["sponsorship_request", "charitable_donation_request"],
+        "amount_at_least": 25000
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_lobbying_political_donation_policy",
+      "name": "Lobbying and political donation disclosure",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Community & Philanthropy",
+      "description": "Political donations and lobbying engagements sit inside statutory disclosure regimes with strict thresholds and timing rules; an undeclared contribution is a reportable contravention, not an oversight. Government affairs validates disclosure obligations before any commitment is communicated.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "government_affairs",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia Commonwealth Electoral Act 1918 (Cth) Part XX — disclosure of political donations"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "political donation",
+          "engage a lobbyist",
+          "political party fundraiser",
+          "election campaign contribution",
+          "lobbying activities"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_internal_esg_training_content_policy",
+      "name": "Internal ESG training content drafting",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Governance & Attestations",
+      "description": "Drafting internal sustainability training modules and awareness newsletters is low-stakes capability building with no external audience, and is safe for the agent to complete autonomously with a traceability flag.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["esg_training_content", "internal_sustainability_newsletter"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_board_attestation_fabrication_block_policy",
+      "name": "Board ESG attestation fabrication interdiction",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Governance & Attestations",
+      "description": "Requests to fabricate, forge or backdate a board attestation on an ESG document attack the accountability chain that listing rules and the Modern Slavery Act anchor in the governing body itself. Falsified attestations expose directors personally; the engine refuses with no escalation path.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "AU", "APAC", "global"],
+      "regulatory_references": [
+        "SGX Listing Rule 711A — board statement on the sustainability report",
+        "Australia Modern Slavery Act 2018 (Cth) s.13 — approval by principal governing body and responsible member signature"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "fabricate the board attestation",
+          "forge the director signature",
+          "sign on behalf of the director",
+          "backdate the board resolution",
+          "fake the board attestation",
+          "draft the attestation as if the board approved"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_environmental_incident_notification_policy",
+      "name": "Environmental incident communications takeover",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Governance & Attestations",
+      "description": "A spill, discharge breach or pollution incident carries a statutory duty to notify the environmental regulator within strict timeframes, and every external word shapes later enforcement. Crisis communications and legal take over immediately; no automated statement may precede the regulator notification.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "crisis_communications",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "NZ", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia NSW Protection of the Environment Operations Act 1997 s.148 — duty to notify pollution incidents",
+        "Industry best practice — regulator-first sequencing of incident communications"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "chemical spill",
+          "environmental incident",
+          "contaminated the waterway",
+          "pollution incident",
+          "breach of our discharge licence",
+          "oil leak"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_product_recycling_info_policy",
+      "name": "Product recycling information service",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Customer Environmental Services",
+      "description": "Answering how to recycle a product or where take-back programs operate is helpful, factual service the agent can deliver from the published disposal guide. The flag exists because wrong disposal advice for regulated waste streams (e-waste, batteries) would itself need correction.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — accurate end-of-life disposal information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "how do i recycle",
+          "recycling instructions",
+          "is the packaging recyclable",
+          "product take-back program",
+          "e-waste collection point"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_paperless_billing_switch_policy",
+      "name": "Paperless statement opt-in handling",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Customer Environmental Services",
+      "description": "Switching a customer to electronic statements at their own request is a reversible, low-risk preference change that also reduces paper use — the canonical safe automation in the sustainability service set.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "utilities", "telecommunications"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "switch to e-statements",
+          "go paperless",
+          "stop sending paper statements",
+          "electronic statements only"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "esg_carbon_footprint_estimate_policy",
+      "name": "Customer carbon footprint estimate provision",
+      "category": "ESG & Responsible AI",
+      "subcategory": "Customer Environmental Services",
+      "description": "Giving customers an estimated footprint for a purchase or journey is permitted when the agent attaches the methodology and data-source caveats, because an uncaveated number quietly becomes an implied environmental claim. The flag keeps estimate volumes visible to the sustainability team.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — GHG Protocol-consistent estimation and methodology disclosure"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "carbon footprint calculator",
+          "estimate my carbon footprint",
+          "carbon impact of my order",
+          "emissions from my flight",
+          "footprint of my purchase"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    }
+  ]
+}

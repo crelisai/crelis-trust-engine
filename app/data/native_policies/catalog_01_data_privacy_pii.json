@@ -1,0 +1,1094 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "Data Privacy & PII Protection",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "dp_nric_bulk_export_block_policy",
+      "name": "Bulk NRIC export interdiction",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "National ID Handling",
+      "description": "An agent asked to export or download NRIC numbers in bulk is attempting mass exfiltration of Singapore national identifiers, which the PDPC treats as among the most harmful disclosure events. No automated or human-approved path exists for bulk NRIC extraction; it is interdicted outright.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.24 — Protection Obligation",
+        "PDPC Advisory Guidelines on the PDPA for NRIC and Other National Identification Numbers (2018)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "bulk nric export",
+          "export all nric",
+          "nric of all customers",
+          "download nric list",
+          "full nric database",
+          "nric numbers in bulk"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_aadhaar_disclosure_block_policy",
+      "name": "Aadhaar number disclosure interdiction",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "National ID Handling",
+      "description": "Sharing, displaying, or extracting Aadhaar numbers outside UIDAI-authorised flows is a statutory offence in India regardless of consent, so the engine refuses rather than escalates. Aadhaar identity information may never leave the authenticated KYC pipeline.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "APAC"],
+      "regulatory_references": [
+        "Aadhaar Act 2016 s.29 — Restriction on Sharing Identity Information",
+        "India DPDP Act 2023 s.8 — Data Fiduciary Obligations"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "aadhaar number",
+          "share aadhaar details",
+          "aadhaar card copy",
+          "aadhaar database",
+          "e-aadhaar download",
+          "uidai records"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_mykad_hkid_outbound_policy",
+      "name": "MyKad / HKID in outbound communication",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "National ID Handling",
+      "description": "Malaysian MyKad and Hong Kong Identity Card numbers appearing in outbound drafts breach the disclosure and security principles of both jurisdictions, and the PCPD has issued specific HKID guidance after repeated misuse. A privacy specialist must strip or justify the identifier before anything is sent.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["MY", "HK", "APAC"],
+      "regulatory_references": [
+        "Malaysia PDPA 2010 s.8 — Disclosure Principle",
+        "Hong Kong PDPO DPP4 — Security of Personal Data",
+        "PCPD Code of Practice on the Identity Card Number and Other Personal Identifiers"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "mykad number",
+          "mykad copy",
+          "hkid number",
+          "hong kong identity card",
+          "identity card copy"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_passport_copy_third_party_policy",
+      "name": "Passport scan release to third parties",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "National ID Handling",
+      "description": "Forwarding passport scans or copies to outside parties stacks identity-theft exposure on top of disclosure-limitation duties, but legitimate use cases (visa agents, airline rebooking) do exist. A human approver confirms the recipient and lawful basis before release.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Hong Kong PDPO DPP3 — Use of Personal Data",
+        "Australia Privacy Act 1988 APP 6 — Use or Disclosure"
+      ],
+      "condition": {
+        "detected_entity_in": ["passport"],
+        "message_contains_any": [
+          "passport scan",
+          "passport copy",
+          "passport image",
+          "send the passport",
+          "forward the passport"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_nric_identity_verification_allow_policy",
+      "name": "NRIC use within a KYC verification task",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "National ID Handling",
+      "description": "An actual NRIC appearing inside a structured identity-verification or KYC task is the one context where PDPC guidance accepts collection of the full identifier, so the engine lets the task proceed while flagging it on the audit trail.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "insurance", "telecom"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "PDPC Advisory Guidelines on the PDPA for NRIC and Other National Identification Numbers (2018)"
+      ],
+      "condition": {
+        "detected_entity_in": ["nric"],
+        "task_type_in": ["identity_verification", "kyc_refresh"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_crossborder_transfer_no_safeguards_policy",
+      "name": "Cross-border transfer without adequacy or safeguards",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Moving personal data offshore without a comparable-protection assessment violates the transfer limitation regimes of Singapore, Australia and most APAC statutes, and remediation after the fact is rarely possible. A privacy specialist must verify the receiving jurisdiction and contractual safeguards before the transfer runs.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDPA s.26 — Transfer Limitation",
+        "Australia Privacy Act 1988 APP 8 — Cross-border Disclosure",
+        "Thailand PDPA 2019 s.28 — Cross-border Transfer"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "transfer data overseas",
+          "send customer data abroad",
+          "cross-border data transfer",
+          "offshore data processing",
+          "transfer personal data outside"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_china_pipl_outbound_policy",
+      "name": "PIPL outbound transfer from mainland China",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Exporting personal information of mainland China data subjects requires a CAC security assessment, certification, or standard contract under PIPL, and CIIO data is localised outright. Because the wrong mechanism choice is itself a violation, a specialist must classify the transfer before any data moves.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "APAC"],
+      "regulatory_references": [
+        "China PIPL art. 38 — Cross-border Transfer Mechanisms",
+        "China PIPL art. 40 — Localisation for CIIOs and Volume Thresholds"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "data out of mainland china",
+          "china cross-border transfer",
+          "cac security assessment",
+          "chinese customer data overseas",
+          "pipl compliance review"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_vietnam_localisation_policy",
+      "name": "Vietnam localisation and outbound transfer dossier",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Vietnam requires an outbound transfer impact assessment dossier filed with the Ministry of Public Security, and certain service providers must keep copies of Vietnamese user data onshore under Decree 53. Approval confirms the dossier exists before offshore processing is configured.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["VN", "APAC"],
+      "regulatory_references": [
+        "Vietnam Decree 13/2023/ND-CP art. 25 — Outbound Transfer Impact Assessment",
+        "Vietnam Cybersecurity Law 2018 art. 26 & Decree 53/2022 — Data Localisation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "vietnam data localisation",
+          "vietnamese personal data offshore",
+          "store data in vietnam",
+          "transfer data from vietnam",
+          "outbound transfer impact assessment"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_indonesia_offshore_transfer_policy",
+      "name": "Indonesia PDP Law offshore transfer gating",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Indonesia's PDP Law conditions offshore transfers on equivalent protection in the destination country or adequate binding safeguards, and sectoral OJK rules add localisation expectations for financial data. Human approval verifies which leg of art. 56 the transfer relies on.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["ID", "APAC"],
+      "regulatory_references": [
+        "Indonesia PDP Law No. 27/2022 art. 56 — Cross-border Transfer Conditions"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "indonesian personal data offshore",
+          "transfer data from indonesia",
+          "indonesia data localisation",
+          "pdp law transfer assessment"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_recognised_transfer_mechanism_policy",
+      "name": "Transfer under a recognised safeguard mechanism",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Where the request itself documents a recognised mechanism — BCRs, standard contractual clauses, an adequacy finding or APEC CBPR certification — the transfer-limitation duty is presumptively satisfied and the action may proceed flagged for audit sampling.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDP Regulations 2021 reg. 10 — Conditions for Overseas Transfer",
+        "APEC Cross-Border Privacy Rules (CBPR) System"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "binding corporate rules",
+          "standard contractual clauses",
+          "apec cbpr certification",
+          "adequacy decision in place"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_offshore_replication_task_policy",
+      "name": "Structured offshore replication of customer datasets",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Cross-Border Transfer & Localisation",
+      "description": "Agent-to-agent calls that provision offshore backups or replicate databases to overseas regions move entire datasets across borders in one action, far beyond a single-record disclosure. A data-governance specialist must sign off on the destination region's legal basis first.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "China PIPL art. 40 — Localisation for CIIOs and Volume Thresholds",
+        "Australia Privacy Act 1988 APP 8 — Cross-border Disclosure"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "replicate_database_offshore",
+          "provision_offshore_backup",
+          "sync_data_to_overseas_region"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_consent_withdrawal_policy",
+      "name": "Consent withdrawal processing",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Consent & Purpose Limitation",
+      "description": "A withdrawal of consent starts a statutory clock to cease collection, use and disclosure, and downstream processors must be told as well. Approval confirms the withdrawal is propagated to every system rather than only the channel it arrived on.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "MY", "CN", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.16 — Withdrawal of Consent",
+        "Malaysia PDPA 2010 s.38 — Withdrawal of Consent",
+        "China PIPL art. 15 — Withdrawal of Consent"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "withdraw my consent",
+          "revoke my consent",
+          "stop processing my personal data",
+          "withdraw consent for marketing",
+          "no longer consent"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_secondary_purpose_use_policy",
+      "name": "Use of data beyond the notified purpose",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Consent & Purpose Limitation",
+      "description": "Repurposing personal data for analytics, training or products the individual was never told about contravenes the purpose-limitation principle even when the data is already lawfully held. A human approver checks whether fresh notification or consent is needed before the new use begins.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "JP", "APAC"],
+      "regulatory_references": [
+        "Hong Kong PDPO DPP3 — Use of Personal Data",
+        "Japan APPI art. 18 — Limitation by Utilisation Purpose"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "new purpose for customer data",
+          "secondary use of personal data",
+          "repurpose the customer data",
+          "beyond the original purpose",
+          "different purpose than collected"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_missing_consent_record_policy",
+      "name": "Processing with no consent record on file",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Consent & Purpose Limitation",
+      "description": "When the agent itself reports that consent cannot be located, continuing to process shifts the burden onto an evidentiary gap the organisation cannot defend to a regulator. Approval routes the case to determine whether another lawful basis applies or processing must pause.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "KR", "TH", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.13 — Consent Required",
+        "Korea PIPA art. 15 — Collection and Use of Personal Information",
+        "Thailand PDPA 2019 s.19 — Consent"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "no consent on record",
+          "consent was never obtained",
+          "missing consent record",
+          "without the customer's consent",
+          "cannot find the consent"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_deemed_consent_notification_policy",
+      "name": "Deemed consent by notification assessment",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Consent & Purpose Limitation",
+      "description": "Singapore's deemed-consent-by-notification route is a lawful basis when the adverse-effect assessment and notice period are documented, so an agent completing that workflow may proceed with the action logged for the DPO's periodic review.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG"],
+      "regulatory_references": [
+        "Singapore PDPA s.15A — Deemed Consent by Notification"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "deemed consent by notification",
+          "deemed consent assessment",
+          "adverse effect assessment completed"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_sensitive_pi_processing_policy",
+      "name": "Sensitive personal information handling",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Consent & Purpose Limitation",
+      "description": "Health, religious, ethnic and similar special categories demand separate consent, a specific necessity justification and heightened protection under PIPL and Korea PIPA. Because the marginal harm of mishandling is severe, a specialist reviews any automated action touching these fields.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "KR", "PH", "APAC"],
+      "regulatory_references": [
+        "China PIPL arts. 28–30 — Sensitive Personal Information",
+        "Korea PIPA art. 23 — Sensitive Information",
+        "Philippines Data Privacy Act 2012 s.13 — Sensitive Personal Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "sensitive personal information",
+          "medical history records",
+          "religious affiliation data",
+          "racial or ethnic origin",
+          "trade union membership"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_dsar_fulfilment_policy",
+      "name": "Data subject access request fulfilment",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Data Subject Rights",
+      "description": "Access requests carry statutory response deadlines and exemption traps — third-party data, legal privilege, ongoing investigations — that an automated extract will not spot. A human approver vets the compiled bundle before it is released to the requester.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "NZ", "PH", "APAC"],
+      "regulatory_references": [
+        "Hong Kong PDPO DPP6 — Access and Correction",
+        "New Zealand Privacy Act 2020 IPP 6 — Access to Personal Information",
+        "Philippines Data Privacy Act 2012 s.16 — Rights of the Data Subject"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "data subject access request",
+          "subject access request",
+          "copy of my personal data",
+          "what personal data you hold",
+          "access to my personal data"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_data_correction_request_policy",
+      "name": "Personal data correction request",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Data Subject Rights",
+      "description": "Correcting inaccurate personal particulars at the individual's request is a right the organisation must honour quickly and a low-harm automation case, so the agent proceeds with the change flagged on the record's audit history.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "NZ", "APAC"],
+      "regulatory_references": [
+        "Hong Kong PDPO DPP6 — Access and Correction",
+        "New Zealand Privacy Act 2020 IPP 7 — Correction of Personal Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "correct my personal data",
+          "update my personal particulars",
+          "rectify my personal information",
+          "correction of personal data"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_erasure_request_policy",
+      "name": "Erasure / deletion request handling",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Data Subject Rights",
+      "description": "Deletion rights under the DPDP Act and PIPL collide with statutory retention duties in tax, AML and employment law, so an unchecked automated purge can destroy records the organisation is required to keep. Approval resolves the conflict before anything is erased.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "CN", "APAC", "global"],
+      "regulatory_references": [
+        "India DPDP Act 2023 s.12 — Right to Correction and Erasure",
+        "China PIPL art. 47 — Deletion of Personal Information",
+        "GDPR art. 17 — Right to Erasure (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "delete my personal data",
+          "erase my personal data",
+          "right to be forgotten",
+          "remove all my personal information",
+          "delete my account data"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_portability_export_policy",
+      "name": "Individual data portability export",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Data Subject Rights",
+      "description": "A portability export is a single individual's data leaving the platform in machine-readable form — legitimate, but an attractive disguise for account-takeover exfiltration. Approval verifies the requester controls the account before the archive is generated.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "identity_verification",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["TH", "SG", "APAC", "global"],
+      "regulatory_references": [
+        "Thailand PDPA 2019 s.31 — Right to Data Portability",
+        "GDPR art. 20 — Right to Data Portability (global comparator)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "data portability request",
+          "machine-readable copy of my data",
+          "port my data to another provider",
+          "transfer my data to a competitor"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_third_party_dsar_policy",
+      "name": "Access request targeting another person's data",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Data Subject Rights",
+      "description": "Requests framed as access rights but aimed at a spouse's, colleague's or other third party's records are a classic social-engineering route to unlawful disclosure, and PDPO s.20 obliges refusal absent proper authority. A specialist validates authority documents before anything is shown.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "identity_verification",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "APAC", "global"],
+      "regulatory_references": [
+        "Hong Kong PDPO s.20 — Circumstances for Refusing a Data Access Request"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "data of another person",
+          "someone else's personal data",
+          "on behalf of my spouse",
+          "records of my colleague",
+          "access request for another individual"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_child_data_no_consent_policy",
+      "name": "Children's data without verifiable parental consent",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Children's & Biometric Data",
+      "description": "India's DPDP Act requires verifiable parental consent for anyone under 18 and PIPL treats data of minors under 14 as sensitive PI; processing a child's record while consent is missing is unlawful at the moment it happens. A specialist halts the workflow until consent evidence exists.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "dpo_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "CN", "APAC"],
+      "regulatory_references": [
+        "India DPDP Act 2023 s.9 — Processing of Personal Data of Children",
+        "China PIPL art. 31 — Personal Information of Minors Under 14"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "child's personal data",
+          "children's personal data",
+          "data of a minor",
+          "under 18 account holder",
+          "parental consent not obtained",
+          "verifiable parental consent missing"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_child_targeted_ads_policy",
+      "name": "Tracking or targeted advertising directed at children",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Children's & Biometric Data",
+      "description": "Behavioural monitoring and targeted advertising aimed at children are flatly prohibited by DPDP s.9(3) — not merely consent-gated — so any campaign or tracking configuration touching minors needs a specialist to determine whether it can lawfully run at all.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "marketing_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "APAC", "global"],
+      "regulatory_references": [
+        "India DPDP Act 2023 s.9(3) — Prohibition on Tracking and Targeted Advertising at Children"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "targeted advertising to children",
+          "behavioural advertising to minors",
+          "track a child's activity",
+          "profiling of children",
+          "ads aimed at minors"
+        ]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_biometric_template_policy",
+      "name": "Biometric template collection or transfer",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Children's & Biometric Data",
+      "description": "Fingerprint, face, iris and voice templates are irrevocable identifiers — once leaked they cannot be reissued — and sit in the sensitive-data tier of PIPL, Korea PIPA and the Australian APPs. Any agent action that enrols, copies or ships a template gets specialist review.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "KR", "AU", "APAC"],
+      "regulatory_references": [
+        "China PIPL art. 28 — Sensitive Personal Information (Biometrics)",
+        "Korea PIPA art. 23 — Sensitive Information",
+        "Australia Privacy Act 1988 s.6 — Biometric Information as Sensitive Information"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "biometric template",
+          "fingerprint template",
+          "facial recognition data",
+          "iris scan data",
+          "voiceprint enrolment"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_age_gate_routine_policy",
+      "name": "Routine age-gate and parental consent checks",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Children's & Biometric Data",
+      "description": "Running the age-verification or parental-consent-check step itself is the compliant behaviour the children's-data regimes demand, so these structured tasks are automated freely and merely flagged for sampling in the consent audit.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "APAC", "global"],
+      "regulatory_references": [
+        "India DPDP Act 2023 s.9 — Processing of Personal Data of Children"
+      ],
+      "condition": {
+        "task_type_in": ["age_verification", "parental_consent_check"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_breach_notification_clock_policy",
+      "name": "Statutory breach-notification clock duty",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Breach Response",
+      "description": "Once a notifiable breach is assessed, Singapore allows 3 calendar days to notify the PDPC and the Philippines NPC expects notification within 72 hours; missing the clock is itself a separate violation. The incident commander must own every regulator-facing step — this duty can never be disabled or downgraded by a tenant.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "AU", "PH", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.26D — Duty to Notify Occurrence of Notifiable Data Breach",
+        "Australia Privacy Act 1988 Part IIIC — Notifiable Data Breaches Scheme",
+        "Philippines NPC Circular 16-03 — Personal Data Breach Management"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "notifiable data breach",
+          "notify the regulator of the breach",
+          "breach notification deadline",
+          "72 hour breach notification",
+          "report the data breach",
+          "personal data breach notification"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_suspected_breach_triage_policy",
+      "name": "Suspected breach assessment and containment",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Breach Response",
+      "description": "A suspected leak triggers the PDPA s.26C duty to assess whether the breach is notifiable, and containment steps taken in the first hours determine the eventual notification scope. Approval puts a named human on the assessment before the agent takes containment actions.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDPA s.26C — Duty to Conduct Assessment of Data Breach",
+        "New Zealand Privacy Act 2020 Part 6 — Notifiable Privacy Breaches"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "suspected data leak",
+          "possible data breach",
+          "unauthorised access to customer data",
+          "personal data may have been exposed",
+          "security incident involving personal data"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_breach_customer_comms_policy",
+      "name": "Breach notification to affected individuals",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Breach Response",
+      "description": "Messages telling affected individuals about a breach must contain the statutorily prescribed content — nature of the breach, data involved, mitigation steps — and a wrong or premature draft creates legal exposure of its own. A human approves the outbound wording before any send.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "incident_response",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.26D(2) — Notification to Affected Individuals",
+        "Australia Privacy Act 1988 s.26WL — Statement to Individuals at Risk"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "notify affected customers",
+          "breach notification email",
+          "inform customers of the breach",
+          "affected individuals notification"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_incident_log_internal_policy",
+      "name": "Internal incident register upkeep",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Breach Response",
+      "description": "Writing entries to the internal incident register and breach log is record-keeping the accountability obligations expect to happen fast and consistently, so the structured logging tasks run automated and flagged rather than queued behind a human.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — breach register maintenance under accountability frameworks (PDPC Guide on Managing and Notifying Data Breaches)"
+      ],
+      "condition": {
+        "task_type_in": ["incident_logging", "breach_register_update"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_retention_beyond_purpose_policy",
+      "name": "Retention beyond the collection purpose",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Retention & Erasure",
+      "description": "Keeping personal data after the purpose is exhausted breaches retention-limitation duties across the region and silently grows breach blast radius. When an agent proposes to hold records past schedule, a human decides between anonymisation, deletion or a documented extension.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "JP", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.25 — Retention Limitation",
+        "Hong Kong PDPO DPP2 — Accuracy and Duration of Retention",
+        "Japan APPI art. 22 — Deletion of Personal Data No Longer Needed"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "retain data indefinitely",
+          "keep customer records forever",
+          "past the retention period",
+          "retention schedule expired",
+          "no longer needed for the purpose"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_bulk_record_purge_policy",
+      "name": "Bulk purge or mass anonymisation execution",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Retention & Erasure",
+      "description": "Mass deletion and anonymisation runs are irreversible and can destroy records under legal hold or statutory retention if the scoping query is wrong. A data-governance specialist reviews the record selection and exclusions before the job executes.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "data_governance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Australia Privacy Act 1988 APP 11.2 — Destruction or De-identification",
+        "Industry best practice — pre-deletion legal hold and retention conflict check"
+      ],
+      "condition": {
+        "proposed_action_in": [
+          "bulk_record_deletion",
+          "purge_customer_records",
+          "mass_anonymisation_run"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_reidentification_block_policy",
+      "name": "Re-identification of anonymised datasets",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Retention & Erasure",
+      "description": "Attempting to reverse anonymisation or link de-identified records back to individuals defeats the legal basis under which the dataset was retained, and Japan's APPI expressly prohibits recipients of anonymously processed information from re-identifying it. The engine refuses the attempt outright.",
+      "severity": "high",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["JP", "SG", "APAC", "global"],
+      "regulatory_references": [
+        "Japan APPI arts. 43–46 — Anonymously Processed Information Obligations",
+        "Industry best practice — PDPC (Singapore) Guide to Basic Anonymisation (2022)"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "re-identify anonymised data",
+          "reverse the anonymisation",
+          "de-anonymise the dataset",
+          "link anonymised records back",
+          "re-identification of individuals"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_legal_hold_retention_policy",
+      "name": "Retention extended under legal or regulatory hold",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Retention & Erasure",
+      "description": "Suspending deletion because records sit under a litigation hold or statutory retention requirement is the legally required outcome, not a privacy violation, so the agent proceeds with the hold flagged so the schedule is revisited when the hold lifts.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — legal hold precedence over retention schedules"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "legal hold on records",
+          "litigation hold",
+          "regulatory retention requirement",
+          "statutory retention period"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_dnc_unchecked_marketing_policy",
+      "name": "Direct marketing without a Do Not Call check",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Direct Marketing & Third-Party Sharing",
+      "description": "Voice calls and SMS campaigns to Singapore numbers must be screened against the DNC Registry within the validity window, and Hong Kong requires consent and an opt-out in every direct-marketing use. Approval confirms registry scrubbing and consent state before a campaign launches.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "marketing_compliance",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA Part 9 — Do Not Call Registry",
+        "Hong Kong PDPO Part 6A — Use of Personal Data in Direct Marketing",
+        "Australia Do Not Call Register Act 2006"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "marketing sms blast",
+          "telemarketing call list",
+          "do not call registry",
+          "dnc registry check",
+          "unsolicited marketing message",
+          "marketing calls without consent"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_processor_without_dpa_policy",
+      "name": "Processor onboarding without a data processing agreement",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Direct Marketing & Third-Party Sharing",
+      "description": "Handing personal data to a vendor before an entrustment contract is signed leaves the controller liable for the processor's conduct with no contractual protections, which PIPL art. 21 and Thailand's PDPA make an explicit precondition. Vendor-risk specialists must clear the engagement first.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "vendor_risk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["CN", "TH", "SG", "APAC"],
+      "regulatory_references": [
+        "China PIPL art. 21 — Entrusted Processing",
+        "Thailand PDPA 2019 s.40 — Data Processor Obligations",
+        "Singapore PDPA s.4(2) — Obligations in Respect of Data Intermediaries"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "without a data processing agreement",
+          "no dpa in place",
+          "onboard the new processor",
+          "vendor without a contract",
+          "sub-processor not approved",
+          "share personal data with the vendor"
+        ]
+      },
+      "risk_modifier": 15,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_pan_exposure_policy",
+      "name": "Payment card PAN exposure",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Direct Marketing & Third-Party Sharing",
+      "description": "A full primary account number surfacing alongside a PII-exposure signal means cardholder data is about to leave its controlled environment, defeating truncation and tokenisation controls. A security specialist intervenes before the number is rendered or transmitted anywhere.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "security_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["banking", "fintech", "ecommerce", "retail"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — PCI DSS v4.0 Requirement 3 (Protect Stored Account Data)",
+        "Singapore PDPA s.24 — Protection Obligation"
+      ],
+      "condition": {
+        "detected_entity_in": ["credit_card"],
+        "detected_risk_signal_in": ["pii_exposure"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "dp_optin_marketing_allow_policy",
+      "name": "Marketing to documented opt-in subscribers",
+      "category": "Data Privacy & PII Protection",
+      "subcategory": "Direct Marketing & Third-Party Sharing",
+      "description": "Where the request itself evidences a current opt-in — consent on file, an active subscription, a confirmed newsletter sign-up — the direct-marketing consent requirements are met and the send proceeds, flagged so consent-state sampling can verify the claim.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Hong Kong PDPO s.35C — Consent for Direct Marketing",
+        "Australia Spam Act 2003 s.16 — Consent to Commercial Electronic Messages"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "opted in to marketing",
+          "marketing consent on file",
+          "active marketing subscription",
+          "newsletter opt-in confirmed"
+        ]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    }
+  ]
+}

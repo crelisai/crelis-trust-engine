@@ -1,0 +1,1026 @@
+{
+  "library": "crelis_native_catalog",
+  "version": "v1",
+  "category": "HR & Workplace AI",
+  "maintainer": "Crelis Regulatory Policy Office",
+  "policies": [
+    {
+      "policy_id": "hr_protected_attribute_screening_policy",
+      "name": "Hiring screen on protected attributes",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "A screening agent asked to filter or reject candidates by age, pregnancy, race, religion or nationality is attempting unlawful discrimination in several APAC markets and a TAFEP breach in Singapore (with Workplace Fairness legislation incoming). Escalate to a human immediately — this is never a configuration matter.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "hr_escalation_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "AU", "HK", "APAC"],
+      "regulatory_references": [
+        "Singapore Tripartite Guidelines on Fair Employment Practices (TAFEP)",
+        "Australia Fair Work Act 2009 s.351 — Adverse Action (Discrimination)",
+        "Hong Kong Sex Discrimination Ordinance s.11 — Discrimination in Employment"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "exclude pregnant applicants",
+          "screen out older candidates",
+          "reject candidates over 40",
+          "filter candidates by race",
+          "filter candidates by religion",
+          "reject due to nationality",
+          "no married women"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_background_check_adverse_finding_policy",
+      "name": "Adverse background-check finding handling",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "When pre-employment screening surfaces a criminal record or other adverse finding, the agent must not auto-reject: Hong Kong treats certain convictions as spent and unusable, and proportionality assessment is a human judgement. Route the finding to a recruiter for individualised review.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "talent_acquisition_lead",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "Hong Kong Rehabilitation of Offenders Ordinance s.2 — Spent Convictions"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "adverse background finding",
+          "criminal record found",
+          "failed the background check",
+          "background screening hit",
+          "conviction surfaced in screening"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_resume_screening_fairness_flag_policy",
+      "name": "Algorithmic resume shortlisting fairness flag",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "Automated resume screening and shortlisting may proceed, but every run is flagged into the fairness audit trail so disparate-impact testing can be performed on selection rates — a FEAT-style control adapted for hiring. The flag raises risk without gating throughput.",
+      "severity": "medium",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — Singapore Model AI Governance Framework: fairness testing of automated hiring decisions"
+      ],
+      "condition": {
+        "task_type_in": ["resume_screening", "candidate_shortlisting"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_interview_scheduling_allow_policy",
+      "name": "Interview scheduling automation",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "Coordinating interview slots, sending calendar invites and candidate outreach reminders carries no employment-decision content and is the canonical safe automation in recruiting workflows.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["interview_scheduling", "candidate_outreach"]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_offer_letter_issuance_policy",
+      "name": "Offer letter and contract issuance sign-off",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "Generated offer letters and employment contracts bind the company to statutory written terms — Singapore key employment terms and Japan's clear statement of working conditions — so a human must verify compensation, notice and clause accuracy before issuance.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "hr_business_partner",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "JP", "APAC"],
+      "regulatory_references": [
+        "Singapore Employment Act 1968 — Key Employment Terms requirement",
+        "Japan Labour Standards Act art. 15 — Clear Statement of Working Conditions"
+      ],
+      "condition": {
+        "task_type_in": ["offer_letter_generation", "employment_contract_issuance"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_work_pass_status_handling_policy",
+      "name": "Work pass and visa status handling",
+      "category": "HR & Workplace AI",
+      "subcategory": "Hiring & Screening",
+      "description": "Employment pass applications, work permit renewals and quota questions carry statutory employer obligations and immigration-status sensitivity; an error can invalidate a foreign employee's right to work. A mobility specialist must approve before the agent acts or responds.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "global_mobility_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "MY", "APAC"],
+      "regulatory_references": [
+        "Singapore Employment of Foreign Manpower Act s.5 — Work Pass Requirement"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "employment pass application",
+          "work permit renewal",
+          "s pass quota",
+          "work pass status",
+          "visa sponsorship",
+          "cancel the work pass"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_termination_recommendation_policy",
+      "name": "AI termination recommendation takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Any structured agent call that recommends or initiates dismissal must hand over to a human: unfair-dismissal regimes across APAC require just cause and procedural fairness that no model can certify. The decision to end employment is never automated, regardless of the evidence package attached.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "hr_escalation_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "KR", "JP", "APAC"],
+      "regulatory_references": [
+        "Australia Fair Work Act 2009 s.385 — Unfair Dismissal",
+        "Korea Labor Standards Act art. 23 — Dismissal Only with Just Cause",
+        "Japan Labour Contract Act art. 16 — Abusive Dismissal Doctrine"
+      ],
+      "condition": {
+        "task_type_in": ["employee_termination", "termination_recommendation", "dismissal_processing"]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_summary_dismissal_language_policy",
+      "name": "Summary dismissal language interception",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Conversational requests to dismiss without notice or terminate for gross misconduct trigger the strictest due-inquiry duties — Hong Kong confines summary dismissal to narrow grounds and Singapore requires due inquiry first. A human employment specialist takes over the thread.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "employee_relations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "SG", "MY"],
+      "regulatory_references": [
+        "Hong Kong Employment Ordinance s.9 — Summary Dismissal",
+        "Singapore Employment Act 1968 s.14 — Dismissal After Due Inquiry"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "summary dismissal",
+          "dismiss without notice",
+          "terminate her employment",
+          "terminate his employment",
+          "termination with immediate effect",
+          "terminate the employee"
+        ]
+      },
+      "risk_modifier": 22,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_retrenchment_selection_list_policy",
+      "name": "Retrenchment and redundancy selection lists",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Compiling or editing a redundancy selection list is a collective-dismissal act with statutory preconditions: India requires notice and compensation under s.25F, Australia tests genuine redundancy, and Singapore expects responsible retrenchment under the Tripartite Advisory. Hands off — a human owns the list.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "hr_escalation_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "AU", "SG", "APAC"],
+      "regulatory_references": [
+        "India Industrial Disputes Act 1947 s.25F — Conditions Precedent to Retrenchment",
+        "Australia Fair Work Act 2009 s.389 — Genuine Redundancy",
+        "Singapore Tripartite Advisory on Managing Excess Manpower and Responsible Retrenchment"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "retrenchment exercise",
+          "redundancy selection list",
+          "layoff list",
+          "headcount reduction list",
+          "retrench the affected employees"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_disciplinary_warning_automation_policy",
+      "name": "Disciplinary warning letter automation gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Auto-issued written warnings and show-cause letters become exhibits in later dismissal proceedings, and Malaysia conditions misconduct sanctions on due inquiry. A line manager or HR officer must approve the wording and the underlying facts before anything is served on the employee.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "employee_relations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["MY", "SG", "APAC"],
+      "regulatory_references": [
+        "Malaysia Employment Act 1955 s.14 — Due Inquiry Before Misconduct Sanction"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "issue a written warning",
+          "show cause letter",
+          "final warning letter",
+          "disciplinary memo",
+          "send the warning to the employee"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_probation_extension_decision_policy",
+      "name": "Probation extension and confirmation decisions",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Extending or failing a probation changes the employee's path to statutory protections, so the hiring manager must confirm the assessment evidence personally rather than letting the agent decide from incomplete check-in data.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "hr_business_partner",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC"],
+      "regulatory_references": [
+        "Industry best practice — probation outcomes are employment-status decisions requiring documented line-manager accountability"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "extend the probation",
+          "probation extension",
+          "fail the probation",
+          "do not confirm the employee",
+          "confirm after probation"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_severance_amount_review_policy",
+      "name": "High-value severance and ex gratia review",
+      "category": "HR & Workplace AI",
+      "subcategory": "Termination & Discipline",
+      "description": "Severance packages and ex gratia retrenchment benefits at or above 10,000 commit material company funds and interact with statutory redundancy pay floors; the figure and its basis need a compensation sign-off before any offer is communicated.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "compensation_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia Fair Work Act 2009 s.119 — Redundancy Pay"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "severance package",
+          "retrenchment benefit",
+          "ex gratia severance",
+          "separation payment"
+        ],
+        "amount_at_least": 10000
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_salary_disclosure_message_policy",
+      "name": "Third-party salary disclosure in messages",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "Revealing what a named colleague earns in a chat or email is a confidentiality breach with discrimination-claim and morale consequences; the agent must hold the reply until a compensation owner approves any disclosure and its lawful basis.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "compensation_review",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.18 — Purpose Limitation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "salary of another employee",
+          "colleague's salary",
+          "share salary details",
+          "disclose her salary",
+          "disclose his salary",
+          "what my coworker earns"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_bonus_pool_exposure_policy",
+      "name": "Bonus pool and incentive matrix exposure",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "Bonus pool sizes, allocation matrices and multiplier tables are pre-decision compensation intelligence; leaking them mid-cycle distorts negotiations and can be price-sensitive in listed companies. Release only with an approver from the rewards team.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "rewards_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — compensation planning data is restricted-distribution until award communication"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "bonus pool",
+          "bonus allocation matrix",
+          "incentive pool breakdown",
+          "bonus multiplier table"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_bulk_compensation_exfiltration_block_policy",
+      "name": "Bulk compensation data exfiltration block",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "A request to dump every employee's salary — the whole payroll register or a company-wide compensation extract — is bulk exfiltration of highly sensitive personal data, not a reporting need. Blocked outright; sanctioned analytics flows exist for aggregate reporting.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDPA s.24 — Protection Obligation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "export all salaries",
+          "all employee salaries",
+          "entire payroll register",
+          "full compensation database",
+          "company-wide salary data",
+          "download everyone's pay"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_bulk_payroll_file_edit_policy",
+      "name": "Bulk payroll file edit takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "Mass edits to the payroll bank file or batch salary runs change where and how much money moves for the whole workforce in one action; a payroll controller must take over with maker-checker discipline, because Singapore fixes strict salary payment timelines that a corrupted run would breach.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "payroll_control_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Employment Act 1968 s.21 — Time of Payment of Salary"
+      ],
+      "condition": {
+        "task_type_in": ["bulk_payroll_update", "payroll_file_generation", "mass_salary_change"]
+      },
+      "risk_modifier": 20,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_payroll_bank_detail_change_policy",
+      "name": "Individual payroll bank detail change",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "Single-employee changes to salary destination accounts are the classic payroll-diversion fraud vector — social engineers impersonate staff to redirect pay. The change request goes to a human approver who re-verifies the employee through an independent channel first.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "payroll_control_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — out-of-band verification before payroll destination changes"
+      ],
+      "condition": {
+        "task_type_in": ["payroll_bank_detail_change", "salary_adjustment"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_payslip_self_service_allow_policy",
+      "name": "Own payslip self-service",
+      "category": "HR & Workplace AI",
+      "subcategory": "Compensation & Payroll Confidentiality",
+      "description": "An employee retrieving their own itemised payslip exercises a statutory entitlement in Singapore and poses no third-party exposure, so the agent fulfils it without friction after standard session authentication.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore Employment Act 1968 s.96 — Itemised Pay Slips"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "my payslip",
+          "copy of my payslip",
+          "my salary statement",
+          "download my payslip"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_performance_review_generation_policy",
+      "name": "Performance review drafting without manager review",
+      "category": "HR & Workplace AI",
+      "subcategory": "Performance Management",
+      "description": "AI-drafted appraisals must not reach the employee or the HR system of record until the responsible manager has reviewed and owned the content — generated reviews later cited in dismissal disputes are tested against the procedural-fairness factors in unfair dismissal claims.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "hr_business_partner",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "APAC"],
+      "regulatory_references": [
+        "Australia Fair Work Act 2009 s.387 — Criteria for Harshness (Procedural Fairness)"
+      ],
+      "condition": {
+        "task_type_in": ["performance_review_generation", "appraisal_drafting"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_pip_initiation_policy",
+      "name": "Performance improvement plan initiation",
+      "category": "HR & Workplace AI",
+      "subcategory": "Performance Management",
+      "description": "Placing someone on a PIP starts the documented runway to dismissal, so the trigger evidence, targets and timeline need a human sponsor before the plan is created — an unfair PIP poisons every later step of a capability dismissal.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "employee_relations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "KR", "APAC"],
+      "regulatory_references": [
+        "Korea Labor Standards Act art. 23 — Dismissal Only with Just Cause"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "performance improvement plan",
+          "initiate a pip",
+          "put him on a pip",
+          "put her on a pip"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_reference_letter_automation_policy",
+      "name": "Reference and verification letter automation gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Performance Management",
+      "description": "Reference letters and employment verification certificates create representations the company can be held to, and Japan obliges employers to issue accurate employment certificates on request; HR must approve content before issuance under company letterhead.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "hr_shared_services",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["JP", "APAC"],
+      "regulatory_references": [
+        "Japan Labour Standards Act art. 22 — Certificate of Employment"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "reference letter",
+          "letter of recommendation",
+          "employment verification letter",
+          "service certificate"
+        ]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_rating_calibration_analytics_flag_policy",
+      "name": "Rating calibration analytics flag",
+      "category": "HR & Workplace AI",
+      "subcategory": "Performance Management",
+      "description": "Aggregate calibration analytics — distribution curves, inter-rater variance, forced-ranking drift — are allowed as decision support, but flagged so the talent team can audit whether the statistics quietly hardened into individual rating changes.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["rating_calibration_analysis"]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_promotion_recommendation_flag_policy",
+      "name": "Promotion recommendation advisory flag",
+      "category": "HR & Workplace AI",
+      "subcategory": "Performance Management",
+      "description": "Model-generated promotion shortlists may be produced as advisory input, flagged into the talent review record so panels can see which names arrived via algorithm — the final promotion call always sits with the human committee.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Industry best practice — algorithmic talent recommendations remain advisory to human panels"
+      ],
+      "condition": {
+        "task_type_in": ["promotion_recommendation", "succession_planning_analysis"]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_surveillance_expansion_request_policy",
+      "name": "Workplace surveillance expansion takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Workplace Monitoring & Surveillance",
+      "description": "Requests to widen monitoring — new email surveillance, call recording, covert cameras — require a proportionality assessment and advance employee notice in NSW, and the Hong Kong PCPD's monitoring guidance demands less-intrusive alternatives be considered first. The privacy office takes over before any tooling is switched on.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "HK", "APAC"],
+      "regulatory_references": [
+        "Australia Workplace Surveillance Act 2005 (NSW) Pt 2 — Notice Requirements",
+        "Hong Kong PCPD Privacy Guidelines: Monitoring and Personal Data Privacy at Work"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "expand employee monitoring",
+          "install monitoring software",
+          "monitor employee emails",
+          "covert surveillance",
+          "record employee calls",
+          "cameras in the break room"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_employee_location_tracking_policy",
+      "name": "Employee location tracking takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Workplace Monitoring & Surveillance",
+      "description": "Live GPS tracking or location-history pulls on staff devices collect data far beyond any single operational need, failing the PDPO's adequacy-and-necessity test for collection unless tightly scoped. A privacy officer must take the request and define the lawful boundary.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "SG", "APAC"],
+      "regulatory_references": [
+        "Hong Kong PDPO Data Protection Principle 1 — Purpose and Manner of Collection"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "track employee location",
+          "gps tracking of employees",
+          "real-time location of staff",
+          "geolocate the employee",
+          "location history of the employee"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_monitoring_data_access_policy",
+      "name": "Productivity monitoring data access gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Workplace Monitoring & Surveillance",
+      "description": "Pulling an individual's keystroke logs, screen recordings or browsing history out of monitoring systems converts ambient surveillance into a targeted dossier — Hong Kong's use-limitation principle restricts monitoring data to its declared purpose, so each access needs a named approver and reason.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["HK", "APAC"],
+      "regulatory_references": [
+        "Hong Kong PDPO Data Protection Principle 3 — Use Limitation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "keystroke logs",
+          "screen recordings of the employee",
+          "browsing history of the employee",
+          "productivity monitoring report",
+          "badge swipe history"
+        ]
+      },
+      "risk_modifier": 10,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_attendance_anomaly_flag_policy",
+      "name": "Attendance anomaly analytics flag",
+      "category": "HR & Workplace AI",
+      "subcategory": "Workplace Monitoring & Surveillance",
+      "description": "Roster planning and aggregate attendance-pattern analysis can run automatically, with a flag so HR can check that anomaly outputs feed conversations rather than automatic sanctions — the analysis is benign, the downstream use is what needs watching.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "task_type_in": ["attendance_analysis", "roster_planning"]
+      },
+      "risk_modifier": 5,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_medical_certificate_exposure_policy",
+      "name": "Medical certificate detail exposure gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Leave & Medical",
+      "description": "Diagnoses and hospitalisation details on medical certificates are health data: managers are entitled to know an absence is certified, not what the illness is. Any message that would surface diagnosis-level detail pauses for HR approval and minimisation.",
+      "severity": "high",
+      "decision": "human_approval_required",
+      "route_to": "hr_shared_services",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "HK", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.18 — Purpose Limitation",
+        "Hong Kong PDPO Data Protection Principle 3 — Use Limitation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "diagnosis on the medical certificate",
+          "medical certificate details",
+          "sick leave diagnosis",
+          "medical condition of the employee",
+          "hospitalisation details"
+        ]
+      },
+      "risk_modifier": 12,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_medical_records_bulk_export_block_policy",
+      "name": "Employee medical records bulk export block",
+      "category": "HR & Workplace AI",
+      "subcategory": "Leave & Medical",
+      "description": "Exporting the workforce's medical certificates, health declarations or sick-leave records wholesale aggregates the most sensitive employee data the company holds with no proportionate purpose an agent could verify. Blocked; occupational-health statistics come from de-identified pipelines.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDPA s.24 — Protection Obligation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "all medical certificates",
+          "every employee's medical records",
+          "bulk medical records",
+          "export employee health data",
+          "all sick leave records"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_leave_balance_query_allow_policy",
+      "name": "Leave balance self-service",
+      "category": "HR & Workplace AI",
+      "subcategory": "Leave & Medical",
+      "description": "Telling an authenticated employee their own annual leave balance, carry-forward position or remaining entitlement is a read-only self-service lookup with no third-party data and no decision content.",
+      "severity": "low",
+      "decision": "allow",
+      "route_to": null,
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["global"],
+      "regulatory_references": [],
+      "condition": {
+        "message_contains_any": [
+          "annual leave balance",
+          "leave entitlement balance",
+          "remaining leave days",
+          "carry forward leave"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_harassment_complaint_routing_policy",
+      "name": "Harassment complaint confidential takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Grievances & Whistleblowing",
+      "description": "Harassment and bullying complaints go straight to a trained human in a confidential queue — Japan obliges employers to operate effective harassment response measures, and Singapore complainants have parallel statutory remedies. No automated acknowledgement that names the parties, no triage summary to the line manager.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "hr_escalation_desk",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["JP", "SG", "APAC"],
+      "regulatory_references": [
+        "Japan Labour Measures Comprehensive Promotion Act art. 30-2 — Power Harassment Prevention Measures",
+        "Singapore Protection from Harassment Act 2014"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "sexual harassment",
+          "workplace harassment",
+          "harassed by my supervisor",
+          "harassed by my manager",
+          "bullying complaint",
+          "hostile work environment"
+        ]
+      },
+      "risk_modifier": 22,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_whistleblower_report_confidentiality_policy",
+      "name": "Whistleblower report confidentiality takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Grievances & Whistleblowing",
+      "description": "Whistleblower disclosures are never triaged, summarised or routed by automation: identity confidentiality is statutorily protected in Australia with criminal penalties for breach, and any AI processing widens the disclosure surface. The report transfers intact to the whistleblower office and nowhere else.",
+      "severity": "critical",
+      "decision": "human_agent_required",
+      "route_to": "whistleblower_office",
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "JP", "APAC"],
+      "regulatory_references": [
+        "Australia Corporations Act 2001 Pt 9.4AAA — Whistleblower Protections",
+        "Japan Whistleblower Protection Act 2004"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "whistleblower report",
+          "protected disclosure",
+          "report wrongdoing confidentially",
+          "whistleblowing hotline",
+          "report misconduct anonymously",
+          "speak up report"
+        ]
+      },
+      "risk_modifier": 25,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_formal_grievance_intake_policy",
+      "name": "Formal grievance intake gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Grievances & Whistleblowing",
+      "description": "A formal grievance starts a procedural clock — India mandates Grievance Redressal Committees for qualifying establishments — so the agent may acknowledge receipt but a human officer approves classification, timelines and who gets told before anything else happens.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "employee_relations",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["IN", "APAC"],
+      "regulatory_references": [
+        "India Industrial Disputes Act 1947 s.9C — Grievance Redressal Committee"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "formal grievance",
+          "file a grievance",
+          "grievance procedure",
+          "lodge a complaint against my supervisor"
+        ]
+      },
+      "risk_modifier": 8,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_union_collective_bargaining_policy",
+      "name": "Union and collective bargaining takeover",
+      "category": "HR & Workplace AI",
+      "subcategory": "Grievances & Whistleblowing",
+      "description": "Anything touching union recognition, collective agreement negotiation or industrial action is protected terrain — adverse action over industrial activity is unlawful in Australia and Singapore channels these matters through the Industrial Relations Act machinery. An industrial-relations specialist takes the conversation.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "industrial_relations_team",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["AU", "SG", "APAC"],
+      "regulatory_references": [
+        "Australia Fair Work Act 2009 s.346 — Adverse Action for Industrial Activities",
+        "Singapore Industrial Relations Act 1960"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "collective bargaining",
+          "union representative",
+          "industrial action",
+          "strike ballot",
+          "collective agreement negotiation"
+        ]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_employee_pii_external_vendor_policy",
+      "name": "Employee PII transfer to external vendors",
+      "category": "HR & Workplace AI",
+      "subcategory": "Employee Data Protection",
+      "description": "Detected transfer of employee identifiers to an external party needs a human gate: Singapore's transfer limitation applies regardless of employment context, and Australia's employee-records exemption does not stretch to third-party disclosures unrelated to the employment relationship — a nuance vendors routinely get wrong.",
+      "severity": "high",
+      "decision": "human_agent_required",
+      "route_to": "privacy_office",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "AU", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.26 — Transfer Limitation",
+        "Australia Privacy Act 1988 s.7B(3) — Employee Records Exemption (limited to acts directly related to the employment relationship)"
+      ],
+      "condition": {
+        "detected_risk_signal_in": ["external_transfer"],
+        "detected_entity_in": ["nric", "passport", "email", "phone_number"]
+      },
+      "risk_modifier": 18,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_employee_database_exfiltration_block_policy",
+      "name": "Employee master database exfiltration block",
+      "category": "HR & Workplace AI",
+      "subcategory": "Employee Data Protection",
+      "description": "Pulling the entire employee master — full staff list with identifiers, addresses and personal details — is bulk PII exfiltration whatever the stated reason; legitimate integrations use scoped, contracted feeds. Interdicted at the engine level.",
+      "severity": "critical",
+      "decision": "block",
+      "route_to": null,
+      "enabled": true,
+      "critical": true,
+      "allowed_by_native_policy": false,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["APAC", "global"],
+      "regulatory_references": [
+        "Singapore PDPA s.24 — Protection Obligation",
+        "Hong Kong PDPO Data Protection Principle 4 — Data Security"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "all employee records",
+          "entire employee database",
+          "employee master data",
+          "full hr database",
+          "full staff list with personal details",
+          "every employee profile"
+        ]
+      },
+      "risk_modifier": 0,
+      "version": "v1"
+    },
+    {
+      "policy_id": "hr_exit_interview_data_use_policy",
+      "name": "Exit interview data secondary use gate",
+      "category": "HR & Workplace AI",
+      "subcategory": "Employee Data Protection",
+      "description": "Exit interviews are given on an implicit promise of candour-for-confidentiality; reusing transcripts to score former managers, feed attrition models or brief a departing employee's team is a purpose change that an HR data owner must approve case by case.",
+      "severity": "medium",
+      "decision": "human_approval_required",
+      "route_to": "hr_business_partner",
+      "enabled": true,
+      "critical": false,
+      "allowed_by_native_policy": true,
+      "applicable_industries": ["all"],
+      "applicable_regions": ["SG", "APAC"],
+      "regulatory_references": [
+        "Singapore PDPA s.18 — Purpose Limitation"
+      ],
+      "condition": {
+        "message_contains_any": [
+          "exit interview transcript",
+          "exit interview responses",
+          "exit survey data",
+          "exit interview notes"
+        ]
+      },
+      "risk_modifier": 6,
+      "version": "v1"
+    }
+  ]
+}
