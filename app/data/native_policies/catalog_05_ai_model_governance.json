@@ -28,7 +28,11 @@
           "no explainability report",
           "cannot explain the credit score",
           "decline reason unavailable",
-          "no adverse action notice"
+          "no adverse action notice",
+          "without explainability documentation",
+          "without explainability",
+          "no explainability documentation",
+          "missing explainability documentation"
         ]
       },
       "risk_modifier": 18,

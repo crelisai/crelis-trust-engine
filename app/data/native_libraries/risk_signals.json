@@ -15,6 +15,7 @@
     "external_transfer": {"phrases": ["new beneficiary", "to vendor", "to a vendor", "external account", "third party", "outside account", "to an external"], "derived_from_entities": ["beneficiary"]},
     "large_financial_amount": {"derived_amount_threshold": 10000},
     "vip_customer": {"phrases": ["vip", "priority customer", "premium customer"]},
-    "reputational_risk": {"derived_abusive_and_complaint": true}
+    "reputational_risk": {"derived_abusive_and_complaint": true},
+    "model_governance_gap": {"phrases": ["without explainability", "without explainability documentation", "no explainability documentation", "no explainability report", "without model documentation", "no model documentation", "without independent validation", "skip the validation", "unvalidated model", "no model card", "without reason codes"]}
   }
 }
